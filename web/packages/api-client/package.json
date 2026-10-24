@@ -1,0 +1,18 @@
+{
+  "name": "@cutwire/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "generate": "openapi-typescript ../../../backend/openapi.json -o generated/schema.d.ts",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "lint": "oxlint src"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
