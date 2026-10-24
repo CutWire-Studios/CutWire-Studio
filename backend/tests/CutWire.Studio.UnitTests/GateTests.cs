@@ -185,8 +185,8 @@ public class EnglishGateTests
     public void BundledWordList_KnowsCommonWords()
     {
         foreach (var w in new[] { "the", "glow", "highlights", "slider", "transition", "color" })
-            Drafts.Words.Contains(w).ShouldBeTrue(w);
-        Drafts.Words.Contains("zorblax").ShouldBeFalse();
+            EnglishGate.IsKnown(Drafts.Words, w).ShouldBeTrue(w);
+        EnglishGate.IsKnown(Drafts.Words, "zorblax").ShouldBeFalse();
     }
 
     [Fact]

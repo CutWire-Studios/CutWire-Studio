@@ -6,7 +6,7 @@ namespace CutWire.Studio.Application.Accounts;
 
 public sealed record RemoveAvatarCommand(Guid UserId);
 
-public sealed class RemoveAvatarHandler(IAppDbContext db, IClock clock)
+public sealed class RemoveAvatarHandler(IAppDbContext db, IClock clock, Catalog.BlobReferences refs)
     : ICommandHandler<RemoveAvatarCommand, ProfileDto>
 {
     public async Task<Result<ProfileDto>> Handle(RemoveAvatarCommand command, CancellationToken ct)
@@ -16,8 +16,7 @@ public sealed class RemoveAvatarHandler(IAppDbContext db, IClock clock)
 
         if (profile.SetAvatar(null) is { } previous)
         {
-            var blob = await db.Blobs.FirstOrDefaultAsync(b => b.Id == previous, ct);
-            blob?.Release(clock.UtcNow);
+            await refs.ReleaseAsync(previous, ct);
             await db.SaveChangesAsync(ct);
         }
 

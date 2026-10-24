@@ -2,10 +2,15 @@ using CutWire.Studio.Api.Auth;
 using CutWire.Studio.Api.Http;
 using CutWire.Studio.Application.Abstractions;
 using CutWire.Studio.Application.Catalog;
+using CutWire.Studio.Application.Moderation;
 
 namespace CutWire.Studio.Api.Endpoints;
 
 public sealed record CreateItemRequest(string? Kind, string? Title, string? Summary, string? Description, string? Category, string[]? Tags, string? License);
+
+public sealed record VoteRequest(int? Value);
+
+public sealed record ReportRequest(string? Reason, string? Note);
 
 public sealed record UpdateItemRequest(string? Title, string? Summary, string? Description, string? Category, string[]? Tags, string? License);
 
@@ -16,10 +21,10 @@ public static class ItemEndpoints
         var items = api.MapGroup("/items").WithTags("Items");
 
         items.MapGet("", async (HttpContext http, IQueryHandler<ListItemsQuery, ItemPageDto> handler, CancellationToken ct,
-                string? kind, string? q, string? tags, string? category, string? sort, string? owner, string? status, string? cursor, int? limit) =>
+                string? kind, string? q, string? tags, string? category, string? sort, string? owner, string? status, string? cursor, int? limit, string? period) =>
             {
                 var list = (tags ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                var result = await handler.Handle(new ListItemsQuery(http.ViewerOf(), kind, q, list, category, sort, owner, status, cursor, limit), ct);
+                var result = await handler.Handle(new ListItemsQuery(http.ViewerOf(), kind, q, list, category, sort, owner, status, cursor, limit, period), ct);
                 return result.ToHttpResult(http.JsonWithEtag);
             })
             .WithName("ListItems")
@@ -123,12 +128,51 @@ public static class ItemEndpoints
             .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
+        write.MapPut("{id:guid}/vote", async (Guid id, VoteRequest body, HttpContext http, ICommandHandler<CastVoteCommand, VoteResultDto> handler, CancellationToken ct) =>
+                (await handler.Handle(new CastVoteCommand(id, http.User.GetUserId(), body.Value ?? 0), ct)).ToHttpResult(Results.Ok))
+            .WithName("VoteItem")
+            .RequireRateLimiting(RateLimitingSettings.VotePolicy)
+            .Produces<VoteResultDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        write.MapDelete("{id:guid}/vote", async (Guid id, HttpContext http, ICommandHandler<CastVoteCommand, VoteResultDto> handler, CancellationToken ct) =>
+                (await handler.Handle(new CastVoteCommand(id, http.User.GetUserId(), null), ct)).ToHttpResult(Results.Ok))
+            .WithName("ClearItemVote")
+            .RequireRateLimiting(RateLimitingSettings.VotePolicy)
+            .Produces<VoteResultDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        write.MapPost("{id:guid}/reports", async (Guid id, ReportRequest body, HttpContext http, ICommandHandler<CreateReportCommand, ReportDto> handler, CancellationToken ct) =>
+                (await handler.Handle(new CreateReportCommand(id, http.User.GetUserId(), body.Reason, body.Note), ct))
+                .ToHttpResult(r => Results.Created($"/api/v1/items/{id}", r)))
+            .WithName("ReportItem")
+            .RequireRateLimiting(RateLimitingSettings.ReportPolicy)
+            .Produces<ReportDto>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
         write.MapDelete("{id:guid}", async (Guid id, HttpContext http, ICommandHandler<DeleteItemCommand, Guid> handler, CancellationToken ct) =>
                 (await handler.Handle(new DeleteItemCommand(id, http.User.GetUserId()), ct)).ToHttpResult(_ => Results.NoContent()))
             .WithName("DeleteItem")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
+
+    public static void MapMyItems(this RouteGroupBuilder api) =>
+        api.MapGet("/me/items", async (string? status, string? cursor, int? limit, HttpContext http,
+                IQueryHandler<ListMyItemsQuery, MyItemPageDto> handler, CancellationToken ct) =>
+                (await handler.Handle(new ListMyItemsQuery(http.User.GetUserId(), status, cursor, limit), ct)).ToHttpResult(Results.Ok))
+            .WithName("ListMyItems")
+            .WithTags("Items")
+            .RequireAuthorization(AuthPolicies.Scope("community:publish"))
+            .Produces<MyItemPageDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
     public static void MapUsers(this RouteGroupBuilder api) =>
         api.MapGet("/users/{handle}", async (string handle, string? sort, string? cursor, int? limit, HttpContext http,

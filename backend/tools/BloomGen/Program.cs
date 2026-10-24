@@ -21,8 +21,14 @@ using (var reader = new StreamReader(stream))
     }
 }
 
-words.Sort(StringComparer.Ordinal);
-var filter = BloomFilter.Build(words.Distinct(StringComparer.Ordinal).ToList());
+var original = words.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
+var pruned = WordListPruner.Prune(original);
+var filter = BloomFilter.Build(pruned);
+
+var rejected = WordListPruner.Rejected(original, new BloomFilterWordList(filter));
+if (rejected.Count > 0)
+    throw new InvalidOperationException($"Pruning broke lookup for {rejected.Count} words, e.g. {string.Join(", ", rejected.Take(10))}.");
+Console.WriteLine($"original={original.Count} pruned={pruned.Count} selfCheck=ok");
 var bytes = filter.ToBytes();
 await File.WriteAllBytesAsync(output, bytes);
 Console.WriteLine($"words={filter.WordCount} m={filter.BitCount} k={filter.HashCount} seed=0x{filter.Seed:X8} bytes={bytes.Length} -> {output}");

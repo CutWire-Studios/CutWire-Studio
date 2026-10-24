@@ -700,11 +700,11 @@
     ]
   },
   "englishWordList": {
-    "url": "/api/v1/meta/english-d42ef01d.bloom",
-    "sha256": "d42ef01d2fb145912f8e9c7fc15574bd6fdc108d0002c2601bc6c15aebf8fe08",
-    "bytes": 334816,
-    "words": 279198,
-    "bits": 2678336,
+    "url": "/api/v1/meta/english-e8189d8d.bloom",
+    "sha256": "e8189d8d39856013f2e2da979cbf69045285f0c6fe555083fb20be83a743fee6",
+    "bytes": 229288,
+    "words": 191193,
+    "bits": 1834112,
     "hashCount": 7,
     "seed": 12648430
   }

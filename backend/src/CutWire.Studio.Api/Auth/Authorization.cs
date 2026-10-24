@@ -47,7 +47,7 @@ public sealed class StudioPolicyProvider(IOptions<AuthorizationOptions> options)
         if (policyName.StartsWith(AuthPolicies.RolePrefix, StringComparison.Ordinal))
             return new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .RequireRole(policyName[AuthPolicies.RolePrefix.Length..])
+                .RequireRole(policyName[AuthPolicies.RolePrefix.Length..].Split(',', StringSplitOptions.RemoveEmptyEntries))
                 .Build();
 
         return await base.GetPolicyAsync(policyName);

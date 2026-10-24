@@ -13,15 +13,26 @@ public sealed class RateLimitingSettings
     public const string Section = "RateLimiting";
     public const string DefaultPolicy = "default";
     public const string StrictPolicy = "strict";
+    public const string VotePolicy = "vote";
+    public const string ReportPolicy = "report";
 
     public int PermitLimit { get; set; } = 120;
     public TimeSpan Window { get; set; } = TimeSpan.FromMinutes(1);
     public int StrictPermitLimit { get; set; } = 10;
     public TimeSpan StrictWindow { get; set; } = TimeSpan.FromMinutes(5);
+    public int VotePermitLimit { get; set; } = 30;
+    public TimeSpan VoteWindow { get; set; } = TimeSpan.FromMinutes(1);
+    public int ReportPermitLimit { get; set; } = 10;
+    public TimeSpan ReportWindow { get; set; } = TimeSpan.FromMinutes(10);
 }
 
 public static class HttpExtensions
 {
+    private static string UserOrIp(HttpContext http) =>
+        http.User.Identity?.IsAuthenticated == true && http.User.FindFirst("sub")?.Value is { } sub
+            ? "u:" + sub
+            : "ip:" + (http.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+
     public static IServiceCollection AddStudioHttp(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddProblemDetails(o => o.CustomizeProblemDetails = ctx =>
@@ -65,6 +76,26 @@ public static class HttpExtensions
                         Window = settings.StrictWindow,
                         QueueLimit = 0,
                     });
+            });
+            o.AddPolicy(RateLimitingSettings.VotePolicy, http =>
+            {
+                var settings = http.RequestServices.GetRequiredService<IOptions<RateLimitingSettings>>().Value;
+                return RateLimitPartition.GetFixedWindowLimiter(UserOrIp(http), _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = settings.VotePermitLimit,
+                    Window = settings.VoteWindow,
+                    QueueLimit = 0,
+                });
+            });
+            o.AddPolicy(RateLimitingSettings.ReportPolicy, http =>
+            {
+                var settings = http.RequestServices.GetRequiredService<IOptions<RateLimitingSettings>>().Value;
+                return RateLimitPartition.GetFixedWindowLimiter(UserOrIp(http), _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = settings.ReportPermitLimit,
+                    Window = settings.ReportWindow,
+                    QueueLimit = 0,
+                });
             });
             o.OnRejected = async (ctx, ct) =>
             {

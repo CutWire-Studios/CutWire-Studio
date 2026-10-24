@@ -25,6 +25,7 @@ internal static class OpenApiFixes
                 ["code"] = new OpenApiSchema { Type = JsonSchemaType.String },
                 ["message"] = new OpenApiSchema { Type = JsonSchemaType.String },
                 ["params"] = new OpenApiSchema { Type = JsonSchemaType.Object | JsonSchemaType.Null, AdditionalProperties = new OpenApiSchema() },
+                ["severity"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [System.Text.Json.Nodes.JsonValue.Create("block")!, System.Text.Json.Nodes.JsonValue.Create("flag")!] },
             },
         };
 

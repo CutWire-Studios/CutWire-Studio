@@ -18,7 +18,8 @@ public sealed record FieldViolation(
     string Field,
     string Code,
     string Message,
-    IReadOnlyDictionary<string, object>? Params = null);
+    IReadOnlyDictionary<string, object>? Params = null,
+    string Severity = "block");
 
 public sealed record Error(
     string Code,

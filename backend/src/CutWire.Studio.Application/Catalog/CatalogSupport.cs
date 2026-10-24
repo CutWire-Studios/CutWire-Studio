@@ -15,14 +15,27 @@ public interface IItemTextSearch
     IQueryable<Item> Apply(IQueryable<Item> items, string text);
 }
 
-/// <summary>Maintains <c>blobs.ref_count</c> for every row that references a blob.</summary>
+/// <summary>
+/// Maintains <c>blobs.ref_count</c> for every row that references a blob. Each change is a single atomic UPDATE, so concurrent
+/// writers never lose an increment; it runs immediately, not with the next <c>SaveChanges</c>.
+/// </summary>
 public sealed class BlobReferences(IAppDbContext db, IClock clock)
 {
-    public async Task AddAsync(Sha256Hash hash, CancellationToken ct) =>
-        (await db.Blobs.FirstAsync(b => b.Id == hash, ct)).AddRef();
+    public async Task AddAsync(Sha256Hash hash, CancellationToken ct)
+    {
+        var updated = await db.Blobs.Where(b => b.Id == hash).ExecuteUpdateAsync(s => s
+            .SetProperty(b => b.RefCount, b => b.RefCount + 1)
+            .SetProperty(b => b.ZeroRefSince, (DateTimeOffset?)null), ct);
+        if (updated == 0) throw new InvalidOperationException($"Blob {hash} does not exist.");
+    }
 
-    public async Task ReleaseAsync(Sha256Hash hash, CancellationToken ct) =>
-        (await db.Blobs.FirstOrDefaultAsync(b => b.Id == hash, ct))?.Release(clock.UtcNow);
+    public async Task ReleaseAsync(Sha256Hash hash, CancellationToken ct)
+    {
+        var now = clock.UtcNow;
+        await db.Blobs.Where(b => b.Id == hash && b.RefCount > 0).ExecuteUpdateAsync(s => s
+            .SetProperty(b => b.ZeroRefSince, b => b.RefCount == 1 ? now : b.ZeroRefSince)
+            .SetProperty(b => b.RefCount, b => b.RefCount - 1), ct);
+    }
 }
 
 public static class Slugs
@@ -117,6 +130,7 @@ public static class ItemMapper
             driftInstallKind = info.DriftInstallKind,
             minAppVersion = info.MinAppVersion,
             fileCount = info.Files.Count,
+            hasForgeJson = info.Files.Any(f => f.Path.Equals("forge.json", StringComparison.OrdinalIgnoreCase)),
         }));
         return doc.RootElement.Clone();
     }

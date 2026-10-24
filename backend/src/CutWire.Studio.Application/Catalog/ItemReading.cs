@@ -25,9 +25,10 @@ public sealed record ListItemsQuery(
     string? OwnerHandle,
     string? Status,
     string? Cursor,
-    int? Limit);
+    int? Limit,
+    string? Period = null);
 
-public sealed class ListItemsHandler(IAppDbContext db, IItemTextSearch search) : IQueryHandler<ListItemsQuery, ItemPageDto>
+public sealed class ListItemsHandler(IAppDbContext db, IItemTextSearch search, IClock clock) : IQueryHandler<ListItemsQuery, ItemPageDto>
 {
     public const int DefaultLimit = 24;
     public const int MaxLimit = 50;
@@ -36,12 +37,14 @@ public sealed class ListItemsHandler(IAppDbContext db, IItemTextSearch search) :
 
     private sealed record Row(Guid Id, string Kind, string Slug, string Title, string Summary, string Handle, string DisplayName,
         Domain.Blobs.Sha256Hash? Avatar, double Up, double Down, double Wilson, double Hot, long Downloads, DateTimeOffset? PublishedAt,
-        DateTimeOffset SortTime, ItemStatus Status);
+        DateTimeOffset SortTime, ItemStatus Status, Guid OwnerId, string? Reason);
 
     public async Task<Result<ItemPageDto>> Handle(ListItemsQuery query, CancellationToken ct)
     {
         var sort = ParseSort(query.Sort);
         if (sort is null) return Bad("sort", "Sort must be one of top, trending, new, downloads.");
+        var periodStart = ParsePeriod(query.Period, clock.UtcNow, out var validPeriod);
+        if (!validPeriod) return Bad("period", "Period must be one of day, week, month, year, all.");
 
         var statuses = new List<ItemStatus> { ItemStatus.Published };
         var owner = query.OwnerHandle is { Length: > 0 } handle
@@ -60,6 +63,7 @@ public sealed class ListItemsHandler(IAppDbContext db, IItemTextSearch search) :
 
         IQueryable<Item> items = db.Items.AsNoTracking().Where(i => statuses.Contains(i.Status));
         if (owner is not null) items = items.Where(i => i.OwnerId == owner.Id);
+        if (periodStart is { } since) items = items.Where(i => i.PublishedAt >= since);
         if (query.Kind is { Length: > 0 })
         {
             if (!AssetKindId.TryParse(query.Kind, out var kind)) return new ItemPageDto([], null);
@@ -106,7 +110,7 @@ public sealed class ListItemsHandler(IAppDbContext db, IItemTextSearch search) :
         var limit = Math.Clamp(query.Limit ?? DefaultLimit, 1, MaxLimit);
         var rows = await ordered.Take(limit + 1).Select(i => new Row(i.Id, i.Kind.Value, i.Slug, i.Title, i.Summary, i.Owner.Handle,
             i.Owner.DisplayName, i.Owner.AvatarSha256, i.ScoreUp, i.ScoreDown, i.WilsonScore, i.HotScore, i.DownloadsTotal, i.PublishedAt,
-            i.PublishedAt ?? i.CreatedAt, i.Status)).ToListAsync(ct);
+            i.PublishedAt ?? i.CreatedAt, i.Status, i.OwnerId, i.VisibilityReason)).ToListAsync(ct);
 
         string? next = null;
         if (rows.Count > limit)
@@ -118,15 +122,38 @@ public sealed class ListItemsHandler(IAppDbContext db, IItemTextSearch search) :
         }
 
         var ids = rows.Select(r => r.Id).ToList();
-        var thumbs = (await db.ItemMedia.AsNoTracking().Where(m => ids.Contains(m.ItemId) && m.Role == MediaRole.Thumbnail)
-            .Select(m => new { m.ItemId, m.BlobSha256 }).ToListAsync(ct)).ToDictionary(m => m.ItemId, m => m.BlobSha256);
+        var thumbs = (await db.ItemMedia.AsNoTracking().Where(m => ids.Contains(m.ItemId) && (m.Role == MediaRole.Thumbnail || m.Role == MediaRole.PreviewStrip))
+            .Select(m => new { m.ItemId, m.Role, m.BlobSha256 }).ToListAsync(ct)).ToList();
         var tags = (await db.ItemTags.AsNoTracking().Where(t => ids.Contains(t.ItemId)).Select(t => new { t.ItemId, t.Tag.Slug }).ToListAsync(ct))
             .GroupBy(t => t.ItemId).ToDictionary(g => g.Key, g => (IReadOnlyList<string>)g.Select(t => t.Slug).Order(StringComparer.Ordinal).ToList());
 
+        var votes = query.Viewer.UserId is { } viewerId
+            ? await db.Votes.AsNoTracking().Where(v => v.UserId == viewerId && ids.Contains(v.ItemId)).ToDictionaryAsync(v => v.ItemId, v => v.Value, ct)
+            : [];
+
         return new ItemPageDto(rows.Select(r => new ItemCardDto(r.Id, r.Kind, r.Slug, r.Title, r.Summary,
             new OwnerDto(r.Handle, r.DisplayName, r.Avatar is { } a ? ItemMapper.FileUrl(a) : null),
-            thumbs.TryGetValue(r.Id, out var t) ? ItemMapper.FileUrl(t) : null, r.Up - r.Down, r.Downloads,
-            tags.GetValueOrDefault(r.Id) ?? [], r.PublishedAt, r.Status.ToKey())).ToList(), next);
+            thumbs.FirstOrDefault(m => m.ItemId == r.Id && m.Role == MediaRole.Thumbnail) is { } t ? ItemMapper.FileUrl(t.BlobSha256) : null, r.Up - r.Down, r.Downloads,
+            tags.GetValueOrDefault(r.Id) ?? [], r.PublishedAt, r.Status.ToKey(),
+            query.Viewer.UserId is null ? null : votes.TryGetValue(r.Id, out var vote) ? vote : null,
+            thumbs.FirstOrDefault(m => m.ItemId == r.Id && m.Role == MediaRole.PreviewStrip) is { } strip ? ItemMapper.FileUrl(strip.BlobSha256) : null,
+            query.Viewer.IsModerator || r.OwnerId == query.Viewer.UserId ? r.Reason : null)).ToList(), next);
+    }
+
+    private static DateTimeOffset? ParsePeriod(string? value, DateTimeOffset now, out bool valid)
+    {
+        valid = true;
+        switch (value?.ToLowerInvariant())
+        {
+            case null or "" or "all": return null;
+            case "day": return now.AddDays(-1);
+            case "week": return now.AddDays(-7);
+            case "month": return now.AddMonths(-1);
+            case "year": return now.AddYears(-1);
+            default:
+                valid = false;
+                return null;
+        }
     }
 
     private static ItemSort? ParseSort(string? value) => value?.ToLowerInvariant() switch
@@ -178,7 +205,15 @@ public sealed class GetItemHandler(IAppDbContext db) : IQueryHandler<GetItemQuer
 
         var detail = ItemMapper.Detail(item!, item!.Owner);
         var privileged = q.Viewer.IsModerator || item.OwnerId == q.Viewer.UserId;
-        return privileged ? detail : detail with { VisibilityReason = null };
+        int? viewerVote = q.Viewer.UserId is { } viewerId
+            ? await db.Votes.AsNoTracking().Where(v => v.ItemId == item.Id && v.UserId == viewerId).Select(v => (int?)v.Value).FirstOrDefaultAsync(ct)
+            : null;
+        detail = detail with { ViewerVote = viewerVote };
+        if (!privileged) return detail with { VisibilityReason = null };
+        var purgeAt = item.Status == ItemStatus.Hidden
+            ? await db.CleanupSchedules.AsNoTracking().Where(c => c.ItemId == item.Id).Select(c => (DateTimeOffset?)c.PurgeAt).FirstOrDefaultAsync(ct)
+            : null;
+        return detail with { PurgeAt = purgeAt };
     }
 }
 

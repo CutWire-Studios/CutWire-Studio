@@ -53,7 +53,7 @@ Package validation (`IAssetKind.ValidateAsync`) is separate, see `asset-kinds.md
 
 ## Data sources
 
-- `backend/tools/BloomGen/data/english-words.txt.gz`: en_US and en_GB hunspell dictionaries expanded with `unmunch`, lowercase ASCII letters only, merged and sorted (279,198 words). It is only the generator input and is not embedded.
+- `backend/tools/BloomGen/data/english-words.txt.gz`: en_US and en_GB hunspell dictionaries expanded with `unmunch`, lowercase ASCII letters only, merged and sorted (279,198 words). It is only the generator input and is not embedded. The generator prunes words that suffix normalisation already reaches from a shorter kept word (191,193 words remain, 229 KB filter) and self-checks that every original word still passes lookup-with-normalisation.
 - `Application/Quality/Resources/english.bloom`: the embedded Bloom filter built from it (below). Regenerate with `dotnet run --project backend/tools/BloomGen`; a unit test fails when the embedded file differs from a fresh build.
 - `tech-terms.txt` (allowlist) and `profanity.txt` (denylist) next to it. Both are served in `/api/v1/meta/quality-rules` (`text.techTerms`, `text.profanity`) so the client does not hard-code them, together with the link regex (`text.linkPattern`, case-insensitive) and the title run limits.
 - `IDuplicateLookup` and `IUploadQuota` are implemented in `Infrastructure/Catalog`. Package, thumbnail and title duplicates only consider `published` and `hidden` items, so two drafts cannot block each other; the item being checked is excluded. The thumbnail check is `bit_count((dhash # $1)::bit(64)) <= 6` (a sequential scan, fine for thousands of items). The quota counts items the owner published in the last 24 hours, including ones since removed.

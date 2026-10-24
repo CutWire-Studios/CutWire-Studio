@@ -26,4 +26,6 @@ public sealed class ItemFlag : Entity<Guid>
     public JsonElement Params { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? ResolvedAt { get; private set; }
+
+    public void Resolve(DateTimeOffset now) => ResolvedAt = now;
 }

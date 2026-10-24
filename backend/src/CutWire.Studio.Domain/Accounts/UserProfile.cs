@@ -38,6 +38,8 @@ public sealed class UserProfile : Entity<Guid>
         IsPermanentlyBanned = permanent;
     }
 
+    public void SetTrustLevel(TrustLevel level) => TrustLevel = level;
+
     public void Update(string handle, string displayName, string bio)
     {
         Handle = handle;

@@ -10,6 +10,7 @@ public sealed record SetAvatarCommand(Guid UserId, Stream Content);
 public sealed class SetAvatarHandler(
     IAppDbContext db,
     IClock clock,
+    Catalog.BlobReferences refs,
     IImageInspector inspector,
     ICommandHandler<StoreBlobCommand, StoreBlobResult> storeBlob) : ICommandHandler<SetAvatarCommand, ProfileDto>
 {
@@ -39,19 +40,11 @@ public sealed class SetAvatarHandler(
 
         if (profile.AvatarSha256 != stored.Value.Hash)
         {
-            var blob = await db.Blobs.FirstAsync(b => b.Id == stored.Value.Hash, ct);
-            blob.AddRef();
-            await ReleaseAsync(profile.SetAvatar(blob.Id), ct);
+            await refs.AddAsync(stored.Value.Hash, ct);
+            if (profile.SetAvatar(stored.Value.Hash) is { } previous) await refs.ReleaseAsync(previous, ct);
             await db.SaveChangesAsync(ct);
         }
 
         return ProfileDto.From(profile, clock.UtcNow);
-    }
-
-    private async Task ReleaseAsync(Domain.Blobs.Sha256Hash? previous, CancellationToken ct)
-    {
-        if (previous is not { } hash) return;
-        var old = await db.Blobs.FirstOrDefaultAsync(b => b.Id == hash, ct);
-        old?.Release(clock.UtcNow);
     }
 }

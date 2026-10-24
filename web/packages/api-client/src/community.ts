@@ -159,7 +159,7 @@ export const community = {
     dismissReport: (id: string, reason?: string) => send("POST", `/mod/reports/${enc(id)}/dismiss`, { reason }),
     upholdReport: (id: string, reason?: string) => send("POST", `/mod/reports/${enc(id)}/uphold`, { reason }),
     resolveFlag: (id: string, reason?: string) => send("POST", `/mod/flags/${enc(id)}/resolve`, { reason }),
-    users: (q: string) => api<ModUser[]>(`/mod/users${qs({ q })}`),
+    users: (q: string) => api<{ users: ModUser[]; nextCursor: string | null }>(`/mod/users${qs({ q })}`).then((p) => p.users),
     ban: (id: string, b: { reason: string; until?: string | null }) => send("POST", `/mod/users/${enc(id)}/ban`, b),
     unban: (id: string, reason?: string) => send("POST", `/mod/users/${enc(id)}/unban`, { reason }),
     trust: (id: string, level: string, reason?: string) => send("POST", `/mod/users/${enc(id)}/trust`, { level, reason }),

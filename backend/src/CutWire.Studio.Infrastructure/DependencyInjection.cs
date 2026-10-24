@@ -1,5 +1,6 @@
 using CutWire.Studio.Application.Abstractions;
 using CutWire.Studio.Application.Catalog;
+using CutWire.Studio.Application.Moderation;
 using CutWire.Studio.Application.Quality;
 using CutWire.Studio.Infrastructure.Catalog;
 using CutWire.Studio.Infrastructure.Blobs;
@@ -42,6 +43,15 @@ public static class DependencyInjection
 
         services.AddOptions<DownloadRollupOptions>().Bind(configuration.GetSection(DownloadRollupOptions.Section));
         services.AddSingleton<IRecurringJob, DownloadRollupJob>();
+
+        services.AddOptions<ModerationJobsOptions>().Bind(configuration.GetSection(ModerationJobsOptions.Section));
+        services.AddOptions<ModerationOptions>().Bind(configuration.GetSection(ModerationOptions.Section));
+        services.AddSingleton<IRecurringJob, CleanupPurgeJob>();
+        services.AddSingleton<IRecurringJob, TrustLevelJob>();
+        services.AddSingleton<IRecurringJob, HotScoreDecayJob>();
+        services.AddSingleton<IRecurringJob, DownloadEventsPruneJob>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
+        services.AddScoped<ISimilarItemFinder, SimilarItemFinder>();
 
         services.AddContentPipeline(configuration);
         services.AddSingleton<IItemTextSearch, PostgresItemTextSearch>();

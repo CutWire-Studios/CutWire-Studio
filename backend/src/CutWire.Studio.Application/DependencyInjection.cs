@@ -18,6 +18,12 @@ public static class DependencyInjection
 
         services.AddScoped<Catalog.BlobReferences>();
         services.AddScoped<Catalog.PackageIntake>();
+        services.AddScoped<Moderation.AuditLog>();
+        services.AddScoped<Moderation.AutoHideService>();
+        services.AddScoped<Moderation.ItemRemoval>();
+        services.AddScoped<Moderation.ModerationActions>();
+        services.AddScoped<Moderation.ModerationQueries>();
+        services.AddScoped<Moderation.ModerationMaintenance>();
 
         return services;
     }

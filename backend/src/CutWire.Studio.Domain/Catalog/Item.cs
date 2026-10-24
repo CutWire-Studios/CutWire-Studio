@@ -124,9 +124,25 @@ public sealed class Item : Entity<Guid>
         UpdatedAt = now;
     }
 
-    public void MarkRemoved(DateTimeOffset now)
+    public void Hide(string reason, DateTimeOffset now)
+    {
+        Status = ItemStatus.Hidden;
+        VisibilityReason = reason;
+        UpdatedAt = now;
+    }
+
+    public void Restore(DateTimeOffset now)
+    {
+        Status = ItemStatus.Published;
+        VisibilityReason = null;
+        UpdatedAt = now;
+        RecomputeScores(now);
+    }
+
+    public void MarkRemoved(DateTimeOffset now, string? reason = null)
     {
         Status = ItemStatus.Removed;
+        VisibilityReason = reason;
         CurrentVersionId = null;
         _versions.Clear();
         _media.Clear();

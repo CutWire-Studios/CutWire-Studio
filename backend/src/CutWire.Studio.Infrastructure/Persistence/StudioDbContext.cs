@@ -2,10 +2,12 @@ using CutWire.Studio.Application.Abstractions;
 using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
+using CutWire.Studio.Domain.Moderation;
 using CutWire.Studio.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using OpenIddict.EntityFrameworkCore.Models;
 
 namespace CutWire.Studio.Infrastructure.Persistence;
@@ -24,6 +26,13 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     public DbSet<ItemFlag> ItemFlags => Set<ItemFlag>();
     public DbSet<DownloadEvent> DownloadEvents => Set<DownloadEvent>();
     public DbSet<ItemDownloadDaily> ItemDownloadDaily => Set<ItemDownloadDaily>();
+
+    public DbSet<Vote> Votes => Set<Vote>();
+    public DbSet<Report> Reports => Set<Report>();
+    public DbSet<ModerationAction> ModerationActions => Set<ModerationAction>();
+    public DbSet<CleanupSchedule> CleanupSchedules => Set<CleanupSchedule>();
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct) => Database.BeginTransactionAsync(ct);
 
     public Task<bool> CanConnectAsync(CancellationToken ct) => Database.CanConnectAsync(ct);
 

@@ -13,6 +13,9 @@ public static class AuthPolicies
     public const string ScopePrefix = "scope:";
     public const string RolePrefix = "role:";
 
+    /// <summary>Moderators and admins (admins are not implicitly moderators in Identity).</summary>
+    public static readonly string Moderation = Role("moderator,admin");
+
     public static string Scope(string scope) => ScopePrefix + scope;
     public static string Role(string role) => RolePrefix + role;
 }

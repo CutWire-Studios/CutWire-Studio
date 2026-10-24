@@ -141,16 +141,26 @@ public class BloomTests
     [Fact]
     public void EmbeddedFilter_IsDeterministicBuildOfSourceList()
     {
-        var rebuilt = BloomFilter.Build(SourceWords()).ToBytes();
+        var rebuilt = BloomFilter.Build(WordListPruner.Prune(SourceWords())).ToBytes();
         var embedded = new BloomWordList().Bytes;
         rebuilt.ShouldBe(embedded);
     }
 
     [Fact]
-    public void EmbeddedFilter_ContainsEverySourceWord()
+    public void EmbeddedFilter_AcceptsEverySourceWord_WithNormalisation()
     {
         var list = new BloomWordList();
-        SourceWords().Where(w => !list.Contains(w)).ShouldBeEmpty();
+        WordListPruner.Rejected(SourceWords(), list).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Prune_KeepsStemsOnly_AndPreservesLookup()
+    {
+        var words = new[] { "walk", "walks", "walked", "walking", "walkings", "carry", "carries", "carried", "big", "bigger", "biggest", "glow", "flies" };
+        var pruned = WordListPruner.Prune(words);
+
+        pruned.ShouldBe(["big", "carry", "flies", "glow", "walk", "walkings"]);
+        WordListPruner.Rejected(words, new SetWordList(pruned)).ShouldBeEmpty();
     }
 
     [Fact]

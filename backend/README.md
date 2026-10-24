@@ -27,6 +27,13 @@ Write endpoints need a cookie session or a bearer with `community:publish`, and 
 
 List and detail responses carry weak ETags. `Downloads:IpHashKey` is the HMAC key for stored IP hashes (set it in production). The `download-rollup` job (`DownloadRollup:Interval`, default 10 minutes) counts distinct downloaders per item per UTC day and refreshes `downloads_total`. `/files/{sha}?name=` adds a sanitised `Content-Disposition: attachment` filename. Tags are seeded from `asset-kinds.json` at startup. Gate and error details are in `../docs/quality-gates.md`.
 
+## Votes, reports and moderation
+
+- `PUT|DELETE /items/{id}/vote {value: 1|-1}`, `POST /items/{id}/reports {reason, note?}` (reasons: spam, low_quality, broken, offensive, copyright, malware, other), `GET /me/items?status=`. Vote weight is 0.5 for T0 accounts younger than 3 days, else 1; unverified emails cannot vote. Votes and reports are rate limited per user (`RateLimiting:VotePermitLimit/VoteWindow`, `ReportPermitLimit/ReportWindow`).
+- Auto-hide (`Moderation` section): weighted downvotes >= 8 and share >= 0.7, or >= 3 open reports from distinct T1+ users; hidden items get a `cleanup_schedule` row 14 days out.
+- `/mod/*` (moderator or admin): `GET queue?type=reported|hidden|flagged`, `GET audit?actor=&target=`, `GET users?q=`, `POST items/{id}/restore|remove|schedule-purge`, `POST items/bulk {ids, action, reason, days?}`, `POST reports/{id}/dismiss|uphold`, `POST flags/{id}/resolve`, `POST users/{id}/ban|unban|trust`, `POST users/{id}/roles {moderator}` (admin only). Every action writes `moderation_actions`.
+- Jobs: `cleanup-purge` (15 min; also restores `owner_banned` items after a temporary ban ends), `trust-levels` (24 h), `hot-score-decay` (1 h), `download-events-prune` (24 h, 90 days), configured under `ModerationJobs`.
+
 ## Run (dev)
 
 ```sh

@@ -16,7 +16,10 @@ public sealed record ItemCardDto(
     long Downloads,
     IReadOnlyList<string> Tags,
     DateTimeOffset? PublishedAt,
-    string Status);
+    string Status,
+    int? ViewerVote = null,
+    string? PreviewStripUrl = null,
+    string? VisibilityReason = null);
 
 public sealed record ItemPageDto(IReadOnlyList<ItemCardDto> Items, string? NextCursor);
 
@@ -58,7 +61,8 @@ public sealed record ItemDetailDto(
     IReadOnlyList<ItemVersionDto> Versions,
     IReadOnlyList<ItemMediaDto> Media,
     JsonElement KindMeta,
-    int? ViewerVote);
+    int? ViewerVote,
+    DateTimeOffset? PurgeAt = null);
 
 public sealed record UserProfileDto(
     string Handle,

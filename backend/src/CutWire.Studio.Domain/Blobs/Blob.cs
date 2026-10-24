@@ -26,10 +26,4 @@ public sealed class Blob : Entity<Sha256Hash>
         RefCount++;
         ZeroRefSince = null;
     }
-
-    public void Release(DateTimeOffset now)
-    {
-        if (RefCount == 0) return;
-        if (--RefCount == 0) ZeroRefSince = now;
-    }
 }

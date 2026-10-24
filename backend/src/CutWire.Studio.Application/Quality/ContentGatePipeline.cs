@@ -44,5 +44,5 @@ public sealed class ContentGatePipeline(IEnumerable<IContentGate> gates)
 
     public static Error ToError(IEnumerable<GateViolation> blocking) =>
         Error.Unprocessable("content_rejected", "The submission does not meet the quality rules.",
-            blocking.Select(v => new FieldViolation(v.Field, v.Code, v.Message, v.Params)).ToList());
+            blocking.Select(v => new FieldViolation(v.Field, v.Code, v.Message, v.Params, v.Severity.ToString().ToLowerInvariant())).ToList());
 }

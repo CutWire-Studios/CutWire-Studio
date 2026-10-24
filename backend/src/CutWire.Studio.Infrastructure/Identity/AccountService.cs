@@ -21,6 +21,7 @@ public sealed class AccountService(
     PublicUrl publicUrl,
     BootstrapAdmin bootstrapAdmin,
     IClock clock,
+    CutWire.Studio.Application.Catalog.BlobReferences blobRefs,
     IOpenIddictAuthorizationManager authorizations,
     IOpenIddictTokenManager tokens)
 {
@@ -246,7 +247,7 @@ public sealed class AccountService(
 
         var profile = await db.UserProfiles.FirstOrDefaultAsync(p => p.Id == userId, ct);
         if (profile?.Anonymize($"deleted-{userId:N}"[..16], now) is { } avatar)
-            (await db.Blobs.FirstOrDefaultAsync(b => b.Id == avatar, ct))?.Release(now);
+            await blobRefs.ReleaseAsync(avatar, ct);
 
         foreach (var pat in await db.PersonalAccessTokens.Where(t => t.UserId == userId).ToListAsync(ct)) pat.Revoke(now);
         await db.SaveChangesAsync(ct);

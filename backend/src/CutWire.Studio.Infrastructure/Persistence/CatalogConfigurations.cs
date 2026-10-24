@@ -1,5 +1,6 @@
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
+using CutWire.Studio.Domain.Moderation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NpgsqlTypes;
@@ -163,5 +164,65 @@ internal sealed class ItemDownloadDailyConfiguration : IEntityTypeConfiguration<
         builder.ToTable("item_download_daily");
         builder.HasKey(d => new { d.ItemId, d.Day });
         builder.HasOne<Item>().WithMany().HasForeignKey(d => d.ItemId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class VoteConfiguration : IEntityTypeConfiguration<Vote>
+{
+    public void Configure(EntityTypeBuilder<Vote> builder)
+    {
+        builder.ToTable("votes", t => t.HasCheckConstraint("ck_votes_value", "value in (-1, 1)"));
+        builder.HasKey(v => new { v.ItemId, v.UserId });
+        builder.HasOne<Item>().WithMany().HasForeignKey(v => v.ItemId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<Domain.Accounts.UserProfile>().WithMany().HasForeignKey(v => v.UserId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(v => v.UserId);
+    }
+}
+
+internal sealed class ReportConfiguration : IEntityTypeConfiguration<Report>
+{
+    public void Configure(EntityTypeBuilder<Report> builder)
+    {
+        builder.ToTable("reports");
+        builder.HasKey(r => r.Id);
+        builder.Property(r => r.Id).ValueGeneratedNever();
+        builder.HasOne<Item>().WithMany().HasForeignKey(r => r.ItemId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<Domain.Accounts.UserProfile>().WithMany().HasForeignKey(r => r.ReporterId).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(r => r.Reason).HasMaxLength(24).HasConversion(r => r.ToKey(), s => ParseReason(s));
+        builder.Property(r => r.Note).HasMaxLength(Report.MaxNoteLength);
+        builder.Property(r => r.Status).HasMaxLength(12).HasConversion(s => s.ToString().ToLowerInvariant(), s => Enum.Parse<ReportStatus>(s, true));
+        builder.HasIndex(r => new { r.ItemId, r.ReporterId }).IsUnique().HasFilter("status = 'open'").HasDatabaseName("ux_reports_open_per_user");
+        builder.HasIndex(r => new { r.Status, r.CreatedAt });
+    }
+
+    private static ReportReason ParseReason(string key) =>
+        ReportReasonExtensions.TryParse(key, out var reason) ? reason : throw new InvalidOperationException($"Unknown report reason '{key}'.");
+}
+
+internal sealed class ModerationActionConfiguration : IEntityTypeConfiguration<ModerationAction>
+{
+    public void Configure(EntityTypeBuilder<ModerationAction> builder)
+    {
+        builder.ToTable("moderation_actions");
+        builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id).ValueGeneratedNever();
+        builder.Property(a => a.Action).HasMaxLength(40).IsRequired();
+        builder.Property(a => a.TargetType).HasMaxLength(16).IsRequired();
+        builder.Property(a => a.Reason).HasMaxLength(500);
+        builder.Property(a => a.Details).HasColumnType("jsonb");
+        builder.HasIndex(a => a.ActorId);
+        builder.HasIndex(a => a.TargetId);
+        builder.HasIndex(a => a.ItemId);
+    }
+}
+
+internal sealed class CleanupScheduleConfiguration : IEntityTypeConfiguration<CleanupSchedule>
+{
+    public void Configure(EntityTypeBuilder<CleanupSchedule> builder)
+    {
+        builder.ToTable("cleanup_schedule");
+        builder.HasKey(c => c.ItemId);
+        builder.HasOne<Item>().WithMany().HasForeignKey(c => c.ItemId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(c => c.PurgeAt);
     }
 }
