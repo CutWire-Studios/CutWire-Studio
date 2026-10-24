@@ -1,0 +1,19 @@
+{
+  "name": "high-contrast",
+  "schemaVersion": 1,
+  "extends": "dark",
+  "variant": "dark",
+  "palette": {
+    "appBackground": "#000000",
+    "foreground": "#ffffff",
+    "border": "#ffffff",
+    "panelBackground": "#000000",
+    "panelForeground": "#ffffff",
+    "panelBorder": "#ffffff",
+    "accent": "#1a1a1a",
+    "accentForeground": "#ffffff",
+    "mutedForeground": "#ffffff",
+    "primary": "#ffff00",
+    "accentOnPanel": "#ffff00"
+  }
+}

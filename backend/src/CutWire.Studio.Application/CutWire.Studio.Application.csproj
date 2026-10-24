@@ -3,4 +3,7 @@
     <ProjectReference Include="..\CutWire.Studio.Domain\CutWire.Studio.Domain.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Quality\Resources\*" />
+  </ItemGroup>
 </Project>

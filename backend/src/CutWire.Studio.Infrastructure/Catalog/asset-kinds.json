@@ -1,0 +1,405 @@
+{
+  "effect": {
+    "displayName": "Effect",
+    "extensions": [
+      ".driftfx"
+    ],
+    "maxPackageBytes": 2097152,
+    "maxUnpackedBytes": 8388608,
+    "enabled": true,
+    "categories": [
+      "color",
+      "glitch",
+      "retro",
+      "dreamy",
+      "impact",
+      "artistic",
+      "funny",
+      "blurs",
+      "keying",
+      "props",
+      "depth",
+      "beauty"
+    ],
+    "tags": [
+      "anime",
+      "beauty",
+      "blur",
+      "bokeh",
+      "chromatic",
+      "comic",
+      "contrast",
+      "cool",
+      "distortion",
+      "dream",
+      "duotone",
+      "film",
+      "flash",
+      "glitch",
+      "glow",
+      "grain",
+      "mirror",
+      "neon",
+      "noir",
+      "pastel",
+      "pixel",
+      "retro",
+      "shake",
+      "sketch",
+      "vhs",
+      "vibrant",
+      "vignette",
+      "warm",
+      "wave",
+      "zoom"
+    ],
+    "media": [
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  },
+  "transition": {
+    "displayName": "Transition",
+    "extensions": [
+      ".driftfx"
+    ],
+    "maxPackageBytes": 2097152,
+    "maxUnpackedBytes": 8388608,
+    "enabled": true,
+    "categories": [
+      "basic",
+      "geometric",
+      "distortion",
+      "liquid",
+      "stylized",
+      "glitch",
+      "cinematic"
+    ],
+    "tags": [
+      "blur",
+      "bounce",
+      "burn",
+      "cube",
+      "dissolve",
+      "fade",
+      "film",
+      "flash",
+      "flip",
+      "fold",
+      "glitch",
+      "iris",
+      "light-leak",
+      "liquid",
+      "mosaic",
+      "neon",
+      "pixel",
+      "push",
+      "quick",
+      "ripple",
+      "shake",
+      "shatter",
+      "slide",
+      "smooth",
+      "spin",
+      "stretch",
+      "swipe",
+      "whip",
+      "wipe",
+      "zoom"
+    ],
+    "media": [
+      {
+        "role": "preview-strip",
+        "required": true,
+        "width": 1536,
+        "height": 128,
+        "maxBytes": 81920
+      },
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  },
+  "audio-effect": {
+    "displayName": "Audio effect",
+    "extensions": [
+      ".driftfx"
+    ],
+    "maxPackageBytes": 2097152,
+    "maxUnpackedBytes": 8388608,
+    "enabled": true,
+    "categories": [
+      "space",
+      "texture",
+      "transmission",
+      "utility",
+      "voice"
+    ],
+    "tags": [
+      "bass",
+      "bright",
+      "cave",
+      "chorus",
+      "compressor",
+      "delay",
+      "distortion",
+      "echo",
+      "eq",
+      "filter",
+      "flanger",
+      "hall",
+      "highpass",
+      "lofi",
+      "lowpass",
+      "megaphone",
+      "phaser",
+      "pitch",
+      "podcast",
+      "radio",
+      "reverb",
+      "robot",
+      "room",
+      "spacey",
+      "telephone",
+      "tremolo",
+      "underwater",
+      "vibrato",
+      "vocal",
+      "warm"
+    ],
+    "media": [
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  },
+  "theme": {
+    "displayName": "Theme",
+    "extensions": [
+      ".json",
+      ".zip"
+    ],
+    "maxPackageBytes": 2097152,
+    "maxUnpackedBytes": 8388608,
+    "enabled": true,
+    "categories": [
+      "dark",
+      "light",
+      "high-contrast",
+      "colorful",
+      "minimal",
+      "retro",
+      "pastel",
+      "nature"
+    ],
+    "tags": [
+      "accessible",
+      "blue",
+      "bold",
+      "clean",
+      "colorful",
+      "cool",
+      "cozy",
+      "dark",
+      "flat",
+      "forest",
+      "glass",
+      "green",
+      "high-contrast",
+      "light",
+      "midnight",
+      "minimal",
+      "monochrome",
+      "nature",
+      "neon",
+      "ocean",
+      "orange",
+      "pastel",
+      "pink",
+      "purple",
+      "red",
+      "retro",
+      "soft",
+      "sunset",
+      "vibrant",
+      "warm"
+    ],
+    "media": [
+      {
+        "role": "screenshot",
+        "required": true,
+        "width": 1280,
+        "height": 720,
+        "maxBytes": 120000
+      },
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  },
+  "look": {
+    "displayName": "Look",
+    "extensions": [
+      ".cube"
+    ],
+    "maxPackageBytes": 4194304,
+    "maxUnpackedBytes": 4194304,
+    "enabled": true,
+    "categories": [
+      "cinematic",
+      "film",
+      "vintage",
+      "black-and-white",
+      "color-grade",
+      "creative"
+    ],
+    "tags": [
+      "black-and-white",
+      "bright",
+      "cinematic",
+      "contrast",
+      "cool",
+      "dreamy",
+      "faded",
+      "film",
+      "fuji",
+      "golden-hour",
+      "kodak",
+      "landscape",
+      "matte",
+      "moody",
+      "natural",
+      "night",
+      "noir",
+      "pastel",
+      "portrait",
+      "punchy",
+      "retro",
+      "sepia",
+      "soft",
+      "summer",
+      "teal-orange",
+      "travel",
+      "vibrant",
+      "vintage",
+      "warm",
+      "winter"
+    ],
+    "media": [
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  },
+  "effect-template": {
+    "displayName": "Effect template",
+    "extensions": [
+      ".json"
+    ],
+    "maxPackageBytes": 65536,
+    "maxUnpackedBytes": 65536,
+    "enabled": true,
+    "categories": [
+      "rhythm",
+      "dreamy",
+      "cinematic",
+      "anime",
+      "clone",
+      "drama",
+      "chaos",
+      "look",
+      "hype",
+      "transition"
+    ],
+    "tags": [
+      "anime",
+      "bar",
+      "bass",
+      "beat",
+      "chaos",
+      "cinematic",
+      "clone",
+      "dance",
+      "dramatic",
+      "dreamy",
+      "drop",
+      "edit",
+      "flash",
+      "gaming",
+      "glitch",
+      "hype",
+      "look",
+      "music",
+      "onset",
+      "portrait",
+      "pulse",
+      "rhythm",
+      "shake",
+      "slow-motion",
+      "speed-ramp",
+      "strobe",
+      "transition",
+      "trend",
+      "vlog",
+      "zoom"
+    ],
+    "media": [
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  },
+  "language-pack": {
+    "displayName": "Language pack",
+    "extensions": [
+      ".json"
+    ],
+    "maxPackageBytes": 1048576,
+    "maxUnpackedBytes": 1048576,
+    "enabled": false,
+    "categories": [
+      "translation"
+    ],
+    "tags": [
+      "community",
+      "complete",
+      "official",
+      "partial",
+      "translation"
+    ],
+    "media": [
+      {
+        "role": "thumbnail",
+        "required": true,
+        "width": 512,
+        "height": 288,
+        "maxBytes": 40960
+      }
+    ]
+  }
+}

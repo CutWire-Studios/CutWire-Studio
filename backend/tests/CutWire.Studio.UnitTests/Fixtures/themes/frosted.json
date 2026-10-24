@@ -1,0 +1,16 @@
+{
+  "name": "frosted",
+  "schemaVersion": 1,
+  "extends": "dark",
+  "variant": "dark",
+  "palette": {
+    "appBackground": "#b30d0d0d",
+    "panelBackground": "#cc1a1a1a",
+    "accent": "#e6242424"
+  },
+  "window": {
+    "translucent": true,
+    "backdrop": "blur",
+    "backgroundOpacity": 0.72
+  }
+}

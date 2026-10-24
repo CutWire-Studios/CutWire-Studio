@@ -1,0 +1,11 @@
+{
+  "name": "override-example",
+  "schemaVersion": 1,
+  "extends": "dark",
+  "variant": "dark",
+  "components": {
+    "themedButton": {
+      "background": "#ff00aa"
+    }
+  }
+}
