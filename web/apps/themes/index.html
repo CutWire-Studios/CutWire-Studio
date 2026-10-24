@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/themes/favicon.svg" />
+    <meta name="theme-color" content="#0F0F12" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)" />
+    <title>Drift Theme Maker</title>
+    <meta name="description" content="Design, preview and share themes for the Drift video editor." />
+    <script>
+      // Applied before first paint so a stored theme does not flash the other one.
+      ;(function () {
+        try {
+          var stored = localStorage.getItem("cw-theme")
+          if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored
+        } catch (_) {}
+      })()
+    </script>
+  </head>
+  <body class="theme-themes">
+    <div id="root"></div>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+@import "@cutwire/ui/ui.css";
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+/* Preview parts are clickable; the innermost hovered part is outlined. */
+.pv [data-tok] {
+  cursor: pointer;
+}
+.pv [data-tok]:hover:not(:has([data-tok]:hover)) {
+  outline: 1px solid #ff2d95;
+  outline-offset: -1px;
+}
+.pv [data-tok][data-selected="true"] {
+  outline: 2px dashed #ff2d95;
+  outline-offset: -2px;
+}
+.pv.pv-capture [data-tok] {
+  outline: none !important;
+}

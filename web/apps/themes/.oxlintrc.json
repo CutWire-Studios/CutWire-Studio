@@ -1,0 +1,23 @@
+{
+  "plugins": ["typescript", "react", "import", "oxc"],
+  "categories": { "correctness": "error" },
+  "ignorePatterns": ["dist", "public"],
+  "rules": {
+    "no-nested-ternary": "error",
+    "complexity": ["error", { "max": 15 }],
+    "max-lines": ["error", { "max": 400, "skipBlankLines": true, "skipComments": true }],
+    "max-lines-per-function": ["error", { "max": 150, "skipBlankLines": true, "skipComments": true }],
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/no-explicit-any": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "import/no-cycle": "error",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": true }]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.test.ts", "src/__tests__/**"],
+      "rules": { "max-lines-per-function": "off", "typescript/no-non-null-assertion": "off" }
+    }
+  ]
+}

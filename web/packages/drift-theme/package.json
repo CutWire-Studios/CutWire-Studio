@@ -1,0 +1,25 @@
+{
+  "name": "@cutwire/drift-theme",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "sync": "vite-node scripts/sync-from-drift.ts",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "lint": "oxlint src scripts"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^7.0.2",
+    "vite-node": "^6.0.0",
+    "vitest": "^5.0.5"
+  }
+}
