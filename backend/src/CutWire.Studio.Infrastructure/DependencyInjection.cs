@@ -1,18 +1,21 @@
 using CutWire.Studio.Application.Abstractions;
 using CutWire.Studio.Infrastructure.Blobs;
+using CutWire.Studio.Infrastructure.Identity;
 using CutWire.Studio.Infrastructure.Jobs;
 using CutWire.Studio.Infrastructure.Persistence;
 using CutWire.Studio.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Npgsql;
 
 namespace CutWire.Studio.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddSingleton(_ => NpgsqlDataSource.Create(
             configuration.GetConnectionString("Default")
@@ -33,6 +36,8 @@ public static class DependencyInjection
         services.AddSingleton<IRecurringJob, BlobGcJob>();
         if (configuration.GetValue("Jobs:Enabled", true))
             services.AddHostedService<RecurringJobHostedService>();
+
+        services.AddStudioIdentity(configuration, environment);
 
         return services;
     }

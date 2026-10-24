@@ -12,9 +12,12 @@ public sealed class RateLimitingSettings
 {
     public const string Section = "RateLimiting";
     public const string DefaultPolicy = "default";
+    public const string StrictPolicy = "strict";
 
     public int PermitLimit { get; set; } = 120;
     public TimeSpan Window { get; set; } = TimeSpan.FromMinutes(1);
+    public int StrictPermitLimit { get; set; } = 10;
+    public TimeSpan StrictWindow { get; set; } = TimeSpan.FromMinutes(5);
 }
 
 public static class HttpExtensions
@@ -48,6 +51,18 @@ public static class HttpExtensions
                     {
                         PermitLimit = settings.PermitLimit,
                         Window = settings.Window,
+                        QueueLimit = 0,
+                    });
+            });
+            o.AddPolicy(RateLimitingSettings.StrictPolicy, http =>
+            {
+                var settings = http.RequestServices.GetRequiredService<IOptions<RateLimitingSettings>>().Value;
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    http.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = settings.StrictPermitLimit,
+                        Window = settings.StrictWindow,
                         QueueLimit = 0,
                     });
             });

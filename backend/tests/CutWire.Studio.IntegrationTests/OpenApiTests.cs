@@ -20,6 +20,8 @@ public sealed class OpenApiTests : IDisposable
         doc["openapi"]!.GetValue<string>().ShouldStartWith("3.1");
         doc["paths"]!.AsObject().ContainsKey("/api/v1/healthz").ShouldBeTrue();
         doc["paths"]!.AsObject().ContainsKey("/files/{sha256}").ShouldBeTrue();
+        doc["paths"]!.AsObject().ContainsKey("/api/v1/account/sign-in").ShouldBeTrue();
+        doc["paths"]!.AsObject().ContainsKey("/api/v1/me").ShouldBeTrue();
 
         var target = Path.Combine(FindBackendRoot(), "openapi.json");
         var pretty = doc.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n";

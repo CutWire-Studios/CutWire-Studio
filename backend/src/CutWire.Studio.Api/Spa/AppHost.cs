@@ -21,7 +21,7 @@ public static class AppHostRegistry
         new("/", "shell"),
     ];
 
-    public static readonly string[] ReservedPrefixes = ["/api", "/connect", "/mcp", "/files"];
+    public static readonly string[] ReservedPrefixes = ["/api", "/connect", "/mcp", "/files", "/.well-known"];
 }
 
 public sealed class SpaOptions

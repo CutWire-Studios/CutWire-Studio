@@ -18,7 +18,7 @@ dotnet run --project src/CutWire.Studio.Api   # http://localhost:8087, migration
 podman stop studio-pg
 ```
 
-Configuration is standard ASP.NET (appsettings + env vars, `__` as separator): `ConnectionStrings__Default`, `Storage__BlobRoot`, `PublicUrl`, `Database__AutoMigrate`, `Jobs__Enabled`, `BlobGc__Retention`, `RateLimiting__PermitLimit`, `Spa__Root`, `ASPNETCORE_URLS`.
+Configuration is standard ASP.NET (appsettings + env vars, `__` as separator): `ConnectionStrings__Default`, `Storage__BlobRoot`, `PublicUrl`, `Database__AutoMigrate`, `Jobs__Enabled`, `BlobGc__Retention`, `RateLimiting__PermitLimit`, `Spa__Root`, `ASPNETCORE_URLS`. Auth, email and OAuth settings (`Auth__*`, `Email__Smtp__*`) are described in `docs/auth.md`.
 
 In Development the SPAs are served from `../web/dist` (found by walking up from the content root); `Spa__Root` overrides this.
 
