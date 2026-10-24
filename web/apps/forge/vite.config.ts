@@ -17,9 +17,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": "http://localhost:5080",
-      "/account": "http://localhost:5080",
-      "/mcp": "http://localhost:5080",
+      "/api": "http://localhost:8087",
+      "/account": "http://localhost:8087",
+      "/mcp": "http://localhost:8087",
     },
   },
   build: {
