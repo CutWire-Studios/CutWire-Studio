@@ -147,7 +147,7 @@ internal static class DriftfxReader
     }
 
     private static Error Fail(string code, string message) =>
-        Error.Validation(code, message, new Dictionary<string, string[]> { ["package"] = [message] });
+        Error.Validation(code, message, [new FieldViolation("package", code, message)]);
 }
 
 internal static class PathRules

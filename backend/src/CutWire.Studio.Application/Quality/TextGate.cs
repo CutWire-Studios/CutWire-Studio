@@ -2,7 +2,7 @@ using static CutWire.Studio.Application.Quality.TextRules;
 
 namespace CutWire.Studio.Application.Quality;
 
-public sealed class TextGate(ContentRulesOptions rules) : IContentGate
+public sealed class TextGate(ContentRulesOptions rules) : IMetadataGate
 {
     public Task<IReadOnlyList<GateViolation>> CheckAsync(SubmissionDraft draft, CancellationToken ct)
     {

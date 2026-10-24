@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{handle}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/account/sign-up": {
         parameters: {
             query?: never;
@@ -254,6 +270,182 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["DeleteAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListItems"];
+        put?: never;
+        post: operations["CreateItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetItemById"];
+        put?: never;
+        post?: never;
+        delete: operations["DeleteItem"];
+        options?: never;
+        head?: never;
+        patch: operations["UpdateItem"];
+        trace?: never;
+    };
+    "/api/v1/items/{kind}/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DownloadItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/package": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UploadItemPackage"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/media/{role}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UploadItemMedia"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PublishItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/items/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["UploadItemVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meta/kinds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetKinds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meta/quality-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetQualityRules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meta/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetEnglishBloom"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -628,29 +820,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/connect/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve or deny a device authorization request (browser form post with the session cookie). */
+        post: operations["VerifyDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         ChangeEmailRequest: {
-            newEmail: null | string;
-            password: null | string;
+            newEmail?: null | string;
+            password?: null | string;
         };
         ChangePasswordRequest: {
-            currentPassword: null | string;
-            newPassword: null | string;
+            currentPassword?: null | string;
+            newPassword?: null | string;
         };
         CodeRequest: {
-            code: null | string;
+            code?: null | string;
         };
         CompleteProfileRequest: {
-            handle: null | string;
-            displayName: null | string;
+            handle?: null | string;
+            displayName?: null | string;
         };
         ConfirmEmailChangeRequest: {
-            userId: null | string;
-            email: null | string;
-            token: null | string;
+            userId?: null | string;
+            email?: null | string;
+            token?: null | string;
         };
         ConnectedAppDto: {
             id: string;
@@ -667,7 +876,7 @@ export interface components {
             alreadyGranted: boolean;
         };
         ConsentRequest: {
-            return: null | string;
+            return?: null | string;
             approve: boolean;
         };
         ConsentResponse: {
@@ -677,23 +886,165 @@ export interface components {
             token: components["schemas"]["PatDto"];
             secret: string;
         };
+        CreateItemRequest: {
+            kind?: null | string;
+            title?: null | string;
+            summary?: null | string;
+            description?: null | string;
+            category?: null | string;
+            tags?: null | string[];
+            license?: null | string;
+        };
         CreateTokenRequest: {
-            name: null | string;
-            scopes: null | string[];
+            name?: null | string;
+            scopes?: null | string[];
             /** Format: date-time */
-            expiresAt: null | string;
+            expiresAt?: null | string;
         };
         EmailRequest: {
-            email: null | string;
+            email?: null | string;
+        };
+        EnglishWordListDto: {
+            url: string;
+            sha256: string;
+            /** Format: int32 */
+            bytes: number | string;
+            /** Format: int32 */
+            words: number | string;
+            /** Format: int32 */
+            bits: number | string;
+            /** Format: int32 */
+            hashCount: number | string;
+            /** Format: int64 */
+            seed: number | string;
         };
         ExternalProviderDto: {
             name: string;
             displayName: string;
         };
+        FieldViolation: {
+            field: string;
+            code: string;
+            message: string;
+            params?: null | {
+                [key: string]: unknown;
+            };
+        };
         HealthResponse: {
             status: string;
         };
+        ItemCardDto: {
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            slug: string;
+            title: string;
+            summary: string;
+            owner: components["schemas"]["OwnerDto"];
+            thumbnailUrl: null | string;
+            /** Format: double */
+            score: number | string;
+            /** Format: int64 */
+            downloads: number | string;
+            tags: string[];
+            /** Format: date-time */
+            publishedAt: null | string;
+            status: string;
+        };
+        ItemDetailDto: {
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            slug: string;
+            title: string;
+            summary: string;
+            description: string;
+            license: string;
+            category: string;
+            status: string;
+            visibilityReason: null | string;
+            owner: components["schemas"]["OwnerDto"];
+            tags: string[];
+            thumbnailUrl: null | string;
+            /** Format: double */
+            scoreUp: number | string;
+            /** Format: double */
+            scoreDown: number | string;
+            /** Format: double */
+            score: number | string;
+            /** Format: int64 */
+            downloads: number | string;
+            /** Format: date-time */
+            publishedAt: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            currentVersion: null | string;
+            versions: components["schemas"]["ItemVersionDto"][];
+            media: components["schemas"]["ItemMediaDto"][];
+            kindMeta: components["schemas"]["JsonElement"];
+            /** Format: int32 */
+            viewerVote: null | number | string;
+        };
+        ItemMediaDto: {
+            role: string;
+            url: string;
+            /** Format: int32 */
+            width: number | string;
+            /** Format: int32 */
+            height: number | string;
+            /** Format: int32 */
+            bytes: number | string;
+        };
+        ItemPageDto: {
+            items: components["schemas"]["ItemCardDto"][];
+            nextCursor: null | string;
+        };
+        ItemVersionDto: {
+            /** Format: uuid */
+            id: string;
+            version: string;
+            changelog: string;
+            /** Format: int64 */
+            size: number | string;
+            minAppVersion: string;
+            sha256: string;
+            downloadUrl: string;
+            /** Format: date-time */
+            createdAt: string;
+            isCurrent: boolean;
+        };
         JsonElement: unknown;
+        KindRulesDto: {
+            id: string;
+            displayName: string;
+            acceptedExtensions: string[];
+            /** Format: int64 */
+            maxPackageBytes: number | string;
+            /** Format: int64 */
+            maxUnpackedBytes: number | string;
+            categories: string[];
+            tags: string[];
+            media: components["schemas"]["MediaRuleDto"][];
+        };
+        LengthRuleDto: {
+            /** Format: int32 */
+            min: number | string;
+            /** Format: int32 */
+            max: number | string;
+        };
+        MediaRuleDto: {
+            role: string;
+            required: boolean;
+            /** Format: int32 */
+            width: number | string;
+            /** Format: int32 */
+            height: number | string;
+            /** Format: int32 */
+            maxBytes: number | string;
+            mimeType: string;
+        };
         MeDto: {
             /** Format: uuid */
             id: string;
@@ -706,6 +1057,11 @@ export interface components {
             trustLevel: components["schemas"]["TrustLevel"];
             banned: boolean;
         };
+        OwnerDto: {
+            handle: string;
+            displayName: string;
+            avatarUrl: null | string;
+        };
         PasskeyDto: {
             id: string;
             name: string;
@@ -716,16 +1072,16 @@ export interface components {
         };
         PasskeyRegisterRequest: {
             credential: components["schemas"]["JsonElement"];
-            name: null | string;
+            name?: null | string;
         };
         PasskeyRenameRequest: {
-            name: null | string;
+            name?: null | string;
         };
         PasskeySignInRequest: {
             credential: components["schemas"]["JsonElement"];
         };
         PasswordRequest: {
-            password: null | string;
+            password?: null | string;
         };
         PatDto: {
             /** Format: uuid */
@@ -750,9 +1106,18 @@ export interface components {
             type?: null | string;
             title?: null | string;
             /** Format: int32 */
-            status?: null | number | string;
+            status?: number;
             detail?: null | string;
             instance?: null | string;
+            /** @description Stable machine-readable error code. */
+            code: string;
+            /** @description Validation messages by field. */
+            errors?: {
+                [key: string]: string[];
+            };
+            /** @description Validation failures with stable per-field codes. */
+            violations?: components["schemas"]["FieldViolation"][];
+            traceId?: string;
         };
         ProfileDto: {
             /** Format: uuid */
@@ -764,13 +1129,39 @@ export interface components {
             trustLevel: components["schemas"]["TrustLevel"];
             banned: boolean;
         };
+        QualityRulesDto: {
+            title: components["schemas"]["LengthRuleDto"];
+            summary: components["schemas"]["LengthRuleDto"];
+            description: components["schemas"]["LengthRuleDto"];
+            /** Format: int32 */
+            descriptionMaxLinks: number | string;
+            /** Format: int32 */
+            maxConsecutiveBlankLines: number | string;
+            /** Format: int32 */
+            minTags: number | string;
+            /** Format: int32 */
+            maxTags: number | string;
+            licenses: string[];
+            /** Format: double */
+            englishMinRatio: number | string;
+            /** Format: int32 */
+            englishMinTokens: number | string;
+            /** Format: double */
+            minLumaStdDev: number | string;
+            /** Format: int32 */
+            similarThumbnailMaxDistance: number | string;
+            dailyUploadLimits: (number | string)[];
+            kinds: components["schemas"]["KindRulesDto"][];
+            text: components["schemas"]["TextRulesDto"];
+            englishWordList: components["schemas"]["EnglishWordListDto"];
+        };
         RecoveryCodesResponse: {
             recoveryCodes: string[];
         };
         ResetPasswordRequest: {
-            email: null | string;
-            token: null | string;
-            newPassword: null | string;
+            email?: null | string;
+            token?: null | string;
+            newPassword?: null | string;
         };
         ScopeInfo: {
             name: string;
@@ -778,24 +1169,37 @@ export interface components {
             description: string;
         };
         SignInRequest: {
-            email: null | string;
-            password: null | string;
-            rememberMe: null | boolean;
+            email?: null | string;
+            password?: null | string;
+            rememberMe?: null | boolean;
         };
         SignInTwoFactorRequest: {
-            code: null | string;
-            recoveryCode: null | string;
-            rememberMe: null | boolean;
-            rememberMachine: null | boolean;
+            code?: null | string;
+            recoveryCode?: null | string;
+            rememberMe?: null | boolean;
+            rememberMachine?: null | boolean;
         };
         SignUpRequest: {
-            email: null | string;
-            password: null | string;
-            handle: null | string;
-            displayName: null | string;
+            email?: null | string;
+            password?: null | string;
+            handle?: null | string;
+            displayName?: null | string;
         };
         StatusResponse: {
             status: string;
+        };
+        TextRulesDto: {
+            /** Format: int32 */
+            titleSingleWordMinLength: number | string;
+            /** Format: int32 */
+            titleAllCapsMinLetters: number | string;
+            /** Format: int32 */
+            titleMaxIdenticalRun: number | string;
+            /** Format: int32 */
+            titleMaxPunctuationRun: number | string;
+            linkPattern: string;
+            techTerms: string[];
+            profanity: string[];
         };
         /** @enum {unknown} */
         TrustLevel: "T0" | "T1" | "T2" | "T3";
@@ -809,14 +1213,36 @@ export interface components {
             /** Format: int32 */
             recoveryCodesLeft: number | string;
         };
+        UpdateItemRequest: {
+            title?: null | string;
+            summary?: null | string;
+            description?: null | string;
+            category?: null | string;
+            tags?: null | string[];
+            license?: null | string;
+        };
         UpdateProfileRequest: {
-            handle: null | string;
-            displayName: null | string;
-            bio: null | string;
+            handle?: null | string;
+            displayName?: null | string;
+            bio?: null | string;
+        };
+        UserProfileDto: {
+            handle: string;
+            displayName: string;
+            avatarUrl: null | string;
+            bio: string;
+            trustLevel: string;
+            /** Format: date-time */
+            joinedAt: string;
+            /** Format: int32 */
+            publishedItems: number | string;
+            /** Format: int64 */
+            totalDownloads: number | string;
+            items: components["schemas"]["ItemPageDto"];
         };
         VerifyEmailRequest: {
-            userId: null | string;
-            token: null | string;
+            userId?: null | string;
+            token?: null | string;
         };
     };
     responses: never;
@@ -829,7 +1255,9 @@ export type $defs = Record<string, never>;
 export interface operations {
     GetFile: {
         parameters: {
-            query?: never;
+            query?: {
+                name?: string;
+            };
             header?: never;
             path: {
                 sha256: string;
@@ -872,7 +1300,9 @@ export interface operations {
     };
     GetFile: {
         parameters: {
-            query?: never;
+            query?: {
+                name?: string;
+            };
             header?: never;
             path: {
                 sha256: string;
@@ -962,6 +1392,41 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetUser: {
+        parameters: {
+            query?: {
+                sort?: string;
+                cursor?: string;
+                limit?: number | string;
+            };
+            header?: never;
+            path: {
+                handle: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfileDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1399,6 +1864,688 @@ export interface operations {
             };
         };
     };
+    ListItems: {
+        parameters: {
+            query?: {
+                kind?: string;
+                q?: string;
+                tags?: string;
+                category?: string;
+                sort?: string;
+                owner?: string;
+                status?: string;
+                cursor?: string;
+                limit?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemPageDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetItemById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateItemRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadItem: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Found */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UploadItemPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+                "multipart/form-data": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Payload Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UploadItemMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                role: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/webp": string;
+                "multipart/form-data": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    PublishItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UploadItemVersion: {
+        parameters: {
+            query?: {
+                changelog?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+                "multipart/form-data": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Payload Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetKinds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KindRulesDto"][];
+                };
+            };
+        };
+    };
+    GetQualityRules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityRulesDto"];
+                };
+            };
+        };
+    };
+    GetEnglishBloom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     GetProfile: {
         parameters: {
             query?: never;
@@ -1767,7 +2914,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -1820,7 +2969,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Unauthorized */
@@ -2420,6 +3571,34 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
+            };
+        };
+    };
+    VerifyDevice: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Requested-With": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": {
+                    user_code: string;
+                    /** @enum {string} */
+                    submit: "accept" | "deny";
+                };
+            };
+        };
+        responses: {
+            /** @description Redirect to /account/device?result=approved|denied. */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

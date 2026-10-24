@@ -10,7 +10,7 @@ Contract for the SPAs (and OAuth clients) of the CutWire Studio backend. One ori
 - Bearer callers: `Authorization: Bearer <OpenIddict JWT>` or `Bearer cwpat_...` (personal access token). Both yield a principal with `sub` and scopes.
 - Account management endpoints below marked **session** accept the cookie only.
 
-Errors are RFC 7807 problems with a stable `code` and, for validation, `errors: { field: [messages] }`.
+Errors are RFC 7807 problems with a stable `code` and, for validation, `errors: { field: [messages] }`. Content-rule failures also carry `violations: [{field, code, message, params}]` (see `../../docs/quality-gates.md`); auth validation problems only have `errors`.
 
 ## Sign-in flow
 

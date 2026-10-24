@@ -1,6 +1,7 @@
 using CutWire.Studio.Application.Abstractions;
 using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
+using CutWire.Studio.Domain.Catalog;
 using CutWire.Studio.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -15,6 +16,14 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     public DbSet<Blob> Blobs => Set<Blob>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<PersonalAccessToken> PersonalAccessTokens => Set<PersonalAccessToken>();
+    public DbSet<Item> Items => Set<Item>();
+    public DbSet<ItemVersion> ItemVersions => Set<ItemVersion>();
+    public DbSet<ItemMedia> ItemMedia => Set<ItemMedia>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<ItemTag> ItemTags => Set<ItemTag>();
+    public DbSet<ItemFlag> ItemFlags => Set<ItemFlag>();
+    public DbSet<DownloadEvent> DownloadEvents => Set<DownloadEvent>();
+    public DbSet<ItemDownloadDaily> ItemDownloadDaily => Set<ItemDownloadDaily>();
 
     public Task<bool> CanConnectAsync(CancellationToken ct) => Database.CanConnectAsync(ct);
 
@@ -24,6 +33,7 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.UseOpenIddict<Guid>();
+        modelBuilder.HasPostgresExtension("pg_trgm");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(StudioDbContext).Assembly);
 
         modelBuilder.Entity<ApplicationUser>().ToTable("users");

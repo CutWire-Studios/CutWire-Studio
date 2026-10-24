@@ -7,6 +7,10 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CutWire.Studio.UnitTests\TestSupport.cs" Link="Shared\TestSupport.cs" />
+    <None Include="..\CutWire.Studio.UnitTests\Fixtures\**" Link="Fixtures\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\CutWire.Studio.Api\CutWire.Studio.Api.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="xunit.v3" />

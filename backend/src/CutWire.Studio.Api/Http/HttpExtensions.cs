@@ -84,7 +84,7 @@ public static class HttpExtensions
             var publicUrl = ctx.ApplicationServices.GetRequiredService<IConfiguration>()["PublicUrl"];
             if (!string.IsNullOrEmpty(publicUrl)) doc.Servers = [new OpenApiServer { Url = publicUrl }];
             return Task.CompletedTask;
-        }));
+        }).AddDocumentTransformer(OpenApiFixes.Apply));
 
         services.AddOptions<SpaOptions>().Bind(configuration.GetSection(SpaOptions.Section));
 

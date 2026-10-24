@@ -15,4 +15,5 @@ public sealed record SubmissionDraft(
     string Category,
     string License,
     IReadOnlyList<MediaUpload> Media,
-    PackageInfo? PackageInfo);
+    PackageInfo? PackageInfo,
+    Guid? ItemId = null);

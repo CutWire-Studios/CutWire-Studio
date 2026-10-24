@@ -3,7 +3,7 @@ using static CutWire.Studio.Application.Quality.TextRules;
 
 namespace CutWire.Studio.Application.Quality;
 
-public sealed class TitleGate(ContentRulesOptions rules, IWordList words) : IContentGate
+public sealed class TitleGate(ContentRulesOptions rules, IWordList words) : IMetadataGate
 {
     private const string Field = "title";
 

@@ -152,7 +152,7 @@ internal static class Images
 internal static class Drafts
 {
     public static readonly IImageAnalyzer Analyzer = new SkiaImageAnalyzer();
-    public static readonly IWordList Words = new EmbeddedWordList();
+    public static readonly IWordList Words = new BloomWordList();
     public static readonly Guid Owner = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
     public const string Summary = "Adds a soft dreamy glow around bright highlights.";
@@ -175,12 +175,12 @@ internal sealed class FakeDuplicateLookup : IDuplicateLookup
     public List<ulong> Thumbnails { get; } = [];
     public List<string> Titles { get; } = [];
 
-    public Task<bool> PackageExistsAsync(Sha256Hash packageSha256, CancellationToken ct) => Task.FromResult(Packages.Contains(packageSha256.Value));
+    public Task<bool> PackageExistsAsync(Sha256Hash packageSha256, Guid? excludeItemId, CancellationToken ct) => Task.FromResult(Packages.Contains(packageSha256.Value));
 
-    public Task<bool> SimilarThumbnailExistsAsync(ulong dHash, int maxDistance, CancellationToken ct) =>
+    public Task<bool> SimilarThumbnailExistsAsync(ulong dHash, int maxDistance, Guid? excludeItemId, CancellationToken ct) =>
         Task.FromResult(Thumbnails.Any(t => PerceptualHash.Distance(t, dHash) <= maxDistance));
 
-    public Task<IReadOnlyList<string>> OwnerTitlesAsync(Guid ownerId, CancellationToken ct) => Task.FromResult<IReadOnlyList<string>>(Titles);
+    public Task<IReadOnlyList<string>> OwnerTitlesAsync(Guid ownerId, Guid? excludeItemId, CancellationToken ct) => Task.FromResult<IReadOnlyList<string>>(Titles);
 }
 
 internal sealed class FakeUploadQuota(int trustLevel, int used) : IUploadQuota

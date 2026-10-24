@@ -10,6 +10,7 @@ public static class FileEndpoints
     public static void MapFiles(this IEndpointRouteBuilder app) =>
         app.MapMethods("/files/{sha256}", ["GET", "HEAD"], async (
                 string sha256,
+                string? name,
                 IQueryHandler<GetBlobQuery, BlobContent> handler,
                 HttpContext http,
                 CancellationToken ct) =>
@@ -23,6 +24,7 @@ public static class FileEndpoints
                         blob.Content,
                         blob.Mime,
                         lastModified: blob.CreatedAt,
+                        fileDownloadName: CatalogHttp.SafeDownloadName(name),
                         entityTag: new EntityTagHeaderValue($"\"{blob.Hash}\""),
                         enableRangeProcessing: true);
                 });

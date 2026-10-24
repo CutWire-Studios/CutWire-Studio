@@ -7,10 +7,12 @@ public static class ProblemMapping
 {
     public const string CodeKey = "code";
     public const string ErrorsKey = "errors";
+    public const string ViolationsKey = "violations";
 
     public static int StatusFor(ErrorKind kind) => kind switch
     {
         ErrorKind.Validation => StatusCodes.Status400BadRequest,
+        ErrorKind.Unprocessable => StatusCodes.Status422UnprocessableEntity,
         ErrorKind.NotFound => StatusCodes.Status404NotFound,
         ErrorKind.Conflict => StatusCodes.Status409Conflict,
         ErrorKind.Unauthorized => StatusCodes.Status401Unauthorized,
@@ -28,6 +30,7 @@ public static class ProblemMapping
         404 => "not_found",
         405 => "method_not_allowed",
         409 => "conflict",
+        422 => "unprocessable",
         413 => "payload_too_large",
         415 => "unsupported_media_type",
         429 => "rate_limited",
@@ -45,6 +48,7 @@ public static class ProblemMapping
         };
         problem.Extensions[CodeKey] = error.Code;
         if (error.Errors is { Count: > 0 }) problem.Extensions[ErrorsKey] = error.Errors;
+        if (error.Violations is { Count: > 0 }) problem.Extensions[ViolationsKey] = error.Violations;
         return problem;
     }
 

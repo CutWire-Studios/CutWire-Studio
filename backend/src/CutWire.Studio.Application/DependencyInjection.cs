@@ -16,6 +16,9 @@ public static class DependencyInjection
                 if (iface.IsGenericType && handlerInterfaces.Contains(iface.GetGenericTypeDefinition()))
                     services.AddScoped(iface, type);
 
+        services.AddScoped<Catalog.BlobReferences>();
+        services.AddScoped<Catalog.PackageIntake>();
+
         return services;
     }
 }

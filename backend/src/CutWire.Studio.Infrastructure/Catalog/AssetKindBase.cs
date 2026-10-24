@@ -37,7 +37,7 @@ public abstract class AssetKindBase : IAssetKind
     protected abstract Result<PackageInfo> Validate(byte[] bytes, Sha256Hash sha256);
 
     protected static Error Invalid(string code, string message) =>
-        Error.Validation(code, message, new Dictionary<string, string[]> { ["package"] = [message] });
+        Error.Validation(code, message, [new FieldViolation("package", code, message)]);
 
     private static async Task<Result<byte[]>> ReadBoundedAsync(Stream stream, long max, CancellationToken ct)
     {

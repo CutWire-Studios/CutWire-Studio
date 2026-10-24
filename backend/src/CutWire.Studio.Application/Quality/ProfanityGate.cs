@@ -2,8 +2,10 @@ using static CutWire.Studio.Application.Quality.TextRules;
 
 namespace CutWire.Studio.Application.Quality;
 
-public sealed class ProfanityGate : IContentGate
+public sealed class ProfanityGate : IMetadataGate
 {
+    public static IReadOnlyCollection<string> Terms => Denylist;
+
     private static readonly HashSet<string> Denylist = Resources.LoadLines("profanity.txt");
 
     public Task<IReadOnlyList<GateViolation>> CheckAsync(SubmissionDraft draft, CancellationToken ct)

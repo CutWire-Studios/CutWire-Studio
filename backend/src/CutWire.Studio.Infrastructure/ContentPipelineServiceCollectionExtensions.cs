@@ -11,7 +11,7 @@ namespace CutWire.Studio.Infrastructure;
 public static class ContentPipelineServiceCollectionExtensions
 {
     /// <remarks>
-    /// <see cref="IDuplicateLookup"/> and <see cref="IUploadQuota"/> need the database and are registered separately.
+    /// <see cref="IDuplicateLookup"/> and <see cref="IUploadQuota"/> need the database and are registered by AddInfrastructure.
     /// </remarks>
     public static IServiceCollection AddContentPipeline(this IServiceCollection services, IConfiguration configuration)
     {
@@ -28,7 +28,8 @@ public static class ContentPipelineServiceCollectionExtensions
         services.AddSingleton<IAssetKindRegistry, AssetKindRegistry>();
 
         services.AddSingleton<IImageAnalyzer, SkiaImageAnalyzer>();
-        services.AddSingleton<IWordList, EmbeddedWordList>();
+        services.AddSingleton<BloomWordList>();
+        services.AddSingleton<IWordList>(sp => sp.GetRequiredService<BloomWordList>());
         services.AddSingleton<IContentGate, TitleGate>();
         services.AddSingleton<IContentGate, TextGate>();
         services.AddSingleton<IContentGate, EnglishGate>();

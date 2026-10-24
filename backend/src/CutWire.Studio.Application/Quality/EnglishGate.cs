@@ -2,8 +2,10 @@ using static CutWire.Studio.Application.Quality.TextRules;
 
 namespace CutWire.Studio.Application.Quality;
 
-public sealed class EnglishGate(ContentRulesOptions rules, IWordList words) : IContentGate
+public sealed class EnglishGate(ContentRulesOptions rules, IWordList words) : IMetadataGate
 {
+    public static IReadOnlyCollection<string> TechTermList => TechTerms;
+
     private static readonly HashSet<string> TechTerms = Resources.LoadLines("tech-terms.txt");
 
     public Task<IReadOnlyList<GateViolation>> CheckAsync(SubmissionDraft draft, CancellationToken ct)
@@ -42,7 +44,7 @@ public sealed class EnglishGate(ContentRulesOptions rules, IWordList words) : IC
         return false;
     }
 
-    private static IEnumerable<string> Candidates(string w)
+    public static IEnumerable<string> Candidates(string w)
     {
         yield return w;
         if (w.Length > 3 && w.EndsWith("ies")) yield return w[..^3] + "y";

@@ -23,6 +23,14 @@ public sealed class OpenApiTests : IDisposable
         doc["paths"]!.AsObject().ContainsKey("/api/v1/account/sign-in").ShouldBeTrue();
         doc["paths"]!.AsObject().ContainsKey("/api/v1/me").ShouldBeTrue();
 
+        foreach (var path in new[] { "/api/v1/items", "/api/v1/items/{kind}/{slug}", "/api/v1/items/{id}/publish", "/api/v1/meta/quality-rules", "/api/v1/users/{handle}", "/connect/verify" })
+            doc["paths"]!.AsObject().ContainsKey(path).ShouldBeTrue(path);
+        var problem = doc["components"]!["schemas"]!["ProblemDetails"]!["properties"]!.AsObject();
+        problem.ContainsKey("code").ShouldBeTrue();
+        problem.ContainsKey("errors").ShouldBeTrue();
+        problem.ContainsKey("violations").ShouldBeTrue();
+        doc["paths"]!["/api/v1/account/passkeys/request-options"]!["post"]!["responses"]!["200"]!["content"]!["application/json"]!["schema"]!["type"]!.ToJsonString().ShouldContain("object");
+
         var target = Path.Combine(FindBackendRoot(), "openapi.json");
         var pretty = doc.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n";
         if (!File.Exists(target) || File.ReadAllText(target) != pretty)

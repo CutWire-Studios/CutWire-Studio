@@ -58,7 +58,7 @@ public sealed class ThemeKind() : AssetKindBase(AssetKindId.Theme)
             if (!results.IsValid)
             {
                 var messages = Collect(results).Distinct().Take(20).ToArray();
-                return Error.Validation("theme_schema_invalid", "Theme does not match the Drift theme schema.", new Dictionary<string, string[]> { ["package"] = messages });
+                return Error.Validation("theme_schema_invalid", "Theme does not match the Drift theme schema.", messages.Select(m => new FieldViolation("package", "theme_schema_invalid", m)).ToList());
             }
 
             if (!root.TryGetProperty("name", out var nameElement) || nameElement.ValueKind != JsonValueKind.String)

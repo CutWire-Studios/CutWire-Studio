@@ -1,4 +1,7 @@
 using CutWire.Studio.Application.Abstractions;
+using CutWire.Studio.Application.Catalog;
+using CutWire.Studio.Application.Quality;
+using CutWire.Studio.Infrastructure.Catalog;
 using CutWire.Studio.Infrastructure.Blobs;
 using CutWire.Studio.Infrastructure.Identity;
 using CutWire.Studio.Infrastructure.Jobs;
@@ -36,6 +39,15 @@ public static class DependencyInjection
         services.AddSingleton<IRecurringJob, BlobGcJob>();
         if (configuration.GetValue("Jobs:Enabled", true))
             services.AddHostedService<RecurringJobHostedService>();
+
+        services.AddOptions<DownloadRollupOptions>().Bind(configuration.GetSection(DownloadRollupOptions.Section));
+        services.AddSingleton<IRecurringJob, DownloadRollupJob>();
+
+        services.AddContentPipeline(configuration);
+        services.AddSingleton<IItemTextSearch, PostgresItemTextSearch>();
+        services.AddScoped<IDuplicateLookup, DuplicateLookup>();
+        services.AddScoped<IUploadQuota, UploadQuota>();
+        services.AddScoped<CatalogSeeder>();
 
         services.AddStudioIdentity(configuration, environment);
 

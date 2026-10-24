@@ -8,6 +8,7 @@ public class ProblemMappingTests
 {
     [Theory]
     [InlineData(ErrorKind.Validation, 400)]
+    [InlineData(ErrorKind.Unprocessable, 422)]
     [InlineData(ErrorKind.Unauthorized, 401)]
     [InlineData(ErrorKind.Forbidden, 403)]
     [InlineData(ErrorKind.NotFound, 404)]
@@ -29,6 +30,22 @@ public class ProblemMappingTests
         problem.Detail.ShouldBe("Bad title.");
         problem.Extensions["code"].ShouldBe("title.invalid");
         problem.Extensions["errors"].ShouldBe(error.Errors);
+    }
+
+    [Fact]
+    public void Problem_CarriesViolationsWithStableCodes_AndDerivedErrors()
+    {
+        var error = Error.Unprocessable("content_rejected", "No.",
+        [
+            new FieldViolation("title", "too_short", "Too short.", new Dictionary<string, object> { ["min"] = 6 }),
+            new FieldViolation("title", "all_caps", "Caps."),
+        ]);
+
+        var problem = error.ToProblem();
+
+        problem.Status.ShouldBe(422);
+        problem.Extensions["violations"].ShouldBe(error.Violations);
+        error.Errors!["title"].ShouldBe(["Too short.", "Caps."]);
     }
 
     [Fact]

@@ -1,0 +1,516 @@
+[
+  {
+    "name": "valid",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": []
+  },
+  {
+    "name": "title_shouting",
+    "kind": "effect",
+    "title": "BAD!!!!",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:needs_words",
+      "title:repeated_chars",
+      "title:repeated_punctuation"
+    ]
+  },
+  {
+    "name": "title_short",
+    "kind": "effect",
+    "title": "Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:too_short"
+    ]
+  },
+  {
+    "name": "title_single_dictionary_word",
+    "kind": "effect",
+    "title": "Dreamy",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": []
+  },
+  {
+    "name": "title_single_gibberish",
+    "kind": "effect",
+    "title": "Zzqxvk",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:needs_words"
+    ]
+  },
+  {
+    "name": "title_long",
+    "kind": "effect",
+    "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:repeated_chars",
+      "title:too_long"
+    ]
+  },
+  {
+    "name": "title_caps",
+    "kind": "effect",
+    "title": "NEON GLOW",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:all_caps"
+    ]
+  },
+  {
+    "name": "title_url",
+    "kind": "effect",
+    "title": "Visit www.example.com now",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:contains_url"
+    ]
+  },
+  {
+    "name": "title_unicode",
+    "kind": "effect",
+    "title": "Caf\u00E9 glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:non_ascii"
+    ]
+  },
+  {
+    "name": "title_spaces",
+    "kind": "effect",
+    "title": " Glow  effect ",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:bad_whitespace"
+    ]
+  },
+  {
+    "name": "title_repeat",
+    "kind": "effect",
+    "title": "Glowwwwww effect",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:repeated_chars"
+    ]
+  },
+  {
+    "name": "title_punct",
+    "kind": "effect",
+    "title": "Glow effect!!!",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:repeated_punctuation"
+    ]
+  },
+  {
+    "name": "summary_short",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "tiny",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "summary:too_short"
+    ]
+  },
+  {
+    "name": "summary_link",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a glow, see https://example.com for more.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "summary:links_not_allowed"
+    ]
+  },
+  {
+    "name": "summary_unicode",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow \u2728 around highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "summary:non_ascii"
+    ]
+  },
+  {
+    "name": "description_short",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "Too short.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "description:too_short"
+    ]
+  },
+  {
+    "name": "description_links",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail. See a.com and b.com and example.org too.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "description:too_many_links"
+    ]
+  },
+  {
+    "name": "description_blank_lines",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.\n\n\n\n\nMore text here.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "description:too_many_blank_lines"
+    ]
+  },
+  {
+    "name": "description_not_english",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "Este efecto agrega un brillo suave alrededor de las partes mas brillantes de tu clip. Usa el control para cambiar la fuerza del resplandor en el video.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "description:not_english"
+    ]
+  },
+  {
+    "name": "profanity_leet",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a fuck1ng dreamy glow around the highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "summary:profanity"
+    ]
+  },
+  {
+    "name": "profanity_tags_title",
+    "kind": "effect",
+    "title": "Shit glow effect",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "title:profanity"
+    ]
+  },
+  {
+    "name": "category_missing",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "",
+    "license": "CC0-1.0",
+    "expected": [
+      "category:required"
+    ]
+  },
+  {
+    "name": "category_invalid",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "nope",
+    "license": "CC0-1.0",
+    "expected": [
+      "category:invalid_category"
+    ]
+  },
+  {
+    "name": "tags_none",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "tags:too_few_tags"
+    ]
+  },
+  {
+    "name": "tags_many",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream",
+      "film",
+      "neon",
+      "pixel",
+      "retro"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "tags:too_many_tags"
+    ]
+  },
+  {
+    "name": "tags_unknown_and_duplicate",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "glow",
+      "nonsense"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "tags:duplicate_tag",
+      "tags:unknown_tag"
+    ]
+  },
+  {
+    "name": "license_invalid",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "WTFPL",
+    "expected": [
+      "license:invalid_license"
+    ]
+  },
+  {
+    "name": "license_missing",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "",
+    "expected": [
+      "license:required"
+    ]
+  },
+  {
+    "name": "kind_unknown",
+    "kind": "mystery",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "kind:unknown_kind"
+    ]
+  },
+  {
+    "name": "kind_disabled",
+    "kind": "language-pack",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip. Use the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": [
+      "kind:unknown_kind"
+    ]
+  },
+  {
+    "name": "everything_empty",
+    "kind": "effect",
+    "title": "",
+    "summary": "",
+    "description": "",
+    "tags": [],
+    "category": "",
+    "license": "",
+    "expected": [
+      "category:required",
+      "description:required",
+      "license:required",
+      "summary:required",
+      "tags:too_few_tags",
+      "title:required"
+    ]
+  },
+  {
+    "name": "crlf_description",
+    "kind": "effect",
+    "title": "Dreamy Glow",
+    "summary": "Adds a soft dreamy glow around bright highlights.",
+    "description": "This effect adds a soft glow around the brightest parts of your clip.\r\nUse the amount slider to control how strong the bloom looks, and lower it for a subtle result that keeps the original detail.",
+    "tags": [
+      "glow",
+      "dream"
+    ],
+    "category": "dreamy",
+    "license": "CC0-1.0",
+    "expected": []
+  }
+]

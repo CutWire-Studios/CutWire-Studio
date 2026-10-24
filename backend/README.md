@@ -8,6 +8,25 @@ Dependencies point inward only: `Domain` <- `Application` <- `Infrastructure` <-
 
 Validation is hand-rolled: handlers return `Error.Validation(code, message, errors)` with a field-to-messages dictionary, which maps straight onto the problem `errors` extension. The upcoming quality gates are a custom rule pipeline, so FluentValidation would add a dependency without simplifying them.
 
+## Community catalog API
+
+Write endpoints need a cookie session or a bearer with `community:publish`, and the `not-banned` policy; multipart and raw bodies both pass the CSRF check (header plus `Origin`). Reads are anonymous and only show published items (owners and moderators also see their own drafts and hidden items).
+
+| endpoint | notes |
+| --- | --- |
+| `POST /items` | create a draft `{kind,title,summary,description,category,tags,license}` |
+| `PATCH /items/{id}` | partial metadata edit |
+| `PUT /items/{id}/package` | raw body or multipart `file`; draft only |
+| `PUT /items/{id}/media/{role}` | raw body or multipart `file` |
+| `POST /items/{id}/publish`, `POST /items/{id}/versions[?changelog=]`, `DELETE /items/{id}` | publish, new version, soft delete |
+| `GET /items?kind&q&tags&category&sort=top\|trending\|new\|downloads&owner&status&cursor&limit` | cards, opaque cursor, default sort `top`, limit 24 (max 50); `status` is for owners and moderators |
+| `GET /items/{kind}/{slug}`, `GET /items/{id}` | detail |
+| `GET /items/{id}/download?version=` | records a download, 302 to `/files/{sha}?name=` (`X-Studio-Install` is optional) |
+| `GET /users/{handle}` | profile and paged items |
+| `GET /meta/kinds`, `/meta/quality-rules`, `/meta/english-<hash8>.bloom` | client rules |
+
+List and detail responses carry weak ETags. `Downloads:IpHashKey` is the HMAC key for stored IP hashes (set it in production). The `download-rollup` job (`DownloadRollup:Interval`, default 10 minutes) counts distinct downloaders per item per UTC day and refreshes `downloads_total`. `/files/{sha}?name=` adds a sanitised `Content-Disposition: attachment` filename. Tags are seeded from `asset-kinds.json` at startup. Gate and error details are in `../docs/quality-gates.md`.
+
 ## Run (dev)
 
 ```sh

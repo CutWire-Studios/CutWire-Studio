@@ -543,7 +543,7 @@ public class ContentGatePipelineTests
         var result = await Pipeline(trust: 0, used: 3).ValidateAsync(draft, TestContext.Current.CancellationToken);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.Kind.ShouldBe(ErrorKind.Validation);
+        result.Error.Kind.ShouldBe(ErrorKind.Unprocessable);
         result.Error.Code.ShouldBe("content_rejected");
         result.Error.Errors!.Keys.ShouldBe(["title", "summary", "category", "license", "media.thumbnail", "account"], ignoreOrder: true);
         result.Error.Errors["title"].Length.ShouldBeGreaterThan(1);
@@ -634,7 +634,7 @@ public class QualityRulesProducerTests
     [Fact]
     public void Produces_AllLimits_AndSerialises()
     {
-        var dto = new QualityRulesProducer(new ContentRulesOptions(), Kinds.Registry).Produce();
+        var dto = new QualityRulesProducer(new ContentRulesOptions(), Kinds.Registry, new BloomWordList()).Produce();
 
         dto.Title.ShouldBe(new LengthRuleDto(6, 60));
         dto.Summary.ShouldBe(new LengthRuleDto(20, 140));

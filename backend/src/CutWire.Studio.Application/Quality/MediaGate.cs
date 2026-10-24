@@ -33,6 +33,19 @@ public sealed class MediaGate(ContentRulesOptions rules, IAssetKindRegistry kind
         return Task.FromResult<IReadOnlyList<GateViolation>>(found);
     }
 
+    public IReadOnlyList<GateViolation> CheckUpload(AssetKindId kindId, MediaUpload upload)
+    {
+        var found = new List<GateViolation>();
+        var kind = kinds.Get(kindId);
+        var field = $"media.{upload.Role.ToKey()}";
+        var spec = kind?.MediaSpecs.FirstOrDefault(s => s.Role == upload.Role);
+        if (spec is null)
+            found.Add(V(field, "media_role_not_allowed", $"This kind does not take a {upload.Role.ToKey()} image."));
+        else
+            CheckImage(found, field, spec, upload.Data);
+        return found;
+    }
+
     private void CheckImage(List<GateViolation> found, string field, MediaSpec spec, byte[] data)
     {
         if (data.Length > spec.MaxBytes)

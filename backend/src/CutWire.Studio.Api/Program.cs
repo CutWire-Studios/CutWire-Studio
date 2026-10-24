@@ -23,6 +23,7 @@ if (app.Configuration.GetValue("Database:AutoMigrate", true))
     await using var scope = app.Services.CreateAsyncScope();
     await scope.ServiceProvider.GetRequiredService<StudioDbContext>().Database.MigrateAsync();
     await scope.ServiceProvider.GetRequiredService<AuthSeeder>().SeedAsync();
+    await scope.ServiceProvider.GetRequiredService<CutWire.Studio.Infrastructure.Catalog.CatalogSeeder>().SeedAsync();
 }
 
 app.UseForwardedHeaders();
@@ -38,6 +39,9 @@ app.MapOpenApi("/api/v1/openapi.json");
 var api = app.MapGroup("/api/v1").RequireRateLimiting(RateLimitingSettings.DefaultPolicy);
 api.MapHealth();
 api.MapAccount();
+api.MapItems();
+api.MapUsers();
+api.MapMeta();
 var account = api.MapGroup("/account");
 account.MapProfile();
 account.MapTwoFactor();

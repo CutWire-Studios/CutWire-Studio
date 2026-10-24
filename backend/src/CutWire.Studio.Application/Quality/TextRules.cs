@@ -35,7 +35,9 @@ internal static partial class TextRules
     public static IEnumerable<string> Words(string text) =>
         WordPattern().Matches(text).Select(m => m.Value.ToLowerInvariant());
 
-    [GeneratedRegex(@"(https?://|ftp://|www\.)\S+|\b[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)*\.(com|net|org|io|co|me|ly|gg|xyz|app|dev|info|biz|tv|us|uk|ru|cn|top|site|online|shop|link|click|ai|to|cc|ws|vip|club|store)\b(/\S*)?", RegexOptions.IgnoreCase)]
+    public const string LinkPatternSource = @"(https?://|ftp://|www\.)\S+|\b[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)*\.(com|net|org|io|co|me|ly|gg|xyz|app|dev|info|biz|tv|us|uk|ru|cn|top|site|online|shop|link|click|ai|to|cc|ws|vip|club|store)\b(/\S*)?";
+
+    [GeneratedRegex(LinkPatternSource, RegexOptions.IgnoreCase)]
     private static partial Regex LinkPattern();
 
     [GeneratedRegex("[^a-z0-9]+")]
