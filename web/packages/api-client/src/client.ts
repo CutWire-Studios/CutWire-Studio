@@ -1,3 +1,5 @@
+import type { components } from "../generated/schema"
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -11,12 +13,8 @@ export class ApiError extends Error {
   }
 }
 
-export interface Me {
-  id: string
-  userName: string
-  displayName?: string
-  avatarUrl?: string
-}
+export type Schemas = components["schemas"]
+export type Me = Schemas["MeDto"]
 
 export async function parseProblem(res: Response): Promise<ApiError> {
   let body: Record<string, unknown> = {}

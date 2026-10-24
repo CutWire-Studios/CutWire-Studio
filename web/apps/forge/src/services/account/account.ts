@@ -23,7 +23,7 @@ export const useAccount = create<Account>((set) => ({
   refresh: async () => {
     try {
       const user = await me()
-      set({ loaded: true, signedIn: !!user, name: user ? (user.displayName ?? user.userName) : "", quota: null })
+      set({ loaded: true, signedIn: !!user, name: user ? (user.displayName || user.handle) : "", quota: null })
     } catch {
       set({ loaded: true, signedIn: false, name: "", quota: null })
     }

@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "generate": "openapi-typescript ../../../backend/openapi.json -o generated/schema.d.ts",
+    "generate": "node --import ./scripts/ts5-register.mjs ./node_modules/openapi-typescript/bin/cli.js ../../../backend/openapi.json -o generated/schema.d.ts",
     "typecheck": "tsc -p .",
     "test": "vitest run",
     "lint": "oxlint src"
@@ -13,6 +15,7 @@
   "devDependencies": {
     "openapi-typescript": "^7.13.0",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "typescript-5": "npm:typescript@^5.9.3"
   }
 }

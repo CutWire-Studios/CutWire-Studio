@@ -1,30 +1,9 @@
-import { me, type Me } from "@cutwire/api-client"
-import { AppHeader, Avatar, Button, EmptyState } from "@cutwire/ui"
+import { AppHeader, Button, EmptyState } from "@cutwire/ui"
 import { Hammer } from "lucide-react"
-import { useEffect, useState } from "react"
 import { Route, Routes, useLocation } from "react-router-dom"
+import { AccountMenu } from "./account/account-menu"
+import { accountRoutes } from "./account/routes"
 import { Launcher } from "./launcher"
-
-function AccountSlot() {
-  const [user, setUser] = useState<Me | null | undefined>(undefined)
-  useEffect(() => {
-    me()
-      .then(setUser)
-      .catch(() => setUser(null))
-  }, [])
-  if (user === undefined) return null
-  if (user === null)
-    return (
-      <Button asChild size="sm" className="ml-1">
-        <a href="/account/sign-in">Sign in</a>
-      </Button>
-    )
-  return (
-    <a href="/account" aria-label="Account">
-      <Avatar name={user.displayName ?? user.userName} src={user.avatarUrl} />
-    </a>
-  )
-}
 
 function ComingSoon({ title }: { title: string }) {
   return (
@@ -47,13 +26,13 @@ export function App() {
   const section = pathname.split("/")[1]
   return (
     <>
-      <AppHeader appId={section === "community" || section === "stock" ? section : undefined} account={() => <AccountSlot />} />
+      <AppHeader appId={section === "community" || section === "stock" ? section : undefined} account={() => <AccountMenu />} />
       <main className="container-cutwire pt-24 pb-section">
         <Routes>
           <Route path="/" element={<Launcher />} />
           <Route path="/community/*" element={<ComingSoon title="Community" />} />
           <Route path="/stock/*" element={<ComingSoon title="Stock Library" />} />
-          <Route path="/account/*" element={<ComingSoon title="Account" />} />
+          {accountRoutes}
           <Route path="*" element={<ComingSoon title="Page not found" />} />
         </Routes>
       </main>
