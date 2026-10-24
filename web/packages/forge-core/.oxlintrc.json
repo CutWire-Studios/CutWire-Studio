@@ -1,0 +1,84 @@
+{
+  "plugins": [
+    "typescript",
+    "react",
+    "import",
+    "oxc"
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [
+    "dist"
+  ],
+  "rules": {
+    "no-nested-ternary": "error",
+    "complexity": [
+      "error",
+      {
+        "max": 15
+      }
+    ],
+    "max-lines": [
+      "error",
+      {
+        "max": 400,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    "max-lines-per-function": [
+      "error",
+      {
+        "max": 150,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/no-explicit-any": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "import/no-cycle": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "regex": "^react",
+            "message": "forge-core is DOM-free and shared with the server."
+          },
+          {
+            "regex": "^@cutwire/(?!forge-core)",
+            "message": "forge-core may only import itself."
+          },
+          {
+            "regex": "^@/",
+            "message": "forge-core may only import itself."
+          }
+        ]
+      }
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/nodes/**",
+        "src/starters/**",
+        "src/compiler/helpers.ts"
+      ],
+      "rules": {
+        "max-lines-per-function": "off",
+        "max-lines": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+/*
+ * Forge's own variable names, mapped onto the @cutwire/ui design tokens so the whole app follows
+ * the Studio palette, the .theme-forge accent and the cw-theme light/dark switch.
+ */
+
+:root {
+  --bg-primary: var(--background);
+  --bg-secondary: var(--surface);
+  --bg-tertiary: var(--muted);
+  --bg-elevated: var(--card);
+  --border-strong: color-mix(in srgb, var(--border) 60%, var(--foreground));
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-tertiary: color-mix(in srgb, var(--muted-foreground) 60%, var(--background));
+  --success: #16a34a;
+  --danger: var(--destructive);
+  --warning: #d97706;
+
+  --shadow-rest: 0 1px 3px rgb(0 0 0 / 0.06);
+  --shadow-hover: 0 8px 24px rgb(0 0 0 / 0.08);
+  --shadow-elevated: 0 12px 40px rgb(0 0 0 / 0.12);
+
+  --scrim: rgb(24 24 27 / 0.45);
+  --skeleton: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-search: 16px;
+  --radius-modal: 18px;
+  --radius-pill: 9999px;
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 170ms;
+
+  --font: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --page-max: 1440px;
+  --header-height: 64px;
+}
+
+.theme-forge {
+  --forge-accent: var(--primary);
+  --forge-accent-hover: var(--primary-container);
+  --forge-accent-muted: color-mix(in srgb, var(--primary) 14%, transparent);
+  --on-accent: var(--primary-foreground);
+}
+
+[data-theme="dark"] {
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --shadow-rest: none;
+  --shadow-hover: 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-elevated: 0 12px 40px rgb(0 0 0 / 0.55);
+  --scrim: rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --shadow-rest: none;
+    --shadow-hover: 0 8px 24px rgb(0 0 0 / 0.45);
+    --shadow-elevated: 0 12px 40px rgb(0 0 0 / 0.55);
+    --scrim: rgb(0 0 0 / 0.6);
+  }
+}
