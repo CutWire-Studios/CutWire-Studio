@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import type { ForgeDoc } from "@cutwire/forge-core/doc/types"
+import { sync } from "@/services/cloud"
 import { getEngine } from "@/services/preview/engine"
-import { saveEntry } from "@/services/storage/library"
+import { saveDoc } from "@/services/storage/library"
 
 const AUTOSAVE_DELAY_MS = 700
 
@@ -12,7 +13,8 @@ export function useAutosave(doc: ForgeDoc | null, localId: string | null, routeI
   useEffect(() => {
     if (!doc || !localId || localId !== routeId) return
     const t = setTimeout(async () => {
-      await saveEntry({ localId, doc, updatedAt: Date.now(), thumb: withThumb ? getEngine().snapshot() : undefined })
+      const entry = await saveDoc(localId, doc, withThumb ? getEngine().snapshot() : undefined)
+      sync.noteSaved(entry)
       setSavedDoc(doc)
     }, AUTOSAVE_DELAY_MS)
     return () => clearTimeout(t)

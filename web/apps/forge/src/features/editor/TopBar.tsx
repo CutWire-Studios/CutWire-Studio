@@ -1,11 +1,14 @@
 import { useStore } from "zustand"
 import { KIND_INFO } from "@cutwire/forge-core/doc/kinds"
+import { PublishAudioButton } from "@/features/export"
+import { DocSyncStatus } from "@/features/sync"
 import { useDoc, useEditor } from "@/state/editor"
 import { Brand } from "@/shared/ui/AppHeader"
 import { ThemeToggle } from "@cutwire/ui"
 
 export function TopBar({ onExport, onCode, saved }: { onExport: () => void; onCode: () => void; saved: boolean }) {
   const doc = useDoc()
+  const localId = useEditor((s) => s.localId)
   const update = useEditor((s) => s.update)
   const { undo, redo } = useEditor.temporal.getState()
   const canUndo = useStore(useEditor.temporal, (s) => s.pastStates.length > 0)
@@ -23,6 +26,7 @@ export function TopBar({ onExport, onCode, saved }: { onExport: () => void; onCo
       />
       <span className="pill">{KIND_INFO[doc.kind].label}</span>
       <span className="meta small save-state">{saved ? "Saved in this browser" : "Saving…"}</span>
+      {localId && <DocSyncStatus localId={localId} />}
       <div className="topbar-actions">
         <button type="button" className="icon-btn" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!canUndo} onClick={() => undo()}>
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -34,6 +38,7 @@ export function TopBar({ onExport, onCode, saved }: { onExport: () => void; onCo
             <path d="M15 7l5 5-5 5M20 12H9a5 5 0 0 0 0 10h2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
           </svg>
         </button>
+        {doc.kind === "audio" && <PublishAudioButton />}
         {doc.kind !== "audio" && (
           <>
             <button type="button" className="btn btn-tertiary btn-sm" onClick={onCode}>

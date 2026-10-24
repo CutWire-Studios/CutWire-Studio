@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { errorMessage } from "@cutwire/forge-core/errors"
 import { decodeLinkPayload, LINK_PREFIX } from "@cutwire/forge-core/export/link"
-import { createEntry } from "@/services/storage/library"
+import { createSyncedEntry } from "@/services/cloud"
 import { toast } from "@/shared/ui/toast"
 
 const sharePayload = () => location.hash.slice(1)
@@ -27,7 +27,7 @@ export function useUrlActions(): boolean {
     const payload = sharePayload()
     if (!payload.startsWith(LINK_PREFIX)) return
     decodeLinkPayload(payload)
-      .then((doc) => createEntry(doc))
+      .then((doc) => createSyncedEntry(doc))
       .then((id) => navigate(`/edit/${id}`, { replace: true }))
       .catch((e) => {
         toast(errorMessage(e), "error")

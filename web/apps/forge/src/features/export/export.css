@@ -94,3 +94,40 @@
     align-items: stretch;
   }
 }
+
+.publish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.publish-media {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.publish-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-control);
+  background: var(--bg-tertiary);
+}
+
+.publish-slider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.publish-slider input {
+  flex: 1;
+}
+
+.publish-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}

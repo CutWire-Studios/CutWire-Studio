@@ -138,6 +138,7 @@
 }
 
 .card-actions {
+  flex-wrap: wrap;
   display: flex;
   justify-content: flex-end;
   padding: 0 var(--space-2) var(--space-2);

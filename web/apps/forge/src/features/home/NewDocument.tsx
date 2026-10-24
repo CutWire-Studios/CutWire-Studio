@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useSearchParams } from "react-router"
 import { errorMessage } from "@cutwire/forge-core/errors"
 import type { Kind } from "@cutwire/forge-core/doc/types"
 import { STARTERS } from "@cutwire/forge-core/starters"
-import { createEntry } from "@/services/storage/library"
+import { createSyncedEntry } from "@/services/cloud"
 import { toast } from "@/shared/ui/toast"
 import { freshCopy } from "./Home"
 
@@ -19,7 +19,7 @@ export function NewDocument() {
     const ofKind = STARTERS.filter((s) => s.doc.kind === (kind as Kind))
     const starter = ofKind.find((s) => s.name.startsWith("Blank")) ?? ofKind[0]
     if (!starter) return
-    createEntry(freshCopy(starter.doc))
+    createSyncedEntry(freshCopy(starter.doc))
       .then((id) => navigate(`/edit/${id}`, { replace: true }))
       .catch((e) => {
         toast(errorMessage(e), "error")

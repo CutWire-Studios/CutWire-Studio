@@ -1,0 +1,53 @@
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.sync-synced .sync-dot { background: var(--success); }
+.sync-pending .sync-dot,
+.sync-syncing .sync-dot { background: var(--forge-accent); }
+.sync-offline .sync-dot { background: var(--warning); }
+.sync-conflict .sync-dot,
+.sync-error .sync-dot { background: var(--danger); }
+
+.sync-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--forge-accent-muted);
+}
+
+.conflict-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cloud-pill {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+
+.card-sync {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}

@@ -20,6 +20,7 @@ export default defineConfig({
       "/api": "http://localhost:8087",
       "/account": "http://localhost:8087",
       "/mcp": "http://localhost:8087",
+      "/files": "http://localhost:8087",
     },
   },
   build: {

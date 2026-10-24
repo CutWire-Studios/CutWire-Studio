@@ -4,15 +4,10 @@ import { KIND_INFO } from "@cutwire/forge-core/doc/kinds"
 import type { ForgeDoc } from "@cutwire/forge-core/doc/types"
 import type { Starter } from "@cutwire/forge-core/starters"
 import { renderCardThumb } from "@/services/preview/cardThumb"
+import type { ForgeDocSummary } from "@cutwire/api-client"
+import { sync, useSync, useSyncState } from "@/services/cloud"
 import type { LibraryEntry } from "@/services/storage/library"
-
-function ago(ts: number): string {
-  const s = (Date.now() - ts) / 1000
-  if (s < 60) return "just now"
-  if (s < 3600) return `${Math.floor(s / 60)} min ago`
-  if (s < 86400) return `${Math.floor(s / 3600)} h ago`
-  return new Date(ts).toLocaleDateString()
-}
+import { ago, SyncBadge } from "@/features/sync"
 
 function useCardThumb(doc: ForgeDoc, stored?: string) {
   const [src, setSrc] = useState(stored ?? null)
@@ -55,8 +50,38 @@ function CardThumb({ doc, thumb }: { doc: ForgeDoc; thumb: string | null }) {
   return <div className="skeleton" />
 }
 
-export function LibraryCard({ entry, onDelete, onDuplicate }: { entry: LibraryEntry; onDelete: () => void; onDuplicate: () => void }) {
+interface CardActions {
+  onDelete: () => void
+  onDeleteFromCloud: () => void
+  onDeleteEverywhere: () => void
+}
+
+function DeleteButtons({ linked, onDelete, onDeleteFromCloud, onDeleteEverywhere }: CardActions & { linked: boolean }) {
+  if (!linked) {
+    return (
+      <button type="button" className="btn btn-tertiary btn-sm danger-text" onClick={onDelete}>
+        Delete
+      </button>
+    )
+  }
+  return (
+    <>
+      <button type="button" className="btn btn-tertiary btn-sm" title="Removes the cloud copy; keeps this browser's copy" onClick={onDeleteFromCloud}>
+        Delete from cloud
+      </button>
+      <button type="button" className="btn btn-tertiary btn-sm danger-text" onClick={onDeleteEverywhere}>
+        Delete everywhere
+      </button>
+    </>
+  )
+}
+
+export function LibraryCard({ entry, onDuplicate, ...del }: { entry: LibraryEntry; onDuplicate: () => void } & CardActions) {
   const thumb = useCardThumb(entry.doc, entry.thumb)
+  const state = useSyncState(entry.localId)
+  const signedIn = useSync((s) => s.signedIn)
+  const syncedAt = useSync((s) => s.meta[entry.localId]?.syncedAt ?? entry.syncedAt)
+  const linked = signedIn && !!entry.cloudId
   return (
     <div className="card lib-card">
       <Link to={`/edit/${entry.localId}`} className="card-thumb">
@@ -67,14 +92,50 @@ export function LibraryCard({ entry, onDelete, onDuplicate }: { entry: LibraryEn
         <Link to={`/edit/${entry.localId}`}>
           <strong>{entry.doc.meta.displayName}</strong>
         </Link>
-        <span className="meta">Edited {ago(entry.updatedAt)}</span>
+        <span className="meta">
+          Edited {ago(entry.updatedAt)}
+          {linked && syncedAt ? ` · synced ${ago(syncedAt)}` : ""}
+        </span>
+        <span className="card-sync">
+          <SyncBadge state={state} />
+          {state === "conflict" && (
+            <button type="button" className="link-btn" onClick={() => sync.openConflict(entry.localId)}>
+              Resolve
+            </button>
+          )}
+        </span>
       </div>
       <div className="card-actions">
         <button type="button" className="btn btn-tertiary btn-sm" onClick={onDuplicate}>
           Duplicate
         </button>
-        <button type="button" className="btn btn-tertiary btn-sm danger-text" onClick={onDelete}>
-          Delete
+        <DeleteButtons linked={linked} {...del} />
+      </div>
+    </div>
+  )
+}
+
+/** A document that exists in the cloud and hasn't been downloaded to this browser yet. */
+export function CloudCard({ cloud, onDeleteFromCloud }: { cloud: ForgeDocSummary; onDeleteFromCloud: () => void }) {
+  const to = `/edit/${cloud.localId || cloud.id}`
+  return (
+    <div className="card lib-card">
+      <Link to={to} className="card-thumb">
+        {cloud.thumbUrl ? <img src={cloud.thumbUrl} alt="" /> : <div className="audio-thumb" aria-hidden="true">{cloud.kind === "audio" ? "♪" : "☁"}</div>}
+        <span className="pill kind-pill">Cloud</span>
+      </Link>
+      <div className="card-text">
+        <Link to={to}>
+          <strong>{cloud.name}</strong>
+        </Link>
+        <span className="meta">Updated {ago(Date.parse(cloud.updatedAt) || 0)}</span>
+        <span className="card-sync">
+          <SyncBadge state="synced" title="In your cloud library; opens and downloads here" />
+        </span>
+      </div>
+      <div className="card-actions">
+        <button type="button" className="btn btn-tertiary btn-sm danger-text" onClick={onDeleteFromCloud}>
+          Delete from cloud
         </button>
       </div>
     </div>

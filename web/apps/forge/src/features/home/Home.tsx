@@ -6,11 +6,13 @@ import type { ForgeDoc, Kind } from "@cutwire/forge-core/doc/types"
 import { emptyDoc, makeEffectId } from "@cutwire/forge-core/doc/util"
 import { importFile } from "@cutwire/forge-core/export/archive"
 import { STARTERS } from "@cutwire/forge-core/starters"
-import { createEntry, deleteEntry, listLibrary, type LibraryEntry } from "@/services/storage/library"
+import { createSyncedEntry, mergeLibrary, sync, useSync } from "@/services/cloud"
+import { deleteEntry, listLibrary, type LibraryEntry } from "@/services/storage/library"
+import { SyncBanner, SyncIndicator } from "@/features/sync"
 import { AppHeader } from "@/shared/ui/AppHeader"
 import { Modal } from "@/shared/ui/Modal"
 import { toast } from "@/shared/ui/toast"
-import { LibraryCard, StarterCard } from "./cards"
+import { CloudCard, LibraryCard, StarterCard } from "./cards"
 import { useUrlActions } from "./useUrlActions"
 import "./home.css"
 
@@ -28,13 +30,20 @@ export function Home() {
   const opening = useUrlActions()
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const signedIn = useSync((s) => s.signedIn)
+  const cloud = useSync((s) => s.cloud)
+  const lastSyncedAt = useSync((s) => s.lastSyncedAt)
+
   const refresh = () => listLibrary().then(setEntries)
   useEffect(() => {
-    refresh()
-  }, [])
+    void refresh()
+  }, [cloud, lastSyncedAt])
+  useEffect(() => {
+    if (signedIn) void sync.refresh().then(refresh)
+  }, [signedIn])
 
   const start = async (doc: ForgeDoc) => {
-    const id = await createEntry(doc)
+    const id = await createSyncedEntry(doc)
     navigate(`/edit/${id}`)
   }
 
@@ -61,6 +70,7 @@ export function Home() {
   return (
     <>
       <AppHeader>
+        <SyncIndicator />
         <button type="button" className="btn btn-secondary btn-sm" onClick={() => fileRef.current?.click()}>
           Open file
         </button>
@@ -125,7 +135,8 @@ export function Home() {
 
         <section className="library">
           <h2>Your creations</h2>
-          <Library entries={entries} refresh={refresh} />
+          <SyncBanner localOnly={(entries ?? []).filter((e) => !e.cloudId).length} onDone={refresh} />
+          <Library entries={entries} cloud={cloud} signedIn={signedIn} refresh={refresh} />
         </section>
       </main>
 
@@ -142,9 +153,20 @@ export function Home() {
   )
 }
 
-function Library({ entries, refresh }: { entries: LibraryEntry[] | null; refresh: () => void }) {
+function Library({
+  entries,
+  cloud,
+  signedIn,
+  refresh,
+}: {
+  entries: LibraryEntry[] | null
+  cloud: ReturnType<typeof useSync.getState>["cloud"]
+  signedIn: boolean
+  refresh: () => void
+}) {
   if (entries === null) return null
-  if (!entries.length) {
+  const items = mergeLibrary(entries, signedIn ? cloud : null)
+  if (!items.length) {
     return (
       <p className="meta">
         Nothing yet. Start with a new effect above, or drop a <code>.driftfx</code> or <code>.zip</code> from
@@ -152,23 +174,50 @@ function Library({ entries, refresh }: { entries: LibraryEntry[] | null; refresh
       </p>
     )
   }
+  const run = async (fn: () => Promise<void>) => {
+    try {
+      await fn()
+    } catch (e) {
+      toast(errorMessage(e), "error")
+    }
+    refresh()
+  }
   return (
     <div className="card-grid">
-      {entries.map((e) => (
-        <LibraryCard
-          key={e.localId}
-          entry={e}
-          onDuplicate={async () => {
-            await createEntry(freshCopy(e.doc, `${e.doc.meta.displayName} copy`), e.thumb)
-            refresh()
-          }}
-          onDelete={async () => {
-            if (!confirm(`Delete "${e.doc.meta.displayName}"? This can't be undone.`)) return
-            await deleteEntry(e.localId)
-            refresh()
-          }}
-        />
-      ))}
+      {items.map((item) =>
+        item.kind === "cloud" ? (
+          <CloudCard
+            key={item.cloud.id}
+            cloud={item.cloud}
+            onDeleteFromCloud={() => {
+              if (!confirm(`Delete "${item.cloud.name}" from your cloud library? It isn't saved in this browser.`)) return
+              void run(() => sync.deleteFromCloud(item.cloud.id))
+            }}
+          />
+        ) : (
+          <LibraryCard
+            key={item.localId}
+            entry={item.entry}
+            onDuplicate={() =>
+              run(async () => {
+                await createSyncedEntry(freshCopy(item.entry.doc, `${item.entry.doc.meta.displayName} copy`), item.entry.thumb)
+              })
+            }
+            onDelete={() => {
+              if (!confirm(`Delete "${item.entry.doc.meta.displayName}"? This can't be undone.`)) return
+              void run(() => deleteEntry(item.localId))
+            }}
+            onDeleteFromCloud={() => {
+              if (!confirm(`Delete "${item.entry.doc.meta.displayName}" from the cloud? It stays in this browser.`)) return
+              void run(() => sync.deleteFromCloud(item.entry.cloudId!, item.localId))
+            }}
+            onDeleteEverywhere={() => {
+              if (!confirm(`Delete "${item.entry.doc.meta.displayName}" from the cloud and this browser? This can't be undone.`)) return
+              void run(() => sync.deleteEverywhere(item.localId, item.entry.cloudId))
+            }}
+          />
+        ),
+      )}
     </div>
   )
 }

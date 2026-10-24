@@ -22,6 +22,8 @@ interface EditorState extends RackActions {
   update(recipe: (d: Draft<ForgeDoc>) => void): void
   /** Replaces the document wholesale (AI edits); one undo step. */
   replaceDoc(doc: ForgeDoc): void
+  /** Swaps in a document that arrived from the cloud (MCP, AI, another tab); one undo step. */
+  applyRemote(doc: ForgeDoc): void
   /** Runs `work` as a single undo step even though it may replace the document many times. */
   withUndoGroup(work: (apply: (d: ForgeDoc) => void) => Promise<void>): Promise<void>
   select(ids: string[]): void
@@ -88,6 +90,19 @@ export const useEditor = create<EditorState>()(
         replaceDoc: (d) => {
           const ids = selectableIds(d)
           set({ doc: d, selected: get().selected.filter((id) => ids.has(id)) })
+        },
+        applyRemote: (d) => {
+          const before = doc()
+          const temporal = useEditor.temporal.getState()
+          temporal.pause()
+          try {
+            get().replaceDoc(d)
+          } finally {
+            temporal.resume()
+          }
+          if (get().doc !== before) {
+            useEditor.temporal.setState((t) => ({ pastStates: [...t.pastStates, { doc: before }], futureStates: [] }))
+          }
         },
         withUndoGroup: async (work) => {
           const before = doc()

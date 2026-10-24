@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router"
 import { ReactFlowProvider } from "@xyflow/react"
 import type { ForgeDoc } from "@cutwire/forge-core/doc/types"
 import { useEditor } from "@/state/editor"
+import { useLiveDoc } from "@/features/sync"
 import { AudioEditor } from "@/features/audio-board"
 import { CodePanel } from "@/features/code"
 import { ExportDialog } from "@/features/export"
@@ -30,6 +31,7 @@ export function Editor() {
   const isAudio = doc?.kind === "audio"
 
   const missing = useDocumentLoader(id)
+  useLiveDoc(localId)
   usePreviewSync(webgl && !isAudio)
   const saved = useAutosave(doc, localId, id, !isAudio)
   useShortcuts({ enabled: !dialog, graph: !isAudio, quickAdd })

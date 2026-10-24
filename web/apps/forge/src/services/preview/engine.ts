@@ -407,8 +407,8 @@ export class PreviewEngine {
     return c.toDataURL("image/jpeg", SNAPSHOT_JPEG_QUALITY)
   }
 
-  /** Renders the export preview image with the exported (inlined) shader code. */
-  renderPackagePreview(doc: ForgeDoc): ImageData | string {
+  /** The exported shader and everything a frame of it needs besides its size, or the compile errors. */
+  private exportFrame(doc: ForgeDoc) {
     const compiled = compile(doc, { mode: "export" })
     if (!compiled.ok) return compiled.errors.map((e) => e.message).join("\n")
     const assetOf = (texId: string) => compiled.textures.find((t) => t.id === texId)?.assetId ?? ""
@@ -419,14 +419,33 @@ export class PreviewEngine {
       paramTexture: paramTextures(this.renderer, doc, {}),
       clipMask: usesClipMask(doc) && this.sources.has("mask") ? this.renderer.sourceTexture("mask") : null,
     }
+    return { compiled, assetOf, base }
+  }
+
+  /** The community thumbnail at its exact size (transitions at half progress) and, for transitions, the 1536x128 strip. */
+  renderCommunityFrames(doc: ForgeDoc, width: number, height: number): { thumbnail: ImageData; strip?: ImageData } | string {
+    const f = this.exportFrame(doc)
+    if (typeof f === "string") return f
+    const effect = doc.kind === "effect"
+    this.sources.drawClip(0, width, height)
+    if (!effect) this.sources.drawClip(1, width, height)
+    const frame = { ...f.base, width, height, time: effect ? doc.preview.thumbTime : 0, progress: effect ? 0 : 0.5 }
+    const thumbnail = this.renderer.readPixels(f.compiled, frame, f.assetOf)
+    if (typeof thumbnail === "string") return thumbnail
+    if (doc.kind !== "transition") return { thumbnail }
+    const strip = this.renderPackagePreview(doc)
+    return typeof strip === "string" ? strip : { thumbnail, strip }
+  }
+
+  /** Renders the export preview image with the exported (inlined) shader code. */
+  renderPackagePreview(doc: ForgeDoc): ImageData | string {
+    const f = this.exportFrame(doc)
+    if (typeof f === "string") return f
+    const { compiled, assetOf, base } = f
     if (doc.kind === "effect") {
       const size = 256
       this.sources.drawClip(0, size, size)
-      return this.renderer.readPixels(
-        compiled,
-        { ...base, width: size, height: size, time: doc.preview.thumbTime, progress: 0 },
-        assetOf,
-      )
+      return this.renderer.readPixels(compiled, { ...base, width: size, height: size, time: doc.preview.thumbTime, progress: 0 }, assetOf)
     }
     const n = 12
     const s = 128

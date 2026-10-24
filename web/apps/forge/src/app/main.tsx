@@ -7,8 +7,10 @@ import { initTheme, TooltipProvider } from "@cutwire/ui"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { App } from "./App"
+import { startCloudSync } from "./cloudSync"
 
 initTheme()
+startCloudSync()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

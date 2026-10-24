@@ -2,30 +2,21 @@ import { useEffect, useMemo, useState } from "react"
 import { minAppVersion } from "@cutwire/forge-core/compiler/manifest"
 import { errorMessage } from "@cutwire/forge-core/errors"
 import type { ForgeDoc } from "@cutwire/forge-core/doc/types"
-import { base64ToBytes } from "@cutwire/forge-core/doc/util"
 import { exportDriftfx, exportZip } from "@cutwire/forge-core/export/archive"
 import { encodeLinkPayload, LINK_LIMIT } from "@cutwire/forge-core/export/link"
 import { packageRoot } from "@cutwire/forge-core/export/package"
-import { getEngine } from "@/services/preview/engine"
-import { download, imageDataToPng, shrinkAssets } from "@/services/storage/assets"
+import { download, shrinkAssets } from "@/services/storage/assets"
 import { useDoc } from "@/state/editor"
 import { useCompiled } from "@/state/useCompiled"
 import { Modal } from "@/shared/ui/Modal"
 import { toast } from "@/shared/ui/toast"
+import { stripBlobRefs } from "@/services/cloud"
 import { PreviewImage } from "./PreviewImage"
+import { previewPng } from "./previewPng"
+import { PublishCard } from "./PublishDialog"
 import "./export.css"
 
 type ShareLink = { url: string } | { tooLong: number } | null
-
-function dataUrlBytes(url: string): Uint8Array {
-  return base64ToBytes(url.slice(url.indexOf(",") + 1))
-}
-
-async function previewPng(doc: ForgeDoc): Promise<Uint8Array | null> {
-  if (doc.kind === "effect" && doc.preview.customThumb) return dataUrlBytes(doc.preview.customThumb)
-  const img = getEngine().renderPackagePreview(doc)
-  return typeof img === "string" ? null : imageDataToPng(img)
-}
 
 function osFolder(doc: ForgeDoc): string {
   const sub = packageRoot(doc)
@@ -42,7 +33,7 @@ function useExportArtifacts(doc: ForgeDoc) {
   useEffect(() => {
     let live = true
     previewPng(doc).then((b) => live && setPng(b))
-    shrinkAssets(doc)
+    shrinkAssets(stripBlobRefs(doc))
       .then(encodeLinkPayload)
       .then((payload) => {
         if (!live) return
@@ -116,7 +107,7 @@ function ExportOptions({ doc, onShowCode }: { doc: ForgeDoc; onShowCode: () => v
             type="button"
             className="btn btn-primary btn-sm"
             disabled={busy}
-            onClick={() => run(async () => download(`${fileBase}.zip`, exportZip(doc, { png }), "application/zip"))}
+            onClick={() => run(async () => download(`${fileBase}.zip`, exportZip(stripBlobRefs(doc), { png }), "application/zip"))}
           >
             Download .zip
           </button>
@@ -135,7 +126,7 @@ function ExportOptions({ doc, onShowCode }: { doc: ForgeDoc; onShowCode: () => v
             className="btn btn-secondary btn-sm"
             disabled={busy}
             onClick={() =>
-              run(async () => download(`${fileBase}.driftfx`, await exportDriftfx(doc, { png }), "application/octet-stream"))
+              run(async () => download(`${fileBase}.driftfx`, await exportDriftfx(stripBlobRefs(doc), { png }), "application/octet-stream"))
             }
           >
             Download .driftfx
@@ -143,6 +134,8 @@ function ExportOptions({ doc, onShowCode }: { doc: ForgeDoc; onShowCode: () => v
         </div>
 
         <ShareLinkCard link={link} />
+
+        <PublishCard doc={doc} />
       </div>
 
       <button type="button" className="link-btn" onClick={onShowCode}>
