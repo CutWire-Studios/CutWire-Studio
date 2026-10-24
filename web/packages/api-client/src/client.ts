@@ -7,6 +7,7 @@ export class ApiError extends Error {
     readonly title: string,
     readonly detail?: string,
     readonly errors?: Record<string, string[]>,
+    readonly violations?: FieldViolation[],
   ) {
     super(detail ?? title)
     this.name = "ApiError"
@@ -15,6 +16,7 @@ export class ApiError extends Error {
 
 export type Schemas = components["schemas"]
 export type Me = Schemas["MeDto"]
+export type FieldViolation = Schemas["FieldViolation"]
 
 export async function parseProblem(res: Response): Promise<ApiError> {
   let body: Record<string, unknown> = {}
@@ -29,6 +31,7 @@ export async function parseProblem(res: Response): Promise<ApiError> {
     typeof body.title === "string" ? body.title : res.statusText || "Request failed",
     typeof body.detail === "string" ? body.detail : undefined,
     body.errors && typeof body.errors === "object" ? (body.errors as Record<string, string[]>) : undefined,
+    Array.isArray(body.violations) ? (body.violations as FieldViolation[]) : undefined,
   )
 }
 

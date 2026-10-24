@@ -13,6 +13,7 @@
   "dependencies": {
     "@cutwire/api-client": "workspace:*",
     "@cutwire/apps": "workspace:*",
+    "@cutwire/content-rules": "workspace:*",
     "@cutwire/ui": "workspace:*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

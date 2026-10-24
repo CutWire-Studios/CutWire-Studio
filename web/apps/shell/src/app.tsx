@@ -3,6 +3,7 @@ import { Hammer } from "lucide-react"
 import { Route, Routes, useLocation } from "react-router-dom"
 import { AccountMenu } from "./account/account-menu"
 import { accountRoutes } from "./account/routes"
+import { communityRoutes } from "./community/routes"
 import { Launcher } from "./launcher"
 
 function ComingSoon({ title }: { title: string }) {
@@ -30,7 +31,7 @@ export function App() {
       <main className="container-cutwire pt-24 pb-section">
         <Routes>
           <Route path="/" element={<Launcher />} />
-          <Route path="/community/*" element={<ComingSoon title="Community" />} />
+          {communityRoutes}
           <Route path="/stock/*" element={<ComingSoon title="Stock Library" />} />
           {accountRoutes}
           <Route path="*" element={<ComingSoon title="Page not found" />} />
