@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Studio": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:8087",
+      "environmentVariables": { "ASPNETCORE_ENVIRONMENT": "Development" }
+    }
+  }
+}

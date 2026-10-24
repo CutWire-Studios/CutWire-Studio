@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CutWire.Studio.Api/CutWire.Studio.Api.csproj" />
+    <Project Path="src/CutWire.Studio.Application/CutWire.Studio.Application.csproj" />
+    <Project Path="src/CutWire.Studio.Domain/CutWire.Studio.Domain.csproj" />
+    <Project Path="src/CutWire.Studio.Infrastructure/CutWire.Studio.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CutWire.Studio.IntegrationTests/CutWire.Studio.IntegrationTests.csproj" />
+    <Project Path="tests/CutWire.Studio.UnitTests/CutWire.Studio.UnitTests.csproj" />
+  </Folder>
+</Solution>
