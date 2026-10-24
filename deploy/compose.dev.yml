@@ -1,0 +1,36 @@
+# Local smoke test: podman compose -f deploy/compose.dev.yml up -d --build
+services:
+  postgres:
+    image: docker.io/library/postgres:17-alpine
+    environment:
+      POSTGRES_USER: studio
+      POSTGRES_PASSWORD: studio
+      POSTGRES_DB: studio
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studio -d studio"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  studio:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: cutwire-studio:dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8087:8080"
+    environment:
+      PublicUrl: http://localhost:8087
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=studio;Username=studio;Password=studio
+      Auth__OpenIddict__UseEphemeralKeys: "true"
+    volumes:
+      - data:/data
+
+volumes:
+  pgdata:
+  data:
