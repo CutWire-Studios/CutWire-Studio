@@ -13,9 +13,13 @@ public sealed class ProviderCache(IMemoryCache memory, IServiceScopeFactory scop
     private const int MaxKey = 2200;
     private static readonly TimeSpan MemoryTtl = TimeSpan.FromMinutes(10);
 
+    /// <summary>Callers key by full URL, and some providers (Pixabay) carry their API key in it; the key must not be stored.</summary>
+    public static string Digest(string key) => Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(key)));
+
     public async Task<string?> GetAsync(string key, CancellationToken ct)
     {
         if (key.Length > MaxKey) return null;
+        key = Digest(key);
         if (memory.TryGetValue(key, out string? hit)) return hit;
         await using var scope = scopes.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
@@ -29,6 +33,7 @@ public sealed class ProviderCache(IMemoryCache memory, IServiceScopeFactory scop
     public async Task SetAsync(string key, string body, TimeSpan ttl, CancellationToken ct)
     {
         if (key.Length > MaxKey) return;
+        key = Digest(key);
         memory.Set(key, body, new[] { MemoryTtl, ttl }.Min());
         await using var scope = scopes.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IAppDbContext>();

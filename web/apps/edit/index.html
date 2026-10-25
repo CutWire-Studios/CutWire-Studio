@@ -7,14 +7,7 @@
     <meta name="theme-color" content="#0F0F12" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)" />
     <title>CutWire Studio</title>
-    <script>
-      ;(function () {
-        try {
-          var stored = localStorage.getItem("cw-theme")
-          if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored
-        } catch (_) {}
-      })()
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

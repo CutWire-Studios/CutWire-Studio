@@ -15,6 +15,9 @@ public sealed class TestEndpoints : IApiContributor
         group.MapGet("/forge-write", () => Results.Ok("write")).RequireAuthorization(AuthPolicies.Scope("forge:write"));
         group.MapPost("/forge-write", () => Results.Ok("write")).RequireAuthorization(AuthPolicies.Scope("forge:write"));
         group.MapGet("/not-banned", () => Results.Ok("fine")).RequireAuthorization(AuthPolicies.NotBanned);
+        group.MapGet("/boom", Boom);
         group.MapGet("/moderator", () => Results.Ok("mod")).RequireAuthorization(AuthPolicies.Role("moderator"));
     }
+
+    private static IResult Boom() => throw new InvalidOperationException("secret-internal-detail");
 }

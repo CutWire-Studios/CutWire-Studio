@@ -11,6 +11,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(o =>
+{
+    o.AddServerHeader = false;
+    o.Limits.MaxRequestBodySize = HttpExtensions.MaxRequestBytes;
+});
+
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration, builder.Environment)
@@ -32,9 +38,11 @@ if (app.Configuration.GetValue("Database:AutoMigrate", true))
 }
 
 app.UseForwardedHeaders();
+app.UseStudioSecurityHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseStudioCsrf();
+app.UseDeviceFlowLimit();
 app.UseAppHosts();
 app.UseMcpChallenge();
 app.UseAuthentication();
@@ -44,6 +52,7 @@ app.UseAuthorization();
 app.MapOpenApi("/api/v1/openapi.json");
 var api = app.MapGroup("/api/v1").RequireRateLimiting(RateLimitingSettings.DefaultPolicy);
 api.MapHealth();
+api.MapCspReport();
 api.MapAccount();
 api.MapItems();
 api.MapUsers();

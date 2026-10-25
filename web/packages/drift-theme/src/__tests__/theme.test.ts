@@ -355,3 +355,11 @@ describe("catalog", () => {
     expect(findToken("semantic.category")?.type).toBe("array")
   })
 })
+
+describe("standalone schema validator", () => {
+  it("measures string length in code points without runtime code generation", () => {
+    const result = validateTheme({ name: "" } as never)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.code === "schema.minLength")).toBe(true)
+  })
+})

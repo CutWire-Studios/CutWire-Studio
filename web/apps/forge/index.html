@@ -12,18 +12,7 @@
       name="description"
       content="Build your own video effects and transitions for Drift, right in the browser. No code needed."
     />
-    <script>
-      // Applied before first paint: a stored theme arriving with the app bundle
-      // would repaint the whole page a moment after it was already visible.
-      ;(function () {
-        try {
-          var stored = localStorage.getItem("cw-theme")
-          if (stored === "light" || stored === "dark") {
-            document.documentElement.dataset.theme = stored
-          }
-        } catch (_) {}
-      })()
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body class="theme-forge">
     <div id="root"></div>

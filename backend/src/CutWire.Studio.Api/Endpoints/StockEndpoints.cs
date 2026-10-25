@@ -157,6 +157,9 @@ public static class StockEndpoints
                     http.Response.StatusCode = (int)response.StatusCode;
                     var h = http.Response.Headers;
                     var contentType = claims.Mime ?? response.Content.Headers.ContentType?.ToString();
+                    if (claims.Mime is null && contentType is not null && !contentType.StartsWith("application/octet-stream", StringComparison.OrdinalIgnoreCase)
+                        && !SecurityHeadersMiddleware.IsInlineSafe(contentType))
+                        return Results.StatusCode(StatusCodes.Status502BadGateway);
                     if (contentType is not null) http.Response.ContentType = contentType;
                     if (response.Content.Headers.ContentLength is { } length) http.Response.ContentLength = length;
                     foreach (var name in new[] { "Content-Range", "Accept-Ranges", "Last-Modified", "ETag" })

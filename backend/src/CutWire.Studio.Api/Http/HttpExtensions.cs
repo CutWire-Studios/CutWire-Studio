@@ -16,6 +16,7 @@ public sealed class RateLimitingSettings
     public const string VotePolicy = "vote";
     public const string ReportPolicy = "report";
     public const string StockWritePolicy = "stock-write";
+    public const string CspReportPolicy = "csp-report";
 
     public int PermitLimit { get; set; } = 120;
     public TimeSpan Window { get; set; } = TimeSpan.FromMinutes(1);
@@ -27,14 +28,38 @@ public sealed class RateLimitingSettings
     public TimeSpan ReportWindow { get; set; } = TimeSpan.FromMinutes(10);
     public int StockWritePermitLimit { get; set; } = 30;
     public TimeSpan StockWriteWindow { get; set; } = TimeSpan.FromMinutes(1);
+    /// <summary>Per IP and minute across /connect/device and /connect/verify: user codes are short enough to be worth guessing.</summary>
+    public int DeviceFlowPermitLimit { get; set; } = 20;
+    public int CspReportPermitLimit { get; set; } = 30;
+    public TimeSpan CspReportWindow { get; set; } = TimeSpan.FromMinutes(1);
 }
 
 public static class HttpExtensions
 {
+    /// <summary>The largest legitimate body is an 8 MB Forge asset; nginx in front allows 16 MB.</summary>
+    public const long MaxRequestBytes = 16 * 1024 * 1024;
+
     private static string UserOrIp(HttpContext http) =>
         http.User.Identity?.IsAuthenticated == true && http.User.FindFirst("sub")?.Value is { } sub
             ? "u:" + sub
             : "ip:" + (http.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+
+    /// <summary>Runs before authentication, which is where OpenIddict answers /connect/device and validates user codes, so the rate limiter middleware is too late.</summary>
+    public static IApplicationBuilder UseDeviceFlowLimit(this IApplicationBuilder app) => app.Use(async (http, next) =>
+    {
+        if (http.Request.Path.StartsWithSegments("/connect/device") || http.Request.Path.StartsWithSegments("/connect/verify"))
+        {
+            var limit = http.RequestServices.GetRequiredService<IOptions<RateLimitingSettings>>().Value.DeviceFlowPermitLimit;
+            if (!http.RequestServices.GetRequiredService<Endpoints.FixedWindowLimiter>().Take("device-flow:" + http.Connection.RemoteIpAddress, limit))
+            {
+                http.Response.Headers.RetryAfter = "60";
+                await Domain.Common.Error.RateLimited("rate_limited", "Too many requests.", 60).ToHttpResult().ExecuteAsync(http);
+                return;
+            }
+        }
+
+        await next(http);
+    });
 
     public static IServiceCollection AddStudioHttp(this IServiceCollection services, IConfiguration configuration)
     {
@@ -110,6 +135,18 @@ public static class HttpExtensions
                     QueueLimit = 0,
                 });
             });
+            o.AddPolicy(RateLimitingSettings.CspReportPolicy, http =>
+            {
+                var settings = http.RequestServices.GetRequiredService<IOptions<RateLimitingSettings>>().Value;
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    http.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = settings.CspReportPermitLimit,
+                        Window = settings.CspReportWindow,
+                        QueueLimit = 0,
+                    });
+            });
             o.OnRejected = async (ctx, ct) =>
             {
                 if (ctx.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retry))
@@ -129,6 +166,10 @@ public static class HttpExtensions
             if (!string.IsNullOrEmpty(publicUrl)) doc.Servers = [new OpenApiServer { Url = publicUrl }];
             return Task.CompletedTask;
         }).AddDocumentTransformer(OpenApiFixes.Apply));
+
+        services.AddStudioSecurityHeaders(configuration);
+
+        services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.MultipartBodyLengthLimit = MaxRequestBytes);
 
         services.AddOptions<SpaOptions>().Bind(configuration.GetSection(SpaOptions.Section));
 

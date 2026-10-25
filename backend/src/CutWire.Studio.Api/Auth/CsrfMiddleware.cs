@@ -33,6 +33,8 @@ public sealed class CsrfMiddleware(RequestDelegate next, PublicUrl publicUrl, IO
         !HttpMethods.IsGet(request.Method) && !HttpMethods.IsHead(request.Method) &&
         !HttpMethods.IsOptions(request.Method) && !HttpMethods.IsTrace(request.Method) &&
         !request.Headers.ContainsKey("Authorization") &&
+        // Browsers send violation reports themselves and cannot add a custom header; the endpoint only logs.
+        !request.Path.StartsWithSegments(CspReportEndpoint.Path) &&
         (request.Path.StartsWithSegments("/api/v1") || request.Path.StartsWithSegments("/connect/verify"));
 
     private bool IsAllowedOrigin(string origin) =>

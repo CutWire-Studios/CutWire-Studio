@@ -8,7 +8,7 @@ public sealed class StockAssembler(IMediaUrls urls)
         var d = provider.Descriptor;
         var type = string.IsNullOrEmpty(item.Type) ? d.Serves.FirstOrDefault()?.Type ?? "" : item.Type;
         var license = item.License is { } l
-            ? new StockLicenseDto(l.Name, Nullable(l.Url), Nullable(l.Attribution))
+            ? new StockLicenseDto(l.Name, HttpUrl(l.Url), Nullable(l.Attribution))
             : new StockLicenseDto($"{d.Label} terms", null, Nullable(d.Attribution));
         var variants = item.Variants.Count == 0
             ? null
@@ -19,7 +19,7 @@ public sealed class StockAssembler(IMediaUrls urls)
             type,
             d.Id,
             item.Title,
-            item.Creator is { } c ? new StockCreatorDto(c.Name, Nullable(c.Url)) : null,
+            item.Creator is { } c ? new StockCreatorDto(c.Name, HttpUrl(c.Url)) : null,
             Positive(item.DurationMs),
             Positive(item.Width),
             Positive(item.Height),
@@ -38,5 +38,8 @@ public sealed class StockAssembler(IMediaUrls urls)
     };
 
     private static int? Positive(int n) => n > 0 ? n : null;
+    /// <summary>Provider links end up in href attributes; anything but http(s) (javascript:, data:) is dropped.</summary>
+    public static string? HttpUrl(string? s) => ProviderSupport.TryParseHttpUrl(s, out _) ? s!.Trim() : null;
+
     private static string? Nullable(string? s) => string.IsNullOrWhiteSpace(s) ? null : s;
 }

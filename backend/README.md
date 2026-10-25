@@ -61,6 +61,10 @@ Catalog types: `video`, `photo`, `audio`, `music`, `greenscreen`. Providers appe
 
 Other settings (all under `Stock:`): `SearchCacheTtl` (7 days; provider responses are cached in memory and in the `provider_cache` table), `Jobs:{Workers,QueueCapacity,PerClientJobs,JobTimeout,FileTtl,MaxDownloadBytes,ResolveWorkers,ResolveTimeout}`, `Ffmpeg:{Path,ProbePath,AudioFormat}`, `Media:{SealKey,PreviewTtl,InternalUrl,Imgproxy:{Prefix,Key,Salt,Ttl}}` (set `SealKey`, otherwise sealed URLs die with the process; imgproxy is optional and receives only sealed relay links), `Sfx:Path` (directory with `sfx.json`, `library/`, `previews/`; reloaded when the file changes), `DriftAssets:{Repo,Release,BaseUrl,Interval}` (GitHub release `index.json` + `drift-assets.tar.gz`, verified against the index and mirrored into blobs; empty `Repo` disables it), `Expiry:Interval`. Quota defaults, enablement and order live in `provider_settings` (seeded once, edit the rows to retune); `asset_categories` and `sfx_categories` hide, relabel or reorder categories. Jobs: `stock-expiry` (releases expired result blobs for the blob GC, prunes the quota ledger and cache) and `drift-assets-sync`. `RateLimiting:StockWritePermitLimit/StockWriteWindow` limit `POST /stock/resolve|downloads`.
 
+## Security headers
+
+`Api/Http/SecurityHeaders.cs` sets CSP, HSTS, COOP/CORP and friends per route class (SPA, API, byte routes), configurable under `SecurityHeaders` (set `CspReportOnly=true` to trial a policy; violations post to `/api/v1/csp-report`). See `../docs/security.md`.
+
 ## Run (dev)
 
 ```sh

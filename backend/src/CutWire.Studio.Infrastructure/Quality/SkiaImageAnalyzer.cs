@@ -5,12 +5,15 @@ namespace CutWire.Studio.Infrastructure.Quality;
 
 public sealed class SkiaImageAnalyzer : IImageAnalyzer
 {
+    /// <summary>The largest accepted image is a 1536x128 strip. A header can claim far more than its few bytes decode to, so the size is read before decoding.</summary>
+    public const long MaxPixels = 4096L * 4096;
+
     public ImageProbe? Probe(byte[] data)
     {
         try
         {
             using var codec = SKCodec.Create(new SKMemoryStream(data));
-            if (codec is null) return null;
+            if (codec is null || (long)codec.Info.Width * codec.Info.Height > MaxPixels) return null;
             var format = codec.EncodedFormat switch
             {
                 SKEncodedImageFormat.Webp => "webp",

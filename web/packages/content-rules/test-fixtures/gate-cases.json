@@ -90,7 +90,6 @@
     "category": "dreamy",
     "license": "CC0-1.0",
     "expected": [
-      "title:repeated_chars",
       "title:too_long"
     ]
   },

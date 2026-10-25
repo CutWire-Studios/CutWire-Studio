@@ -36,6 +36,7 @@ public sealed class TitleGate(ContentRulesOptions rules, IWordList words) : IMet
         var letters = title.Where(char.IsAsciiLetter).ToArray();
         if (letters.Length >= rules.TitleAllCapsMinLetters && letters.All(char.IsAsciiLetterUpper))
             found.Add(V(Field, "all_caps", "Title must not be all capitals."));
+        if (title.Length > rules.TitleMaxLength) return found;
         if (HasLink(title))
             found.Add(V(Field, "contains_url", "Title must not contain a URL or domain."));
         if (Regex.IsMatch(title, $"(.)\\1{{{rules.TitleMaxIdenticalRun},}}", RegexOptions.IgnoreCase))

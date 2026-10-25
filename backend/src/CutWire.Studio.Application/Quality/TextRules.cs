@@ -7,9 +7,30 @@ internal static partial class TextRules
     public static GateViolation V(string field, string code, string message, params (string Key, object Value)[] parameters) =>
         new(field, code, message, parameters.Length == 0 ? null : parameters.ToDictionary(p => p.Key, p => p.Value));
 
-    public static int CountLinks(string text) => LinkPattern().Count(text);
+    /// <summary>The link pattern backtracks quadratically on long dotted input; a timeout counts as "has links" so abuse is rejected, not slow.</summary>
+    public static int CountLinks(string text)
+    {
+        try
+        {
+            return LinkPattern().Count(text);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return int.MaxValue;
+        }
+    }
 
-    public static bool HasLink(string text) => LinkPattern().IsMatch(text);
+    public static bool HasLink(string text)
+    {
+        try
+        {
+            return LinkPattern().IsMatch(text);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return true;
+        }
+    }
 
     public static int FirstNonAscii(string text, bool allowNewline)
     {
@@ -37,7 +58,7 @@ internal static partial class TextRules
 
     public const string LinkPatternSource = @"(https?://|ftp://|www\.)\S+|\b[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)*\.(com|net|org|io|co|me|ly|gg|xyz|app|dev|info|biz|tv|us|uk|ru|cn|top|site|online|shop|link|click|ai|to|cc|ws|vip|club|store)\b(/\S*)?";
 
-    [GeneratedRegex(LinkPatternSource, RegexOptions.IgnoreCase)]
+    [GeneratedRegex(LinkPatternSource, RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 250)]
     private static partial Regex LinkPattern();
 
     [GeneratedRegex("[^a-z0-9]+")]

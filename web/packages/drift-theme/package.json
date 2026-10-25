@@ -7,7 +7,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "sync": "vite-node scripts/sync-from-drift.ts",
+    "sync": "vite-node scripts/sync-from-drift.ts && vite-node scripts/gen-validator.ts",
+    "gen:validator": "vite-node scripts/gen-validator.ts",
     "typecheck": "tsc -p .",
     "test": "vitest run",
     "lint": "oxlint src scripts"

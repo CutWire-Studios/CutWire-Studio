@@ -11,14 +11,14 @@ public sealed class TextGate(ContentRulesOptions rules) : IMetadataGate
         var description = NormalizeLineEndings(draft.Description ?? "");
 
         Check(found, "summary", summary, rules.SummaryMinLength, rules.SummaryMaxLength);
-        if (HasLink(summary))
+        if (summary.Length <= rules.SummaryMaxLength && HasLink(summary))
             found.Add(V("summary", "links_not_allowed", "Summary must not contain links."));
 
         Check(found, "description", description, rules.DescriptionMinLength, rules.DescriptionMaxLength);
-        var links = CountLinks(description);
+        var links = description.Length <= rules.DescriptionMaxLength ? CountLinks(description) : 0;
         if (links > rules.DescriptionMaxLinks)
             found.Add(V("description", "too_many_links", $"Description may contain at most {rules.DescriptionMaxLinks} links.", ("max", rules.DescriptionMaxLinks), ("count", links)));
-        if (System.Text.RegularExpressions.Regex.IsMatch(description, $"(\\n[ \\t]*){{{rules.MaxConsecutiveBlankLines + 2},}}"))
+        if (description.Length <= rules.DescriptionMaxLength && System.Text.RegularExpressions.Regex.IsMatch(description, $"(\\n[ \\t]*){{{rules.MaxConsecutiveBlankLines + 2},}}"))
             found.Add(V("description", "too_many_blank_lines", $"Description may have at most {rules.MaxConsecutiveBlankLines} blank lines in a row.", ("max", rules.MaxConsecutiveBlankLines)));
         return Task.FromResult<IReadOnlyList<GateViolation>>(found);
     }

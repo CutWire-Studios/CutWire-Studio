@@ -44,7 +44,7 @@ public static class McpSetup
 
         services.AddAuthorizationBuilder().AddPolicy(AuthPolicy, p => p
             .RequireAuthenticatedUser()
-            .AddRequirements(new ScopeRequirement(AuthScopes.ForgeRead), new McpResourceRequirement()));
+            .AddRequirements(new ScopeRequirement(AuthScopes.ForgeRead), new McpResourceRequirement(), new NotBannedRequirement()));
         services.AddSingleton<IAuthorizationHandler, McpAudienceHandler>();
         services.Configure<Microsoft.AspNetCore.RateLimiting.RateLimiterOptions>(o => o.AddPolicy(RateLimitPolicy, http =>
             RateLimitPartition.GetFixedWindowLimiter(

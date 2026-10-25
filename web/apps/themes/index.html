@@ -8,15 +8,7 @@
     <meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)" />
     <title>Drift Theme Maker</title>
     <meta name="description" content="Design, preview and share themes for the Drift video editor." />
-    <script>
-      // Applied before first paint so a stored theme does not flash the other one.
-      ;(function () {
-        try {
-          var stored = localStorage.getItem("cw-theme")
-          if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored
-        } catch (_) {}
-      })()
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body class="theme-themes">
     <div id="root"></div>

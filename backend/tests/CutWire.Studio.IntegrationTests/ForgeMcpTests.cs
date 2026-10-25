@@ -42,6 +42,24 @@ public sealed class ForgeMcpTests(PostgresFixture postgres) : ForgeTestBase(post
     }
 
     [Fact]
+    public async Task BannedUser_IsRefusedEvenWithAValidToken()
+    {
+        var (session, _, userId) = await F.User();
+        var bearer = await Pat(session, "forge:read", "forge:write", "community:publish");
+        await F.Db(async db =>
+        {
+            (await db.UserProfiles.SingleAsync(p => p.Id == userId, Ct)).SetBan(DateTimeOffset.UtcNow.AddDays(1), permanent: false);
+            await db.SaveChangesAsync(Ct);
+            return 0;
+        });
+
+        var response = await bearer.PostAsync("/mcp", new StringContent("{}", System.Text.Encoding.UTF8, "application/json"), Ct);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await response.Json(Ct))["code"]!.GetValue<string>().ShouldBe("banned");
+    }
+
+    [Fact]
     public async Task EndToEnd_Pat()
     {
         var (session, handle, userId) = await F.User();

@@ -110,11 +110,11 @@ public sealed class SpaHostingTests : IDisposable
     [InlineData("/")]
     [InlineData("/forge")]
     [InlineData("/themes")]
-    public async Task OtherApps_DoNotSendCrossOriginIsolationHeaders(string path)
+    public async Task OtherApps_DoNotRequireCrossOriginEmbedderPolicy(string path)
     {
         var (response, _) = await Get(path);
 
-        response.Headers.Contains("Cross-Origin-Opener-Policy").ShouldBeFalse();
+        response.Headers.GetValues("Cross-Origin-Opener-Policy").ShouldBe(["same-origin"]);
         response.Headers.Contains("Cross-Origin-Embedder-Policy").ShouldBeFalse();
     }
 }

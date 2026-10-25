@@ -1,6 +1,5 @@
-import Ajv2020 from "ajv/dist/2020.js"
-import type { ErrorObject, ValidateFunction } from "ajv"
-import schema from "./generated/theme.schema.json"
+import type { ErrorObject } from "ajv"
+import validateSchema from "./generated/theme.validator.js"
 import { builtins } from "./builtins"
 import { isColorLiteral } from "./color"
 import { flattenLeaves } from "./merge"
@@ -27,12 +26,6 @@ export interface ValidateOptions {
   library?: Library
   /** Publishing needs a name; Drift itself falls back to the file name. Default true. */
   requireName?: boolean
-}
-
-let compiled: ValidateFunction | undefined
-function validator(): ValidateFunction {
-  compiled ??= new Ajv2020({ allErrors: true, strict: false }).compile(schema)
-  return compiled
 }
 
 const toPath = (instancePath: string) =>
@@ -116,8 +109,7 @@ export function validateTheme(doc: ThemeDoc, opts: ValidateOptions = {}): Valida
   const warnings: Issue[] = []
   const lib: Library = { ...builtins, ...opts.library }
 
-  const check = validator()
-  if (!check(doc)) errors.push(...schemaIssues(check.errors ?? []))
+  if (!validateSchema(doc)) errors.push(...schemaIssues(validateSchema.errors ?? []))
 
   if (typeof doc.name === "string") {
     const problem = themeNameProblem(doc.name)

@@ -258,8 +258,13 @@ public sealed class CatalogReadTests(PostgresFixture postgres) : IDisposable
         var disposition = named.Content.Headers.ContentDisposition!;
         disposition.DispositionType.ShouldBe("attachment");
         disposition.FileName.ShouldBe("evil-name-x.driftfx");
-        (await anon.GetAsync($"/files/{sha}", Ct)).Content.Headers.ContentDisposition.ShouldBeNull();
-        (await anon.GetAsync($"/files/{sha}?name=....", Ct)).Content.Headers.ContentDisposition.ShouldBeNull();
+        foreach (var url2 in new[] { $"/files/{sha}", $"/files/{sha}?name=...." })
+        {
+            // A package is not passive media, so it always downloads, with or without a usable name.
+            var unnamed = (await anon.GetAsync(url2, Ct)).Content.Headers.ContentDisposition!;
+            unnamed.DispositionType.ShouldBe("attachment");
+            unnamed.FileName.ShouldBeNull();
+        }
     }
 
     [Fact]
