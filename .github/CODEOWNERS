@@ -1,0 +1,10 @@
+* @suhasdissa
+
+# Security-sensitive paths: keep explicit so they stay reviewed if the default owner list grows.
+/.github/ @suhasdissa
+/deploy/ @suhasdissa
+/SECURITY.md @suhasdissa
+/docs/security.md @suhasdissa
+/backend/src/CutWire.Studio.Api/Auth/ @suhasdissa
+/backend/src/CutWire.Studio.Api/Http/ @suhasdissa
+/backend/src/CutWire.Studio.Infrastructure/Identity/ @suhasdissa

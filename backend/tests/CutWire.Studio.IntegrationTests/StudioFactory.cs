@@ -23,6 +23,7 @@ public sealed class StudioFactory(string? connectionString = null, bool migrate 
         builder.UseSetting("Jobs:Enabled", "false");
         builder.UseSetting("Database:AutoMigrate", (connectionString is not null && migrate).ToString());
         builder.UseSetting("Auth:OpenIddict:UseEphemeralKeys", "true");
+        builder.UseSetting("Security:AllowInsecureDefaults", "true");
         builder.UseSetting("RateLimiting:StrictPermitLimit", "1000");
         if (connectionString is not null) builder.UseSetting("ConnectionStrings:Default", connectionString);
         builder.ConfigureTestServices(services =>

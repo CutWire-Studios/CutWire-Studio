@@ -82,8 +82,8 @@ Severity is the practical impact in this deployment. "Fixed" items have regressi
 | 13 | Info | CSP | Inline theme scripts in four `index.html`. | Fixed: external `theme-init.js` |
 | 14 | Low | `Application/Stock` quota, `Api/Endpoints/StockEndpoints.cs` | Anonymous stock quota and per-client job caps are keyed by the client-supplied `X-Studio-Install` header, so rotating the id resets them. Mitigated by the per-IP `stock-write` limiter (30/min) and global caps; the design deliberately avoids per-IP quota because of NAT. | Open: needs a product decision (add an IP-keyed ceiling next to the install id) |
 | 15 | Low | `Infrastructure/Oidc/DynamicClientRegistration.cs`, consent UI | Open dynamic client registration lets anyone register a client whose name is shown on the consent screen (impersonation/phishing). Redirect URIs must be https or loopback and consent is explicit. | Open: consider showing the redirect host on the consent screen and moderating names |
-| 16 | Low | `Api/appsettings.json`, `Http/HttpExtensions.cs` | `AllowedHosts` is `*` and forwarded headers trust only loopback proxies. URLs in email use `PublicUrl`, so there is no host-header injection today; set `AllowedHosts` and the trusted proxy networks in the deployment. | Open: deployment configuration |
-| 17 | Low | `deploy/Dockerfile` | yt-dlp and the bgutil plugin are downloaded by version without a checksum check. | Open: pin and verify SHA-256 values once chosen |
+| 16 | Low | `Api/appsettings.json`, `Http/HttpExtensions.cs` | `AllowedHosts` is `*` and forwarded headers trust only loopback proxies. URLs in email use `PublicUrl`, so there is no host-header injection today; set `AllowedHosts` and the trusted proxy networks in the deployment. | Partly fixed: `ProductionGuard` refuses to start outside Development with `AllowedHosts` `*`; trusted proxies are configurable (`ForwardedHeaders:KnownProxies`, `KnownNetworks`). Owner action: set both in the deployment |
+| 17 | Low | `deploy/Dockerfile` | yt-dlp and the bgutil plugin are downloaded by version without a checksum check. | Fixed: SHA-256 of both downloads is verified in the build (`YTDLP_SHA256`, `BGUTIL_POT_SHA256` args, update with the version) |
 | 18 | Info | `appsettings.json` | Dev database password `studio` is the default connection string. Production must supply `ConnectionStrings__Default`; no other secret is committed (checked all tracked files). | Documented |
 | 19 | Info | Forge | BYO AI keys live in the browser, which makes the strict CSP the main protection for them. | Documented |
 
@@ -101,3 +101,72 @@ Severity is the practical impact in this deployment. "Fixed" items have regressi
 - **Jint:** engine is created without `AllowClr`, runs only the embedded forge-core bundle with timeout, memory and recursion limits; user data enters as strings. Residual: pooled engines are reused across users, so a prototype-pollution bug in forge-core would cross users; forge-core is first-party and does not merge untrusted objects into prototypes.
 - **XSS in the SPAs:** no `dangerouslySetInnerHTML`, `innerHTML` or `document.write` in app code; descriptions and changelogs render as text with an http(s)-only linkifier (`rel="noopener noreferrer nofollow ugc"`); `Content-Disposition` names are sanitised server-side; JSON is never embedded in HTML.
 - **Dependencies:** `pnpm audit` reports no known vulnerabilities.
+
+## Security requirements
+
+Stable rules that code review and tests check against (SSDF PO.1, PW.1). A change that breaks one needs an explicit decision recorded here.
+
+1. All state-changing cookie-authenticated requests carry `X-Requested-With` and a same-origin `Origin`; there is no CORS.
+2. Every query over user-owned data filters by owner id; moderation needs a role that bearer tokens never carry; PATs/JWTs are limited by scope.
+3. No inline script or `eval` in the SPAs (`pnpm check:dist` enforces it). New CSP relaxations are documented in this file.
+4. Untrusted bytes (uploads, provider media, yt-dlp output, Drift Assets) are size-bounded, type-checked and served from byte routes with sandbox CSP and forced download for non-passive types.
+5. Outbound fetches of user- or provider-supplied URLs use the SSRF-safe client; subprocesses use `ArgumentList` and absolute workspace paths.
+6. No secret in the repository. Production secrets come from environment/secret files and startup fails if they are missing (`ProductionGuard`, OpenIddict certificates).
+7. Regexes over user input have a timeout and a length check first.
+8. Errors never leak stack traces outside Development; logs never contain tokens, API keys or full provider URLs with keys.
+9. Dependencies are locked (`pnpm-lock.yaml`, `packages.lock.json`, Docker digests) and have no known high/critical advisory at merge.
+
+## Threat model per component
+
+Short form: assets, what an attacker wants, the controls that already exist, and the residual risk. The table at the top covers the cross-cutting view.
+
+| Component | Attacker goal | Controls | Residual risk |
+| --- | --- | --- | --- |
+| Auth / OIDC (`Infrastructure/Oidc`, `Identity`, `Api/Auth`) | Account takeover, token theft, consent phishing, device-code guessing | PKCE S256, exact redirect match, `__Host-` cookie, CSRF check, rate limits (including early device-flow limiter), refresh rotation, certificates required in production | Open dynamic client registration shows an attacker-chosen name on the consent screen (finding 15) |
+| Uploads and community (`Items`, `Quality`, `/files`) | Stored XSS, malware hosting, spam, resource exhaustion | Mime allow-list, content gates, image dimension cap before decode, 16 MB body limit, upload quotas, sandboxed byte route, moderation and reports | Passive-media types are served inline; relies on browsers honouring `nosniff` |
+| Forge / MCP / Jint (`Application/Forge`, `Api/Mcp`, `Infrastructure/Forge`) | Sandbox escape, cross-user data access, cost abuse via the hosted AI proxy, banned-user access | No CLR interop, time/memory/recursion limits, owner-filtered documents, MCP bearer-only with `NotBanned`, AI proxy rate limits and fixed upstream | Pooled Jint engines are shared across users (prototype pollution in first-party `forge-core` would cross users); BYO AI keys live in the browser |
+| Stock fetchers / yt-dlp / ffmpeg (`Infrastructure/Stock`) | SSRF, command injection, malicious media, quota bypass | SSRF-safe client (DNS resolved per connection, private ranges refused), host allow-list for yt-dlp, `ArgumentList`, workspace path checks, `-protocol_whitelist`, pinned and checksum-verified yt-dlp/plugin, sealed media URLs | Quota keyed by client-supplied install id (finding 14); yt-dlp/ffmpeg parse hostile media, so run the container non-root with no extra capabilities |
+| Blobs (`Infrastructure/Blobs`) | Path traversal, content spoofing, disk exhaustion, orphan retention | Content-addressed by parsed SHA-256, no user-supplied paths, GC with retention, size limits | Volume permissions and backups are a deployment concern |
+| Build and delivery (`.github`, `deploy`) | Poisoned dependency or action, tampered image | See "Supply chain" below | Owner account security (2FA, branch protection) is outside the repo |
+
+## Production configuration (PW.9)
+
+`ProductionGuard` (called first in `Program.cs`) aborts startup outside Development with a list of problems when any of these hold:
+
+- `Stock:Media:SealKey` is empty or shorter than 32 characters
+- `Auth:OpenIddict:UseEphemeralKeys` is true (certificate paths are otherwise already required by the OpenIddict setup)
+- `ConnectionStrings:Default` is missing, has no password or uses the dev password `studio`
+- `AllowedHosts` is empty or contains `*`
+
+`Security:AllowInsecureDefaults=true` disables the check; it is set only by the integration test factory and `deploy/compose.dev.yml`. Never set it in production.
+
+Reverse proxy: `ForwardedHeaders:KnownProxies` (IP list) and `ForwardedHeaders:KnownNetworks` (CIDR list) add trusted proxies to the default loopback; client IP is read from `CF-Connecting-IP`. If the proxy is not trusted, rate limits see the proxy address. Loopback host names are always allowed next to `AllowedHosts` so the container health check keeps working.
+
+## Supply chain (PS, PW.4)
+
+- Locked dependencies: `web/pnpm-lock.yaml` (`--frozen-lockfile` everywhere), NuGet `packages.lock.json` per project with `RestorePackagesWithLockFile` (CI and the Dockerfile restore with `--locked-mode`; after changing a package run `dotnet restore --force-evaluate` and commit the lock files). The Api project lists `RuntimeIdentifiers=linux-x64` so one lock file serves both CI and the image build.
+- Updates: `.github/dependabot.yml` (nuget, npm, github-actions, docker; weekly, grouped). Actions are pinned to commit SHAs with a version comment; Docker base images to digests. `YTDLP_VERSION`/`BGUTIL_POT_VERSION` and their SHA-256 args are bumped by hand (Dependabot cannot see them).
+- Analysis: `.github/workflows/codeql.yml` (C# and JS/TS, security-extended), `security.yml` (dependency review on PRs, `pnpm audit`, `dotnet list package --vulnerable`, gitleaks, weekly), Trivy on the built image in `build.yml` before the push (`.trivyignore` for reviewed exceptions). .NET security analyzers run in every build (`AnalysisModeSecurity=All`, warnings are errors; test projects suppress CA5350/CA5394/CA2100).
+- Provenance: the pushed image carries a BuildKit SBOM and provenance attestation, plus a signed GitHub build-provenance attestation (`gh attestation verify oci://ghcr.io/cutwire-studios/cutwire-studio:<tag> -R cutwire-studios/cutwire-studio`). Keyless cosign signing was not added: the attestation already gives Sigstore-backed verification.
+
+## Release checklist
+
+Releases are every merge to `main` (CI builds, scans and deploys), so the checklist is for the merge and for any deployment change.
+
+- [ ] CI green: `web`, `backend`, `security`, `codeql`, and the Trivy step in `image`
+- [ ] No unreviewed new `.trivyignore`, `.gitleaks.toml` or analyzer suppressions
+- [ ] Lock files committed for any dependency change; Dependabot PRs for high/critical advisories merged
+- [ ] `docs/security.md` updated for new routes, CSP changes, uploads, outbound fetches or subprocesses
+- [ ] Deployment has the production settings above (seal key, certificates, DB password, `AllowedHosts`, trusted proxies); CSP changes rolled out with `SecurityHeaders__CspReportOnly=true` first
+- [ ] After deploy: `/api/v1/healthz` is OK and the log has no new `CSP violation` or startup configuration errors
+- [ ] Image provenance verifies with `gh attestation verify`
+
+## Recommended GitHub settings (owner action)
+
+Not changed by the repository; apply in Settings.
+
+- Branch protection or ruleset on `main`: require a pull request, require status checks (`web`, `backend`, `analyze`, `audit-npm`, `audit-nuget`, `secrets`, `dependency-review`), require branches up to date, require conversation resolution, block force pushes and deletions, require review from code owners once there is a second maintainer (a solo maintainer cannot approve their own PR; use the ruleset without the review requirement but keep the status checks)
+- Security: enable private vulnerability reporting, Dependabot alerts and security updates, secret scanning with push protection, code scanning default setup off (the workflow is used)
+- Actions: default workflow token permissions to read-only, require approval for outside collaborators' workflow runs, allow only actions pinned by SHA if the option is available
+- Accounts: require 2FA for the organisation; keep `ANSIBLE_DISPATCH_TOKEN` a fine-grained token limited to `cutwire-ansible` with only the permission needed to dispatch, with an expiry
+- Packages: GHCR package visibility and access limited to the repository

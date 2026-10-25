@@ -28,6 +28,7 @@ services:
       PublicUrl: http://localhost:8087
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=studio;Username=studio;Password=studio
       Auth__OpenIddict__UseEphemeralKeys: "true"
+      Security__AllowInsecureDefaults: "true"
     volumes:
       - data:/data
 

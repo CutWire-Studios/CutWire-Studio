@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 # Build from the repository root: docker build -f deploy/Dockerfile .
 
-FROM docker.io/library/node:24-slim AS web
+# Base images are pinned by digest (tag in the comment); Dependabot's docker ecosystem bumps both.
+# node:24-slim
+FROM docker.io/library/node:24-slim@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205 AS web
 RUN corepack enable && corepack prepare pnpm@12.15.0 --activate
 WORKDIR /src/web
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml web/tsconfig.base.json ./
@@ -11,38 +13,47 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 RUN pnpm -r build
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend
+# dotnet/sdk:10.0
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:747cbade5bfd918a175ac32f8f1d931edec2c7d0d5397a3de72eaef1ac1f66d2 AS backend
 WORKDIR /src/backend
 COPY backend/global.json backend/Directory.Build.props backend/Directory.Packages.props backend/CutWire.Studio.slnx ./
-COPY backend/src/CutWire.Studio.Domain/*.csproj src/CutWire.Studio.Domain/
-COPY backend/src/CutWire.Studio.Application/*.csproj src/CutWire.Studio.Application/
-COPY backend/src/CutWire.Studio.Infrastructure/*.csproj src/CutWire.Studio.Infrastructure/
-COPY backend/src/CutWire.Studio.Api/*.csproj src/CutWire.Studio.Api/
+COPY backend/src/CutWire.Studio.Domain/*.csproj backend/src/CutWire.Studio.Domain/packages.lock.json src/CutWire.Studio.Domain/
+COPY backend/src/CutWire.Studio.Application/*.csproj backend/src/CutWire.Studio.Application/packages.lock.json src/CutWire.Studio.Application/
+COPY backend/src/CutWire.Studio.Infrastructure/*.csproj backend/src/CutWire.Studio.Infrastructure/packages.lock.json src/CutWire.Studio.Infrastructure/
+COPY backend/src/CutWire.Studio.Api/*.csproj backend/src/CutWire.Studio.Api/packages.lock.json src/CutWire.Studio.Api/
 RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet restore src/CutWire.Studio.Api -r linux-x64
+    dotnet restore src/CutWire.Studio.Api --locked-mode
 COPY backend/src ./src
 # The csproj embeds ../../../web/dist (relative to the Api project), i.e. /src/web/dist.
 COPY --from=web /src/web/dist /src/web/dist
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet publish src/CutWire.Studio.Api -c Release -r linux-x64 --no-restore -o /out
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:10.0 AS runtime
+# dotnet/runtime-deps:10.0
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0@sha256:1c20bc9ebda297198be069d82b6c5d1716faeeec8b8dca53ef963f9c92d3e2e3 AS runtime
 
 # Pinned deliberately: an extractor update can change behaviour, and that should
 # be a decision rather than a surprise on the next rebuild.
 ARG YTDLP_VERSION=2026.08.19
 # Must match the potoken sidecar image major.
 ARG BGUTIL_POT_VERSION=2.0.0
+# When bumping a version above, update the matching hash: yt-dlp publishes
+# SHA2-256SUMS next to each release; bgutil's value is the asset digest shown on
+# its GitHub release page (or sha256sum of the downloaded zip).
+ARG YTDLP_SHA256=58162f9bfdc27458ea47bfcb311cf47028f17d8154a8bf7d689861d46399230a
+ARG BGUTIL_POT_SHA256=bce874dfa25896c2798e0f4f8147b7b22e785479eb1e459ab232bf2506c95016
 
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends ffmpeg ca-certificates curl tini; \
     curl -fsSL -o /usr/local/bin/yt-dlp \
       "https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/yt-dlp_linux"; \
+    echo "${YTDLP_SHA256}  /usr/local/bin/yt-dlp" | sha256sum -c -; \
     chmod +x /usr/local/bin/yt-dlp; \
     mkdir -p /usr/local/share/yt-dlp-plugins; \
     curl -fsSL -o /usr/local/share/yt-dlp-plugins/bgutil-ytdlp-pot-provider.zip \
       "https://github.com/Brainicism/bgutil-ytdlp-pot-provider/releases/download/${BGUTIL_POT_VERSION}/bgutil-ytdlp-pot-provider.zip"; \
+    echo "${BGUTIL_POT_SHA256}  /usr/local/share/yt-dlp-plugins/bgutil-ytdlp-pot-provider.zip" | sha256sum -c -; \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \

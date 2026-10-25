@@ -1,3 +1,5 @@
+using System.Net;
+using Microsoft.AspNetCore.HostFiltering;
 using System.Threading.RateLimiting;
 using CutWire.Studio.Api.Spa;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -75,6 +77,22 @@ public static class HttpExtensions
             o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             o.ForwardedForHeaderName = "CF-Connecting-IP";
             o.ForwardLimit = 1;
+            // Loopback is trusted by default. Add the reverse proxy / tunnel addresses here.
+            foreach (var proxy in configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [])
+                o.KnownProxies.Add(IPAddress.Parse(proxy));
+            foreach (var network in configuration.GetSection("ForwardedHeaders:KnownNetworks").Get<string[]>() ?? [])
+            {
+                var parts = network.Split('/');
+                o.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse(parts[0]), int.Parse(parts[1])));
+            }
+        });
+
+        // The container health check and local probes use a loopback Host header.
+        services.PostConfigure<HostFilteringOptions>(o =>
+        {
+            if (o.AllowedHosts.Contains("*")) return;
+            o.AllowedHosts.Add("localhost");
+            o.AllowedHosts.Add("127.0.0.1");
         });
 
         services.AddOptions<RateLimitingSettings>().Bind(configuration.GetSection(RateLimitingSettings.Section));

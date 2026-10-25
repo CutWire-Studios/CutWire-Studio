@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+ProductionGuard.Validate(builder.Configuration, builder.Environment);
+
 builder.WebHost.ConfigureKestrel(o =>
 {
     o.AddServerHeader = false;

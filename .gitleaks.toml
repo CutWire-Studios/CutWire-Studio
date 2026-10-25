@@ -1,0 +1,11 @@
+title = "CutWire Studio gitleaks config"
+
+[extend]
+useDefault = true
+
+# The local-development database password is intentionally committed (appsettings.json,
+# deploy/compose.dev.yml, docs). ProductionGuard refuses to start with it outside Development.
+[[allowlists]]
+description = "Dev database password"
+regexTarget = "match"
+regexes = ['''Password=studio(;|$|\s|"|')''', '''POSTGRES_PASSWORD:\s*studio''']

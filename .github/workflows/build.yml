@@ -5,21 +5,36 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege by default; jobs that need more declare it themselves.
+permissions:
+  contents: read
+
+# Superseded PR runs are cancelled; runs on main are never cancelled because
+# they publish the image and trigger the deploy.
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   IMAGE: ghcr.io/cutwire-studios/cutwire-studio
 
 jobs:
   web:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: pnpm
@@ -33,17 +48,24 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           global-json-file: backend/global.json
+      # packages.lock.json files are committed; a drifting dependency fails here.
+      - run: dotnet restore --locked-mode
       # Embedded SPAs: Release builds embed web/dist when it exists; the tests
-      # run in Debug and do not need it.
-      - run: dotnet build -c Debug
+      # run in Debug and do not need it. Security analyzers (CA5xxx) are errors.
+      - run: dotnet build -c Debug --no-restore
       # Integration tests start postgres:17-alpine via Testcontainers (Docker is
       # preinstalled on the runner).
       - run: dotnet test -c Debug --no-build
@@ -53,32 +75,69 @@ jobs:
     # PRs from forks can't push to the registry.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
+      id-token: write # keyless signing of the provenance attestation
+      attestations: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      # Build locally first so a vulnerable image is never pushed.
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          file: deploy/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: ${{ env.IMAGE }}:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      # Fails on fixable HIGH/CRITICAL findings (OS packages, bundled libraries).
+      # .trivyignore holds reviewed exceptions.
+      - name: Trivy image scan
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/work -w /work \
+            ghcr.io/aquasecurity/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+            image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+            --ignorefile .trivyignore "$IMAGE:scan"
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
+      # sbom: true attaches a BuildKit-generated SPDX SBOM to the image as an
+      # OCI attestation (inspect with: docker buildx imagetools inspect --format '{{ json .SBOM }}').
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        id: push
         with:
           context: .
           file: deploy/Dockerfile
           platforms: linux/amd64
           push: true
+          sbom: true
+          provenance: mode=max
           tags: |
             ${{ env.IMAGE }}:sha-${{ github.sha }}
             ${{ env.IMAGE }}:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # Signed SLSA provenance, stored next to the image in GHCR.
+      # Verify with: gh attestation verify oci://ghcr.io/cutwire-studios/cutwire-studio:<tag> -R cutwire-studios/cutwire-studio
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
 
   dispatch-deploy:
     needs: image
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Uses its own token (ANSIBLE_DISPATCH_TOKEN), nothing from GITHUB_TOKEN.
+    permissions: {}
     steps:
       # The body goes in on stdin because client_payload must arrive as a JSON object.
       - name: Trigger cutwire-ansible
