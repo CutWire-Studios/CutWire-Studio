@@ -37,6 +37,7 @@ export function checkTitle(rules: QualityRules, filter: BloomFilter, title: stri
   if (letters.length >= rules.text.titleAllCapsMinLetters && letters.every((c) => c >= "A" && c <= "Z")) {
     found.push(violation(FIELD, "all_caps", "Title must not be all capitals."));
   }
+  if (title.length > rules.title.max) return found;
   if (hasLink(rules, title)) found.push(violation(FIELD, "contains_url", "Title must not contain a URL or domain."));
 
   const run = rules.text.titleMaxIdenticalRun;
