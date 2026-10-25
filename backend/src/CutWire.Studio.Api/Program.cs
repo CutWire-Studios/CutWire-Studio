@@ -1,6 +1,7 @@
 using CutWire.Studio.Api.Auth;
 using CutWire.Studio.Api.Endpoints;
 using CutWire.Studio.Api.Http;
+using CutWire.Studio.Api.Mcp;
 using CutWire.Studio.Api.Spa;
 using CutWire.Studio.Application;
 using CutWire.Studio.Infrastructure;
@@ -15,6 +16,10 @@ builder.Services
     .AddInfrastructure(builder.Configuration, builder.Environment)
     .AddStudioHttp(builder.Configuration)
     .AddStudioApiAuth();
+
+builder.Services.AddSingleton(new FixedWindowLimiter(TimeSpan.FromMinutes(1)));
+
+builder.Services.AddStudioMcp();
 
 var app = builder.Build();
 
@@ -31,6 +36,7 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseStudioCsrf();
 app.UseAppHosts();
+app.UseMcpChallenge();
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
@@ -44,6 +50,9 @@ api.MapUsers();
 api.MapMyItems();
 api.MapModeration();
 api.MapMeta();
+api.MapForge();
+api.MapForgeAi();
+api.MapThemeDrafts();
 var account = api.MapGroup("/account");
 account.MapProfile();
 account.MapTwoFactor();
@@ -56,6 +65,7 @@ foreach (var contributor in app.Services.GetServices<IApiContributor>()) contrib
 app.MapConnect();
 app.MapWellKnown();
 app.MapFiles();
+app.MapStudioMcp();
 
 app.Run();
 

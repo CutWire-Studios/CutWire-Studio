@@ -2,6 +2,7 @@ using CutWire.Studio.Application.Abstractions;
 using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
+using CutWire.Studio.Domain.Forge;
 using CutWire.Studio.Domain.Moderation;
 using CutWire.Studio.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -31,6 +32,10 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ModerationAction> ModerationActions => Set<ModerationAction>();
     public DbSet<CleanupSchedule> CleanupSchedules => Set<CleanupSchedule>();
+    public DbSet<ForgeDocument> ForgeDocuments => Set<ForgeDocument>();
+    public DbSet<ForgeDocAsset> ForgeDocAssets => Set<ForgeDocAsset>();
+    public DbSet<AiUsage> AiUsage => Set<AiUsage>();
+    public DbSet<ThemeDraft> ThemeDrafts => Set<ThemeDraft>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct) => Database.BeginTransactionAsync(ct);
 

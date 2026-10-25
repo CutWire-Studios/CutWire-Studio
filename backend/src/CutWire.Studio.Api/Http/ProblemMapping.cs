@@ -49,6 +49,8 @@ public static class ProblemMapping
         problem.Extensions[CodeKey] = error.Code;
         if (error.Errors is { Count: > 0 }) problem.Extensions[ErrorsKey] = error.Errors;
         if (error.Violations is { Count: > 0 }) problem.Extensions[ViolationsKey] = error.Violations;
+        if (error.Extensions is not null)
+            foreach (var (key, value) in error.Extensions) problem.Extensions[key] = value;
         return problem;
     }
 

@@ -4,7 +4,9 @@ using CutWire.Studio.Application.Moderation;
 using CutWire.Studio.Application.Quality;
 using CutWire.Studio.Infrastructure.Catalog;
 using CutWire.Studio.Infrastructure.Blobs;
+using CutWire.Studio.Infrastructure.Forge;
 using CutWire.Studio.Infrastructure.Identity;
+using CutWire.Studio.Application.Forge;
 using CutWire.Studio.Infrastructure.Jobs;
 using CutWire.Studio.Infrastructure.Persistence;
 using CutWire.Studio.Infrastructure.Time;
@@ -58,6 +60,16 @@ public static class DependencyInjection
         services.AddScoped<IDuplicateLookup, DuplicateLookup>();
         services.AddScoped<IUploadQuota, UploadQuota>();
         services.AddScoped<CatalogSeeder>();
+
+        services.AddOptions<ForgeRuntimeOptions>().Bind(configuration.GetSection(ForgeRuntimeOptions.Section));
+        services.AddSingleton<ForgeRuntime>();
+        services.AddSingleton<IForgeRuntime>(sp => sp.GetRequiredService<ForgeRuntime>());
+        services.AddSingleton<IForgeEventHub, ForgeEventHub>();
+        services.AddScoped<IForgePackager, ForgePackager>();
+        services.AddOptions<AiOptions>().Bind(configuration.GetSection(AiOptions.Section));
+        services.AddScoped<IAiBudget, AiBudget>();
+        services.AddSingleton<IRecurringJob, AiUsagePruneJob>();
+        services.AddHttpClient<IChatModel, WorkersAiChatModel>();
 
         services.AddStudioIdentity(configuration, environment);
 

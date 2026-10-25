@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CutWire.Studio.Infrastructure\CutWire.Studio.Infrastructure.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
   </ItemGroup>

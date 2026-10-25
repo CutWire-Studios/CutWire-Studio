@@ -83,7 +83,9 @@
   },
   "scripts": {
     "typecheck": "tsc -p .",
-    "lint": "oxlint src"
+    "lint": "oxlint src",
+    "bundle:server": "vite build -c vite.server.config.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
@@ -94,6 +96,8 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   }
 }

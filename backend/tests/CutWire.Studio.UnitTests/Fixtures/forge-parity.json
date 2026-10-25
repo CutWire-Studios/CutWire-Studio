@@ -1,0 +1,175 @@
+{
+ "inputs": {
+  "effect": "{\"forge\":3,\"kind\":\"effect\",\"meta\":{\"id\":\"forge_parity_7s7q\",\"displayName\":\"Parity\",\"category\":\"artistic\",\"description\":\"Just the clip and an output. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[{\"id\":\"nlo1z6r\",\"type\":\"video\",\"x\":0,\"y\":0,\"inputs\":{},\"data\":{}},{\"id\":\"nvae7ra\",\"type\":\"effect_output\",\"x\":560,\"y\":0,\"inputs\":{\"image\":[0,0,0,1]},\"data\":{}}],\"edges\":[{\"id\":\"edcva83\",\"from\":\"nlo1z6r\",\"fromSocket\":\"image\",\"to\":\"nvae7ra\",\"toSocket\":\"image\"}],\"assets\":[],\"preview\":{\"thumbTime\":0.5}}",
+  "audio": "{\"forge\":3,\"kind\":\"audio\",\"meta\":{\"id\":\"forge_parity_b1ju\",\"displayName\":\"Parity\",\"category\":\"space\",\"description\":\"An empty board: the sound passes straight through. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[],\"edges\":[],\"assets\":[],\"audio\":{\"rack\":{\"chain\":[],\"modulators\":[],\"routes\":[]}},\"preview\":{\"thumbTime\":0.5}}"
+ },
+ "effect": {
+  "kind": "effect",
+  "input": "{\"forge\":3,\"kind\":\"effect\",\"meta\":{\"id\":\"forge_parity_7s7q\",\"displayName\":\"Parity\",\"category\":\"artistic\",\"description\":\"Just the clip and an output. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[{\"id\":\"nlo1z6r\",\"type\":\"video\",\"x\":0,\"y\":0,\"inputs\":{},\"data\":{}},{\"id\":\"nvae7ra\",\"type\":\"effect_output\",\"x\":560,\"y\":0,\"inputs\":{\"image\":[0,0,0,1]},\"data\":{}}],\"edges\":[{\"id\":\"edcva83\",\"from\":\"nlo1z6r\",\"fromSocket\":\"image\",\"to\":\"nvae7ra\",\"toSocket\":\"image\"}],\"assets\":[],\"preview\":{\"thumbTime\":0.5}}",
+  "steps": [
+   {
+    "tool": "list_blocks",
+    "args": {
+     "category": "color"
+    },
+    "output": {
+     "result": "color: brightness_contrast, saturation, hue_shift, levels, temperature, tint, gradient_map, invert, posterize, threshold, lut, exposure, tone, selective_color, channel_mixer, lift_gamma_gain, vibrance, color_replace, chroma_key, gradient_ramp"
+    }
+   },
+   {
+    "tool": "describe_block",
+    "args": {
+     "types": [
+      "blur",
+      "brightness"
+     ]
+    },
+    "output": {
+     "result": "blur — Blur: Soft, even gaussian blur.\n  in image (image, default [0,0,0,1]): Image\n  in radius (number 0..64, default 8): Radius (px)\n  out image (image)\n\nNo block type \"brightness\"."
+    }
+   },
+   {
+    "tool": "add_block",
+    "args": {
+     "type": "blur"
+    },
+    "output": {
+     "result": "added nz9q79v (blur)",
+     "created": [
+      "nz9q79v"
+     ],
+     "doc": "{\"forge\":3,\"kind\":\"effect\",\"meta\":{\"id\":\"forge_parity_7s7q\",\"displayName\":\"Parity\",\"category\":\"artistic\",\"description\":\"Just the clip and an output. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[{\"id\":\"nlo1z6r\",\"type\":\"video\",\"x\":0,\"y\":0,\"inputs\":{},\"data\":{}},{\"id\":\"nvae7ra\",\"type\":\"effect_output\",\"x\":560,\"y\":0,\"inputs\":{\"image\":[0,0,0,1]},\"data\":{}},{\"id\":\"nz9q79v\",\"type\":\"blur\",\"x\":0,\"y\":230,\"inputs\":{\"image\":[0,0,0,1],\"radius\":8},\"data\":{}}],\"edges\":[{\"id\":\"edcva83\",\"from\":\"nlo1z6r\",\"fromSocket\":\"image\",\"to\":\"nvae7ra\",\"toSocket\":\"image\"}],\"assets\":[],\"preview\":{\"thumbTime\":0.5}}"
+    }
+   },
+   {
+    "tool": "view_graph",
+    "args": {},
+    "output": {
+     "result": "effect \"Parity\"\nnlo1z6r video\nnvae7ra effect_output\nnz9q79v blur\nnlo1z6r.image -> nvae7ra.image\nstatus: OK"
+    }
+   },
+   {
+    "tool": "add_block",
+    "args": {
+     "type": "nope"
+    },
+    "output": {
+     "result": "No block type \"nope\". Use list_blocks.",
+     "error": true
+    }
+   }
+  ],
+  "view": "effect \"Parity\"\nnlo1z6r video\nnvae7ra effect_output\nnz9q79v blur\nnlo1z6r.image -> nvae7ra.image\nstatus: OK",
+  "shader": "{\"ok\":true,\"text\":\"// effect.json\\n\\n{\\n  \\\"id\\\": \\\"forge_parity_7s7q\\\",\\n  \\\"displayName\\\": \\\"Parity\\\",\\n  \\\"category\\\": \\\"artistic\\\",\\n  \\\"order\\\": 1000,\\n  \\\"description\\\": \\\"Just the clip and an output. Build anything.\\\",\\n  \\\"backend\\\": \\\"gpu\\\",\\n  \\\"parameters\\\": [],\\n  \\\"pipeline\\\": {\\n    \\\"intermediateBuffers\\\": [],\\n    \\\"passes\\\": [\\n      {\\n        \\\"passIndex\\\": 0,\\n        \\\"fragmentShader\\\": \\\"main.frag\\\",\\n        \\\"inputs\\\": [\\n          {\\n            \\\"type\\\": \\\"source_texture\\\"\\n          }\\n        ],\\n        \\\"output\\\": {\\n          \\\"type\\\": \\\"canvas\\\"\\n        }\\n      }\\n    ]\\n  }\\n}\\n\\n// main.frag\\n\\n#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\n\\nvec4 n_nlo1z6r_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nvoid main() {\\n    fragColor = n_nlo1z6r_image(v_texCoord);\\n}\\n\"}",
+  "exportPlan": "{\"base\":{\"id\":\"user.forge_parity_7s7q\",\"version\":\"1.0.0\",\"name\":\"Parity\",\"description\":\"Just the clip and an output. Build anything.\",\"details\":\"Made with Drift Forge. Effect id: forge_parity_7s7q.\",\"author\":\"\",\"license\":\"\",\"minAppVersion\":\"0.7.0\",\"provides\":[{\"kind\":\"effects\",\"root\":\"effects\",\"items\":1}],\"generator\":\"drift-forge/0.1.0\"},\"files\":[{\"path\":\"effects/forge_parity_7s7q/effect.json\",\"text\":\"{\\n  \\\"id\\\": \\\"forge_parity_7s7q\\\",\\n  \\\"displayName\\\": \\\"Parity\\\",\\n  \\\"category\\\": \\\"artistic\\\",\\n  \\\"order\\\": 1000,\\n  \\\"description\\\": \\\"Just the clip and an output. Build anything.\\\",\\n  \\\"backend\\\": \\\"gpu\\\",\\n  \\\"parameters\\\": [],\\n  \\\"pipeline\\\": {\\n    \\\"intermediateBuffers\\\": [],\\n    \\\"passes\\\": [\\n      {\\n        \\\"passIndex\\\": 0,\\n        \\\"fragmentShader\\\": \\\"main.frag\\\",\\n        \\\"inputs\\\": [\\n          {\\n            \\\"type\\\": \\\"source_texture\\\"\\n          }\\n        ],\\n        \\\"output\\\": {\\n          \\\"type\\\": \\\"canvas\\\"\\n        }\\n      }\\n    ]\\n  }\\n}\\n\"},{\"path\":\"effects/forge_parity_7s7q/main.frag\",\"text\":\"#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\n\\nvec4 n_nlo1z6r_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nvoid main() {\\n    fragColor = n_nlo1z6r_image(v_texCoord);\\n}\\n\"},{\"path\":\"effects/forge_parity_7s7q/forge.json\",\"forge\":true}]}"
+ },
+ "wired": {
+  "kind": "effect",
+  "input": "{\"forge\":3,\"kind\":\"effect\",\"meta\":{\"id\":\"forge_parity_7s7q\",\"displayName\":\"Parity\",\"category\":\"artistic\",\"description\":\"Just the clip and an output. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[{\"id\":\"nlo1z6r\",\"type\":\"video\",\"x\":0,\"y\":0,\"inputs\":{},\"data\":{}},{\"id\":\"nvae7ra\",\"type\":\"effect_output\",\"x\":560,\"y\":0,\"inputs\":{\"image\":[0,0,0,1]},\"data\":{}}],\"edges\":[{\"id\":\"edcva83\",\"from\":\"nlo1z6r\",\"fromSocket\":\"image\",\"to\":\"nvae7ra\",\"toSocket\":\"image\"}],\"assets\":[],\"preview\":{\"thumbTime\":0.5}}",
+  "steps": [
+   {
+    "tool": "list_blocks",
+    "args": {
+     "category": "color"
+    },
+    "output": {
+     "result": "color: brightness_contrast, saturation, hue_shift, levels, temperature, tint, gradient_map, invert, posterize, threshold, lut, exposure, tone, selective_color, channel_mixer, lift_gamma_gain, vibrance, color_replace, chroma_key, gradient_ramp"
+    }
+   },
+   {
+    "tool": "describe_block",
+    "args": {
+     "types": [
+      "blur",
+      "brightness"
+     ]
+    },
+    "output": {
+     "result": "blur — Blur: Soft, even gaussian blur.\n  in image (image, default [0,0,0,1]): Image\n  in radius (number 0..64, default 8): Radius (px)\n  out image (image)\n\nNo block type \"brightness\"."
+    }
+   },
+   {
+    "tool": "add_block",
+    "args": {
+     "type": "blur"
+    },
+    "output": {
+     "result": "added nz9q79v (blur)",
+     "created": [
+      "nz9q79v"
+     ],
+     "doc": "{\"forge\":3,\"kind\":\"effect\",\"meta\":{\"id\":\"forge_parity_7s7q\",\"displayName\":\"Parity\",\"category\":\"artistic\",\"description\":\"Just the clip and an output. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[{\"id\":\"nlo1z6r\",\"type\":\"video\",\"x\":0,\"y\":0,\"inputs\":{},\"data\":{}},{\"id\":\"nvae7ra\",\"type\":\"effect_output\",\"x\":560,\"y\":0,\"inputs\":{\"image\":[0,0,0,1]},\"data\":{}},{\"id\":\"nz9q79v\",\"type\":\"blur\",\"x\":0,\"y\":230,\"inputs\":{\"image\":[0,0,0,1],\"radius\":8},\"data\":{}}],\"edges\":[{\"id\":\"edcva83\",\"from\":\"nlo1z6r\",\"fromSocket\":\"image\",\"to\":\"nvae7ra\",\"toSocket\":\"image\"}],\"assets\":[],\"preview\":{\"thumbTime\":0.5}}"
+    }
+   },
+   {
+    "tool": "view_graph",
+    "args": {},
+    "output": {
+     "result": "effect \"Parity\"\nnlo1z6r video\nnvae7ra effect_output\nnz9q79v blur\nnlo1z6r.image -> nvae7ra.image\nstatus: OK"
+    }
+   },
+   {
+    "tool": "set_setting",
+    "args": {
+     "block": "nz9q79v",
+     "setting": "radius",
+     "value": 4
+    },
+    "output": {
+     "result": "ok",
+     "doc": "{\"forge\":3,\"kind\":\"effect\",\"meta\":{\"id\":\"forge_parity_7s7q\",\"displayName\":\"Parity\",\"category\":\"artistic\",\"description\":\"Just the clip and an output. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[{\"id\":\"nlo1z6r\",\"type\":\"video\",\"x\":0,\"y\":0,\"inputs\":{},\"data\":{}},{\"id\":\"nvae7ra\",\"type\":\"effect_output\",\"x\":560,\"y\":0,\"inputs\":{\"image\":[0,0,0,1]},\"data\":{}},{\"id\":\"nz9q79v\",\"type\":\"blur\",\"x\":0,\"y\":230,\"inputs\":{\"image\":[0,0,0,1],\"radius\":4},\"data\":{}}],\"edges\":[{\"id\":\"edcva83\",\"from\":\"nlo1z6r\",\"fromSocket\":\"image\",\"to\":\"nvae7ra\",\"toSocket\":\"image\"}],\"assets\":[],\"preview\":{\"thumbTime\":0.5}}"
+    }
+   },
+   {
+    "tool": "connect",
+    "args": {
+     "from": "nz9q79v",
+     "to": "output"
+    },
+    "output": {
+     "result": "Unknown block id. Use view_graph to see block ids.",
+     "error": true
+    }
+   }
+  ],
+  "view": "effect \"Parity\"\nnlo1z6r video\nnvae7ra effect_output\nnz9q79v blur {radius=4}\nnlo1z6r.image -> nvae7ra.image\nstatus: OK",
+  "shader": "{\"ok\":true,\"text\":\"// effect.json\\n\\n{\\n  \\\"id\\\": \\\"forge_parity_7s7q\\\",\\n  \\\"displayName\\\": \\\"Parity\\\",\\n  \\\"category\\\": \\\"artistic\\\",\\n  \\\"order\\\": 1000,\\n  \\\"description\\\": \\\"Just the clip and an output. Build anything.\\\",\\n  \\\"backend\\\": \\\"gpu\\\",\\n  \\\"parameters\\\": [],\\n  \\\"pipeline\\\": {\\n    \\\"intermediateBuffers\\\": [],\\n    \\\"passes\\\": [\\n      {\\n        \\\"passIndex\\\": 0,\\n        \\\"fragmentShader\\\": \\\"main.frag\\\",\\n        \\\"inputs\\\": [\\n          {\\n            \\\"type\\\": \\\"source_texture\\\"\\n          }\\n        ],\\n        \\\"output\\\": {\\n          \\\"type\\\": \\\"canvas\\\"\\n        }\\n      }\\n    ]\\n  }\\n}\\n\\n// main.frag\\n\\n#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\n\\nvec4 n_nlo1z6r_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nvoid main() {\\n    fragColor = n_nlo1z6r_image(v_texCoord);\\n}\\n\"}",
+  "exportPlan": "{\"base\":{\"id\":\"user.forge_parity_7s7q\",\"version\":\"1.0.0\",\"name\":\"Parity\",\"description\":\"Just the clip and an output. Build anything.\",\"details\":\"Made with Drift Forge. Effect id: forge_parity_7s7q.\",\"author\":\"\",\"license\":\"\",\"minAppVersion\":\"0.7.0\",\"provides\":[{\"kind\":\"effects\",\"root\":\"effects\",\"items\":1}],\"generator\":\"drift-forge/0.1.0\"},\"files\":[{\"path\":\"effects/forge_parity_7s7q/effect.json\",\"text\":\"{\\n  \\\"id\\\": \\\"forge_parity_7s7q\\\",\\n  \\\"displayName\\\": \\\"Parity\\\",\\n  \\\"category\\\": \\\"artistic\\\",\\n  \\\"order\\\": 1000,\\n  \\\"description\\\": \\\"Just the clip and an output. Build anything.\\\",\\n  \\\"backend\\\": \\\"gpu\\\",\\n  \\\"parameters\\\": [],\\n  \\\"pipeline\\\": {\\n    \\\"intermediateBuffers\\\": [],\\n    \\\"passes\\\": [\\n      {\\n        \\\"passIndex\\\": 0,\\n        \\\"fragmentShader\\\": \\\"main.frag\\\",\\n        \\\"inputs\\\": [\\n          {\\n            \\\"type\\\": \\\"source_texture\\\"\\n          }\\n        ],\\n        \\\"output\\\": {\\n          \\\"type\\\": \\\"canvas\\\"\\n        }\\n      }\\n    ]\\n  }\\n}\\n\"},{\"path\":\"effects/forge_parity_7s7q/main.frag\",\"text\":\"#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\n\\nvec4 n_nlo1z6r_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nvoid main() {\\n    fragColor = n_nlo1z6r_image(v_texCoord);\\n}\\n\"},{\"path\":\"effects/forge_parity_7s7q/forge.json\",\"forge\":true}]}"
+ },
+ "audio": {
+  "kind": "audio",
+  "input": "{\"forge\":3,\"kind\":\"audio\",\"meta\":{\"id\":\"forge_parity_b1ju\",\"displayName\":\"Parity\",\"category\":\"space\",\"description\":\"An empty board: the sound passes straight through. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[],\"edges\":[],\"assets\":[],\"audio\":{\"rack\":{\"chain\":[],\"modulators\":[],\"routes\":[]}},\"preview\":{\"thumbTime\":0.5}}",
+  "steps": [
+   {
+    "tool": "list_pedals",
+    "args": {},
+    "output": {
+     "result": "pedals: filter, ladder, drive, reverb, convolution, delay, pan, gain\nclassic texture: classic.tape, classic.bitcrush, classic.bitcrush_log, classic.vinyl, classic.crystalizer\nclassic space: classic.tremolo, classic.flanger, classic.autopan, classic.chorus, classic.echo, classic.phaser, classic.stereowiden\nclassic utility: classic.eq3, classic.compressor, classic.limiter, classic.gate, classic.deesser, classic.leveler\nclassic voice: classic.pitch, classic.darklord, classic.vibrato\nclassic transmission: classic.bandlimit, classic.walkie, classic.megaphone, classic.underwater, classic.muffled\nsplits: add_split mode parallel|bands\nmodulators: lfo, envelope, steps"
+    }
+   },
+   {
+    "tool": "add_pedal",
+    "args": {
+     "type": "delay"
+    },
+    "output": {
+     "result": "added pz9q79v",
+     "created": [
+      "pz9q79v"
+     ],
+     "doc": "{\"forge\":3,\"kind\":\"audio\",\"meta\":{\"id\":\"forge_parity_b1ju\",\"displayName\":\"Parity\",\"category\":\"space\",\"description\":\"An empty board: the sound passes straight through. Build anything.\",\"author\":\"\",\"version\":\"1.0.0\"},\"params\":[],\"nodes\":[],\"edges\":[],\"assets\":[],\"audio\":{\"rack\":{\"chain\":[{\"id\":\"pz9q79v\",\"type\":\"delay\",\"knobs\":{\"time\":350,\"feedback\":0.4,\"tone\":8000,\"mix\":0.35,\"pingpong\":false}}],\"modulators\":[],\"routes\":[]}},\"preview\":{\"thumbTime\":0.5}}"
+    }
+   },
+   {
+    "tool": "view_rack",
+    "args": {},
+    "output": {
+     "result": "audio effect \"Parity\" — chain from In to Out:\n  pz9q79v delay\nstatus: OK"
+    }
+   }
+  ],
+  "view": "audio effect \"Parity\" — chain from In to Out:\n  pz9q79v delay\nstatus: OK",
+  "shader": null,
+  "exportPlan": null
+ }
+}

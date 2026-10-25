@@ -16,8 +16,11 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
     <PackageReference Include="ZstdSharp.Port" />
     <PackageReference Include="JsonSchema.Net" />
+    <PackageReference Include="Jint" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Catalog\*.json" />
+    <EmbeddedResource Include="Forge\forge-core.js" />
+    <EmbeddedResource Include="Forge\ir\*.wav" />
   </ItemGroup>
 </Project>

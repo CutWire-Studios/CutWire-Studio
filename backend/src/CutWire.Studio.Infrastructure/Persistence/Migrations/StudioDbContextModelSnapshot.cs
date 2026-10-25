@@ -683,6 +683,147 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.AiUsage", b =>
+                {
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date")
+                        .HasColumnName("day");
+
+                    b.Property<string>("Sub")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("sub");
+
+                    b.Property<double>("Neurons")
+                        .HasColumnType("double precision")
+                        .HasColumnName("neurons");
+
+                    b.HasKey("Day", "Sub")
+                        .HasName("pk_ai_usage");
+
+                    b.ToTable("ai_usage", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.ForgeDocAsset", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<string>("BlobSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("blob_sha256")
+                        .IsFixedLength();
+
+                    b.HasKey("DocumentId", "BlobSha256")
+                        .HasName("pk_forge_doc_assets");
+
+                    b.HasIndex("BlobSha256")
+                        .HasDatabaseName("ix_forge_doc_assets_blob_sha256");
+
+                    b.ToTable("forge_doc_assets", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.ForgeDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DocJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("doc_json");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("LocalId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("local_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int>("Revision")
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<string>("ThumbSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("thumb_sha256")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_forge_documents");
+
+                    b.HasIndex("ThumbSha256")
+                        .HasDatabaseName("ix_forge_documents_thumb_sha256");
+
+                    b.HasIndex("OwnerId", "LocalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_forge_documents_owner_id_local_id");
+
+                    b.HasIndex("OwnerId", "UpdatedAt")
+                        .HasDatabaseName("ix_forge_documents_owner_id_updated_at");
+
+                    b.ToTable("forge_documents", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.ThemeDraft", b =>
+                {
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("Id")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DocJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("doc_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<long>("UpdatedAtMs")
+                        .HasColumnType("bigint")
+                        .HasColumnName("updated_at_ms");
+
+                    b.HasKey("OwnerId", "Id")
+                        .HasName("pk_theme_drafts");
+
+                    b.ToTable("theme_drafts", (string)null);
+                });
+
             modelBuilder.Entity("CutWire.Studio.Domain.Moderation.CleanupSchedule", b =>
                 {
                     b.Property<Guid>("ItemId")
@@ -1503,6 +1644,49 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_votes_user_profiles_user_id");
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.ForgeDocAsset", b =>
+                {
+                    b.HasOne("CutWire.Studio.Domain.Blobs.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("BlobSha256")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_forge_doc_assets_blobs_blob_sha256");
+
+                    b.HasOne("CutWire.Studio.Domain.Forge.ForgeDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forge_doc_assets_forge_documents_document_id");
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.ForgeDocument", b =>
+                {
+                    b.HasOne("CutWire.Studio.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_forge_documents_asp_net_users_owner_id");
+
+                    b.HasOne("CutWire.Studio.Domain.Blobs.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("ThumbSha256")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_forge_documents_blobs_thumb_sha256");
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Forge.ThemeDraft", b =>
+                {
+                    b.HasOne("CutWire.Studio.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_theme_drafts_asp_net_users_owner_id");
                 });
 
             modelBuilder.Entity("CutWire.Studio.Domain.Moderation.CleanupSchedule", b =>

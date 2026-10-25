@@ -26,8 +26,13 @@ public sealed record Error(
     string Message,
     ErrorKind Kind,
     IReadOnlyDictionary<string, string[]>? Errors = null,
-    IReadOnlyList<FieldViolation>? Violations = null)
+    IReadOnlyList<FieldViolation>? Violations = null,
+    IReadOnlyDictionary<string, object?>? Extensions = null)
 {
+    /// <summary>Adds top-level problem members (e.g. the current server copy of a conflicting document).</summary>
+    public Error With(string key, object? value) =>
+        this with { Extensions = new Dictionary<string, object?>(Extensions ?? new Dictionary<string, object?>()) { [key] = value } };
+
     public static Error Validation(string code, string message, IReadOnlyDictionary<string, string[]>? errors = null) =>
         new(code, message, ErrorKind.Validation, errors);
 
@@ -38,6 +43,8 @@ public sealed record Error(
     /// <summary>Well-formed input that breaks content rules (HTTP 422).</summary>
     public static Error Unprocessable(string code, string message, IReadOnlyList<FieldViolation> violations) =>
         new(code, message, ErrorKind.Unprocessable, GroupMessages(violations), violations);
+
+    public static Error Unprocessable(string code, string message) => new(code, message, ErrorKind.Unprocessable);
 
     private static Dictionary<string, string[]> GroupMessages(IReadOnlyList<FieldViolation> violations) =>
         violations.GroupBy(v => v.Field).ToDictionary(g => g.Key, g => g.Select(v => v.Message).ToArray());

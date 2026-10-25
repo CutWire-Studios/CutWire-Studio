@@ -74,12 +74,20 @@ public sealed class SpaHostingTests : IDisposable
         body.ShouldBe("<svg/>");
     }
 
+    [Fact]
+    public async Task Mcp_AnswersWithAChallenge_NotTheSpa()
+    {
+        var (response, body) = await Get("/mcp");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        body.ShouldNotContain("<html>");
+    }
+
     [Theory]
     [InlineData("/api/v1/unknown")]
     [InlineData("/api")]
     [InlineData("/connect/unknown")]
     [InlineData("/.well-known/unknown")]
-    [InlineData("/mcp")]
     [InlineData("/files/unknown")]
     public async Task ReservedPrefixes_NeverFallBackToSpa(string path)
     {

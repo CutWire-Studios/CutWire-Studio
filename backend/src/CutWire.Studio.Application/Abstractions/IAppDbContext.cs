@@ -1,6 +1,7 @@
 using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
+using CutWire.Studio.Domain.Forge;
 using CutWire.Studio.Domain.Moderation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -24,6 +25,11 @@ public interface IAppDbContext
     DbSet<Report> Reports { get; }
     DbSet<ModerationAction> ModerationActions { get; }
     DbSet<CleanupSchedule> CleanupSchedules { get; }
+    DbSet<ForgeDocument> ForgeDocuments { get; }
+    DbSet<ForgeDocAsset> ForgeDocAssets { get; }
+    DbSet<AiUsage> AiUsage { get; }
+    DbSet<ThemeDraft> ThemeDrafts { get; }
+    Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
 
     Task<bool> CanConnectAsync(CancellationToken ct);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct);

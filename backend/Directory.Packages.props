@@ -21,6 +21,9 @@
     <PackageVersion Include="SkiaSharp" Version="4.153.1" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
     <PackageVersion Include="ZstdSharp.Port" Version="0.8.8" />
+    <PackageVersion Include="Jint" Version="4.17.0" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="2.3.0" />
+    <PackageVersion Include="ModelContextProtocol" Version="2.3.0" />
     <PackageVersion Include="JsonSchema.Net" Version="9.4.1" />
     <PackageVersion Include="xunit.v3" Version="4.0.2" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
