@@ -21,13 +21,13 @@ COPY backend/src/CutWire.Studio.Domain/*.csproj backend/src/CutWire.Studio.Domai
 COPY backend/src/CutWire.Studio.Application/*.csproj backend/src/CutWire.Studio.Application/packages.lock.json src/CutWire.Studio.Application/
 COPY backend/src/CutWire.Studio.Infrastructure/*.csproj backend/src/CutWire.Studio.Infrastructure/packages.lock.json src/CutWire.Studio.Infrastructure/
 COPY backend/src/CutWire.Studio.Api/*.csproj backend/src/CutWire.Studio.Api/packages.lock.json src/CutWire.Studio.Api/
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet restore src/CutWire.Studio.Api --locked-mode
+# Packages stay in this layer (no cache mount): with a CI layer cache the restore
+# step is skipped, and publish --no-restore needs the packages to be in the layer.
+RUN dotnet restore src/CutWire.Studio.Api --locked-mode
 COPY backend/src ./src
 # The csproj embeds ../../../web/dist (relative to the Api project), i.e. /src/web/dist.
 COPY --from=web /src/web/dist /src/web/dist
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish src/CutWire.Studio.Api -c Release -r linux-x64 --no-restore -o /out
+RUN dotnet publish src/CutWire.Studio.Api -c Release -r linux-x64 --no-restore -o /out
 
 # dotnet/runtime-deps:10.0
 FROM mcr.microsoft.com/dotnet/runtime-deps:10.0@sha256:1c20bc9ebda297198be069d82b6c5d1716faeeec8b8dca53ef963f9c92d3e2e3 AS runtime
