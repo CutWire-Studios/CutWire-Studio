@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "data": {
+    "id": "76bfc7a1", "title": "last dance", "duration": 146.375, "is_premium": false,
+    "artists": [[0, { "id": "1ff0", "name": "massobeats" }]], "categories": [],
+    "thumbnails": { "md": "https://data.freetouse.com/t/md.webp" }, "files": { "mp3": "https://data.freetouse.com/t/76bfc7a1/file.mp3" }
+  }
+}

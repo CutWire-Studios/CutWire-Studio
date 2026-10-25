@@ -1,0 +1,11 @@
+{
+  "id": "search",
+  "title": "search",
+  "_type": "playlist",
+  "entries": [
+    {"id": "y6120QOlsfU", "title": "Sandstorm", "duration": 225, "uploader": "Darude"},
+    {"id": "OLAK5uy_nXaaaaaaaaa", "title": "Album: Before the Storm"},
+    {"id": "4Tr0otuiQuU", "title": "", "duration": 100},
+    {"id": "4Tr0otuiQuV", "title": "Another Song", "duration": 180}
+  ]
+}

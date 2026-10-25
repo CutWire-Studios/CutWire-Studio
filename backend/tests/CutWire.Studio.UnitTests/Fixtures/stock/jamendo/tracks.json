@@ -1,0 +1,18 @@
+{
+  "headers": { "status": "success", "code": 0, "error_message": "", "results_count": 2 },
+  "results": [
+    {
+      "id": "1532", "name": "Sunrise Drive", "duration": 187, "artist_id": "354", "artist_name": "Skylar",
+      "album_name": "Roads", "album_image": "https://usercontent.jamendo.com/album/1.jpg", "image": "https://usercontent.jamendo.com/track/1.jpg",
+      "license_ccurl": "http://creativecommons.org/licenses/by-nc/3.0/",
+      "audio": "https://prod-1.storage.jamendo.com/?trackid=1532&format=mp32",
+      "audiodownload": "https://prod-1.storage.jamendo.com/download/track/1532/mp32/",
+      "audiodownload_allowed": true
+    },
+    {
+      "id": "1533", "name": "Locked Track", "duration": 100, "artist_id": "355", "artist_name": "Nope",
+      "image": "", "album_image": "", "license_ccurl": "", "audio": "https://prod-1.storage.jamendo.com/?trackid=1533",
+      "audiodownload": "", "audiodownload_allowed": false
+    }
+  ]
+}

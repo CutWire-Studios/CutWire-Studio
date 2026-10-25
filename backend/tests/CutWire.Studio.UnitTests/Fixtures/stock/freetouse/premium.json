@@ -1,0 +1,1 @@
+{ "ok": true, "data": { "id": "premium1", "title": "paid", "duration": 100, "is_premium": true, "artists": [], "thumbnails": { "md": "m" }, "files": { "mp3": "https://data.freetouse.com/t/premium1/file.mp3" } } }

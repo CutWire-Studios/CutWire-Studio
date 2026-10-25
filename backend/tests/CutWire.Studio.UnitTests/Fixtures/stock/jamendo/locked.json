@@ -1,0 +1,7 @@
+{
+  "headers": { "status": "success", "code": 0, "error_message": "", "results_count": 1 },
+  "results": [
+    { "id": "1533", "name": "Locked Track", "duration": 100, "artist_id": "355", "artist_name": "Nope",
+      "audio": "https://prod-1.storage.jamendo.com/?trackid=1533", "audiodownload": "https://prod-1.storage.jamendo.com/download/1533", "audiodownload_allowed": false }
+  ]
+}

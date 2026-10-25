@@ -155,6 +155,11 @@ Port to .NET from `CutWire-Marketplace/backend/internal`:
 - **Jobs**: resolve jobs, download jobs with ffmpeg normalisation, the quota ledger (per install / per account), sealed media URLs, the SFX library (bind-mounted `sfx.json` + FLAC/Opus), the Drift Assets mirror (GitHub release `index.json` + tarball).
 - **Infrastructure kept**: imgproxy and potoken stay as sidecar containers.
 - **Removed**: Redis, replaced by `IMemoryCache` plus a Postgres cache table for provider responses.
+- **As built** (details in `backend/README.md`):
+  - Catalog types are `video`, `photo`, `audio`, `music`, `greenscreen`. Item ids are `base64url("provider:type:native")` (unsigned: HMAC client signing is dropped).
+  - Download results are blobs referenced by `download_jobs` until the `stock-expiry` job releases them to the blob GC; the result URL is an AES-GCM sealed, expiring `/api/v1/stock/files/{token}`. Previews and thumbnails go through a sealed relay (`/stock/media/{token}`) and optionally imgproxy, so origins never reach a client.
+  - The Drift Assets pack is mirrored into blobs (new tables `drift_asset_packs`, `provider_cache`) and served through `/files/{sha256}`; the SFX library is read from `Stock:Sfx:Path` and served by `/stock/sfx/files/...`.
+  - `provider_settings` has no `hidden_for` (distributions no longer exist); `asset_categories` and `sfx_categories` carry enabled/label/sort only.
 - **Web UI**: `/stock` in the shell, with card grids and carousels, re-implemented in React and based on the Marketplace views.
 
 ### Theme Maker (`/themes`)

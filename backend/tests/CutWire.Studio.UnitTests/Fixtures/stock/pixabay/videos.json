@@ -1,0 +1,16 @@
+{
+  "total": 100, "totalHits": 100,
+  "hits": [
+    {
+      "id": 125, "pageURL": "https://pixabay.com/videos/id-125/", "type": "film", "tags": "flowers, yellow, blossom, extra",
+      "duration": 12,
+      "videos": {
+        "large": { "url": "https://cdn.pixabay.com/video/125-large.mp4", "width": 1920, "height": 1080, "size": 9000, "thumbnail": "https://cdn.pixabay.com/video/125-large.jpg" },
+        "medium": { "url": "https://cdn.pixabay.com/video/125-medium.mp4", "width": 1280, "height": 720, "size": 5000, "thumbnail": "https://cdn.pixabay.com/video/125-medium.jpg" },
+        "small": { "url": "https://cdn.pixabay.com/video/125-small.mp4", "width": 960, "height": 540, "size": 3000, "thumbnail": "https://cdn.pixabay.com/video/125-small.jpg" },
+        "tiny": { "url": "", "width": 0, "height": 0, "size": 0, "thumbnail": "" }
+      },
+      "user_id": 1664300, "user": "Coverr-Free-Footage"
+    }
+  ]
+}

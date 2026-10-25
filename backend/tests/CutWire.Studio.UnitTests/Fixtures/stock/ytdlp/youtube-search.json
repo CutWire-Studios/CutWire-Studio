@@ -1,0 +1,12 @@
+{
+  "id": "cats",
+  "title": "cats",
+  "_type": "playlist",
+  "entries": [
+    {"id": "dQw4w9WgXcQ", "title": "Never Gonna Give You Up", "duration": 212, "channel": "Rick Astley", "channel_url": "https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw", "live_status": null,
+     "thumbnails": [{"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg", "width": 480, "height": 270}], "view_count": 1500000000},
+    {"id": "jfKfPfyJRdk", "title": "lofi hip hop radio", "duration": null, "channel": "Lofi Girl", "live_status": "is_live"},
+    {"id": "UCuAXFkgsw1L7xaCfnd5JJOw", "title": "Rick Astley (a channel)", "channel": "Rick Astley"},
+    {"id": "9bZkp7q19f0", "title": "PSY - GANGNAM STYLE", "duration": 253, "uploader": "officialpsy", "uploader_url": "https://www.youtube.com/@officialpsy", "live_status": "not_live"}
+  ]
+}

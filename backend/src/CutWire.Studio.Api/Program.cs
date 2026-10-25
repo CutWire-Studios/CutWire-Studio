@@ -53,6 +53,8 @@ api.MapMeta();
 api.MapForge();
 api.MapForgeAi();
 api.MapThemeDrafts();
+api.MapStock();
+api.MapStockMedia();
 var account = api.MapGroup("/account");
 account.MapProfile();
 account.MapTwoFactor();

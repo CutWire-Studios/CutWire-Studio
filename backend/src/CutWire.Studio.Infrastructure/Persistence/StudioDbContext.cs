@@ -4,6 +4,7 @@ using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
 using CutWire.Studio.Domain.Forge;
 using CutWire.Studio.Domain.Moderation;
+using CutWire.Studio.Domain.Stock;
 using CutWire.Studio.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -36,10 +37,20 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     public DbSet<ForgeDocAsset> ForgeDocAssets => Set<ForgeDocAsset>();
     public DbSet<AiUsage> AiUsage => Set<AiUsage>();
     public DbSet<ThemeDraft> ThemeDrafts => Set<ThemeDraft>();
+    public DbSet<ProviderSetting> ProviderSettings => Set<ProviderSetting>();
+    public DbSet<DownloadJob> DownloadJobs => Set<DownloadJob>();
+    public DbSet<QuotaEvent> QuotaEvents => Set<QuotaEvent>();
+    public DbSet<AssetCategory> AssetCategories => Set<AssetCategory>();
+    public DbSet<SfxCategory> SfxCategories => Set<SfxCategory>();
+    public DbSet<ProviderCacheEntry> ProviderCache => Set<ProviderCacheEntry>();
+    public DbSet<DriftAssetPack> DriftAssetPacks => Set<DriftAssetPack>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct) => Database.BeginTransactionAsync(ct);
 
     public Task<bool> CanConnectAsync(CancellationToken ct) => Database.CanConnectAsync(ct);
+
+    public Task LockForTransactionAsync(string key, CancellationToken ct) =>
+        Database.ExecuteSqlAsync($"select pg_advisory_xact_lock(hashtextextended({key}, 0))", ct);
 
     Task<int> IAppDbContext.SaveChangesAsync(CancellationToken ct) => SaveChangesAsync(ct);
 

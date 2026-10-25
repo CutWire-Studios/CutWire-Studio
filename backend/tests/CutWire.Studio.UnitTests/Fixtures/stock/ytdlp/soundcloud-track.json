@@ -1,0 +1,13 @@
+{
+  "id": "1234567",
+  "title": "Night Drive",
+  "duration": 187.3,
+  "thumbnail": "https://i1.sndcdn.com/artworks-abc-large.jpg",
+  "thumbnails": [
+    {"url": "https://i1.sndcdn.com/artworks-abc-t500x500.jpg", "width": 500, "height": 500},
+    {"url": "https://i1.sndcdn.com/artworks-abc-original.jpg", "width": 2000, "height": 2000}
+  ],
+  "uploader": "An Artist",
+  "uploader_url": "https://soundcloud.com/an-artist",
+  "extractor": "soundcloud"
+}

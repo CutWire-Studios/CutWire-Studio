@@ -3,6 +3,7 @@ using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
 using CutWire.Studio.Domain.Forge;
 using CutWire.Studio.Domain.Moderation;
+using CutWire.Studio.Domain.Stock;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -29,9 +30,18 @@ public interface IAppDbContext
     DbSet<ForgeDocAsset> ForgeDocAssets { get; }
     DbSet<AiUsage> AiUsage { get; }
     DbSet<ThemeDraft> ThemeDrafts { get; }
+    DbSet<ProviderSetting> ProviderSettings { get; }
+    DbSet<DownloadJob> DownloadJobs { get; }
+    DbSet<QuotaEvent> QuotaEvents { get; }
+    DbSet<AssetCategory> AssetCategories { get; }
+    DbSet<SfxCategory> SfxCategories { get; }
+    DbSet<ProviderCacheEntry> ProviderCache { get; }
+    DbSet<DriftAssetPack> DriftAssetPacks { get; }
     Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
 
     Task<bool> CanConnectAsync(CancellationToken ct);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct);
+    /// <summary>Takes a Postgres transaction-scoped advisory lock for <paramref name="key"/>; must be called inside a transaction.</summary>
+    Task LockForTransactionAsync(string key, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }

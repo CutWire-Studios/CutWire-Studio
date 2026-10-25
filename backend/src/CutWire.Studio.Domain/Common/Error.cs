@@ -9,6 +9,7 @@ public enum ErrorKind
     Unauthorized,
     Forbidden,
     TooLarge,
+    RateLimited,
     Unavailable,
     Unexpected,
 }
@@ -54,5 +55,8 @@ public sealed record Error(
     public static Error Unauthorized(string code, string message) => new(code, message, ErrorKind.Unauthorized);
     public static Error Forbidden(string code, string message) => new(code, message, ErrorKind.Forbidden);
     public static Error TooLarge(string code, string message) => new(code, message, ErrorKind.TooLarge);
+    public static Error RateLimited(string code, string message, int retryAfterSeconds) =>
+        new Error(code, message, ErrorKind.RateLimited).With("retryAfter", Math.Max(1, retryAfterSeconds));
+
     public static Error Unavailable(string code, string message) => new(code, message, ErrorKind.Unavailable);
 }

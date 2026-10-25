@@ -1,0 +1,16 @@
+{
+  "id": "y6120QOlsfU",
+  "title": "Sandstorm",
+  "duration": 225.5,
+  "thumbnail": "https://i.ytimg.com/vi/y6120QOlsfU/maxresdefault.jpg",
+  "thumbnails": [
+    {"url": "https://i.ytimg.com/vi/y6120QOlsfU/hqdefault.jpg", "width": 480, "height": 360},
+    {"url": "https://i.ytimg.com/vi/y6120QOlsfU/sddefault.jpg", "width": 640, "height": 480}
+  ],
+  "uploader": "Darude - Topic",
+  "uploader_url": "https://www.youtube.com/channel/UCAAA",
+  "channel": null,
+  "channel_url": null,
+  "extractor": "youtube",
+  "live_status": "not_live"
+}

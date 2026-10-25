@@ -969,6 +969,356 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                     b.ToTable("reports", (string)null);
                 });
 
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.AssetCategory", b =>
+                {
+                    b.Property<string>("Category")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("category");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("label");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort");
+
+                    b.HasKey("Category")
+                        .HasName("pk_asset_categories");
+
+                    b.ToTable("asset_categories", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.DownloadJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Attribution")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("attribution");
+
+                    b.Property<string>("BlobSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("blob")
+                        .IsFixedLength();
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("error_code");
+
+                    b.Property<string>("ErrorDetail")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("error_detail");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("FileSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("file_sha256");
+
+                    b.Property<string>("Filename")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("filename");
+
+                    b.Property<string>("LicenseName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("license_name");
+
+                    b.Property<string>("LicenseUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("license_url");
+
+                    b.Property<string>("Mime")
+                        .HasMaxLength(127)
+                        .HasColumnType("character varying(127)")
+                        .HasColumnName("mime");
+
+                    b.Property<string>("Native")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("native");
+
+                    b.Property<double>("Progress")
+                        .HasColumnType("double precision")
+                        .HasColumnName("progress");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("QuotaSubject")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("quota_subject");
+
+                    b.Property<string>("QuotaWindow")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("quota_window");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("VariantId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("variant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_download_jobs");
+
+                    b.HasIndex("BlobSha256")
+                        .HasDatabaseName("ix_download_jobs_blob");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_download_jobs_expires_at")
+                        .HasFilter("expires_at is not null");
+
+                    b.HasIndex("ClientId", "Status")
+                        .HasDatabaseName("ix_download_jobs_client_id_status");
+
+                    b.ToTable("download_jobs", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.DriftAssetPack", b =>
+                {
+                    b.Property<string>("Version")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("version");
+
+                    b.Property<string>("FilesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("files_json");
+
+                    b.Property<string>("IndexJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("index_json");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_current");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.HasKey("Version")
+                        .HasName("pk_drift_asset_packs");
+
+                    b.ToTable("drift_asset_packs", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.ProviderCacheEntry", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(2200)
+                        .HasColumnType("character varying(2200)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.HasKey("Key")
+                        .HasName("pk_provider_cache");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_provider_cache_expires_at");
+
+                    b.ToTable("provider_cache", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.ProviderSetting", b =>
+                {
+                    b.Property<string>("Provider")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("type");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("label");
+
+                    b.Property<int>("QuotaLimit")
+                        .HasColumnType("integer")
+                        .HasColumnName("quota_limit");
+
+                    b.Property<string>("QuotaScope")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("quota_scope");
+
+                    b.Property<string>("QuotaWindow")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("quota_window");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort");
+
+                    b.HasKey("Provider", "Type")
+                        .HasName("pk_provider_settings");
+
+                    b.ToTable("provider_settings", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.QuotaEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("job_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("subject");
+
+                    b.Property<DateTimeOffset>("WindowStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("window_start");
+
+                    b.HasKey("Id")
+                        .HasName("pk_quota_events");
+
+                    b.HasIndex("WindowStart")
+                        .HasDatabaseName("ix_quota_events_window_start");
+
+                    b.HasIndex("JobId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("ix_quota_events_job_id_kind")
+                        .HasFilter("job_id is not null");
+
+                    b.HasIndex("Subject", "Provider", "WindowStart", "Kind")
+                        .HasDatabaseName("ix_quota_events_subject_provider_window_start_kind");
+
+                    b.ToTable("quota_events", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.SfxCategory", b =>
+                {
+                    b.Property<string>("Category")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("category");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("label");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort");
+
+                    b.HasKey("Category")
+                        .HasName("pk_sfx_categories");
+
+                    b.ToTable("sfx_categories", (string)null);
+                });
+
             modelBuilder.Entity("CutWire.Studio.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1714,6 +2064,15 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_reports_user_profiles_reporter_id");
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Stock.DownloadJob", b =>
+                {
+                    b.HasOne("CutWire.Studio.Domain.Blobs.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("BlobSha256")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_download_jobs_blobs_blob");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

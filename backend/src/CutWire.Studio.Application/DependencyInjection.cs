@@ -32,6 +32,20 @@ public static class DependencyInjection
         services.AddScoped<Forge.HostedAgent>();
         services.AddSingleton<Forge.KeyedLocks<Guid>>();
 
+        services.AddSingleton<Stock.StockRegistry>();
+        services.AddSingleton<Stock.StockAssembler>();
+        services.AddSingleton<Stock.ResolveJobStore>();
+        services.AddScoped<Stock.StockSettings>();
+        services.AddScoped<Stock.StockQuota>();
+        services.AddScoped<Stock.StockBrowse>();
+        services.AddScoped<Stock.DownloadJobs>();
+        services.AddScoped<Stock.DownloadRunner>();
+        services.AddScoped<Stock.StockResolve>();
+        services.AddScoped<Stock.StockFiles>();
+        services.AddScoped<Stock.StockExpiry>();
+        services.AddScoped<Stock.SfxCatalog>();
+        services.AddScoped<Stock.DriftAssetsCatalog>();
+
         return services;
     }
 }

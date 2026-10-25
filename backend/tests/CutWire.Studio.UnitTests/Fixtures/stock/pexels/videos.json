@@ -1,0 +1,16 @@
+{
+  "page": 1, "per_page": 1, "total_results": 40,
+  "videos": [
+    {
+      "id": 3195394, "width": 3840, "height": 2160, "duration": 15,
+      "url": "https://www.pexels.com/video/waves-crashing-on-the-beach-3195394/",
+      "image": "https://images.pexels.com/videos/3195394/pictures/preview-0.jpg",
+      "user": { "id": 9, "name": "Ruvim Miksanskiy", "url": "https://www.pexels.com/@digitech" },
+      "video_files": [
+        { "id": 101, "quality": "sd", "file_type": "video/mp4", "width": 640, "height": 360, "link": "https://videos.pexels.com/files/101-sd.mp4", "size": 1000 },
+        { "id": 102, "quality": "uhd", "file_type": "video/mp4", "width": 3840, "height": 2160, "link": "https://videos.pexels.com/files/102-uhd.mp4", "size": 90000 },
+        { "id": 103, "quality": "hd", "file_type": "video/mp4", "width": 1280, "height": 720, "link": "https://videos.pexels.com/files/103-hd.mp4", "size": 20000 }
+      ]
+    }
+  ]
+}

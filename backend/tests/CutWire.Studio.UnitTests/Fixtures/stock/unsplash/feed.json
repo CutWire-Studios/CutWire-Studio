@@ -1,0 +1,8 @@
+[
+  {
+    "id": "feed1", "width": 4000, "height": 3000, "description": "Morning coffee", "alt_description": null,
+    "urls": { "raw": "r", "full": "f", "regular": "https://images.unsplash.com/c?reg", "small": "https://images.unsplash.com/c?small", "thumb": "t" },
+    "links": { "download_location": "https://api.unsplash.com/photos/feed1/download" },
+    "user": { "name": "Sam Lee", "username": "samlee", "links": { "html": "https://unsplash.com/@samlee" } }
+  }
+]

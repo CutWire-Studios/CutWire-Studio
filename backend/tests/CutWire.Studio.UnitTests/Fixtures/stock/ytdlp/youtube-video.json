@@ -1,0 +1,27 @@
+{
+  "id": "dQw4w9WgXcQ",
+  "title": "Never Gonna Give You Up",
+  "description": "The official video.",
+  "duration": 212,
+  "thumbnail": "https://i.ytimg.com/vi_webp/dQw4w9WgXcQ/maxresdefault.webp",
+  "thumbnails": [
+    {"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg", "width": 480, "height": 360},
+    {"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/sddefault.jpg", "width": 640, "height": 480},
+    {"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg", "width": 1920, "height": 1080},
+    {"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/0.jpg"}
+  ],
+  "uploader": "Rick Astley",
+  "uploader_url": "https://www.youtube.com/@RickAstleyYT",
+  "channel": "Rick Astley",
+  "channel_url": "https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw",
+  "webpage_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "width": 1920,
+  "height": 1080,
+  "extractor": "youtube",
+  "live_status": "not_live",
+  "formats": [
+    {"format_id": "18", "ext": "mp4", "width": 640, "height": 360, "vcodec": "avc1.42001E", "acodec": "mp4a.40.2"},
+    {"format_id": "137", "ext": "mp4", "width": 1920, "height": 1080, "vcodec": "avc1.640028", "acodec": "none"},
+    {"format_id": "140", "ext": "m4a", "vcodec": "none", "acodec": "mp4a.40.2"}
+  ]
+}

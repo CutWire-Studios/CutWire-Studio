@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "76bfc7a1", "title": "last dance", "duration": 146.375, "genre": "Instrumental", "is_premium": false,
+      "artists": [[0, { "id": "1ff0", "name": "massobeats" }]],
+      "categories": [[0, { "id": "c1", "name": "Lofi" }]],
+      "thumbnails": { "sm": "https://data.freetouse.com/t/sm.webp", "md": "https://data.freetouse.com/t/md.webp", "lg": "l", "xl": "x" },
+      "files": { "mp3": "https://data.freetouse.com/t/76bfc7a1/file.mp3" }
+    },
+    {
+      "id": "premium1", "title": "paid", "duration": 100, "is_premium": true,
+      "artists": [[0, { "id": "a", "name": "someone" }]], "categories": [],
+      "thumbnails": { "md": "m" }, "files": { "mp3": "https://data.freetouse.com/t/premium1/file.mp3" }
+    },
+    {
+      "id": "1914d68a", "title": "Slow Tide", "duration": 156.28125, "is_premium": false,
+      "artists": [], "categories": [],
+      "thumbnails": { "md": "https://data.freetouse.com/t/2/md.webp" }, "files": { "mp3": "https://data.freetouse.com/t/1914d68a/file.mp3" }
+    }
+  ],
+  "pagination": { "limit": 3, "offset": 0, "count": 120 }
+}

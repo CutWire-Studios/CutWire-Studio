@@ -15,6 +15,7 @@ public sealed class RateLimitingSettings
     public const string StrictPolicy = "strict";
     public const string VotePolicy = "vote";
     public const string ReportPolicy = "report";
+    public const string StockWritePolicy = "stock-write";
 
     public int PermitLimit { get; set; } = 120;
     public TimeSpan Window { get; set; } = TimeSpan.FromMinutes(1);
@@ -24,6 +25,8 @@ public sealed class RateLimitingSettings
     public TimeSpan VoteWindow { get; set; } = TimeSpan.FromMinutes(1);
     public int ReportPermitLimit { get; set; } = 10;
     public TimeSpan ReportWindow { get; set; } = TimeSpan.FromMinutes(10);
+    public int StockWritePermitLimit { get; set; } = 30;
+    public TimeSpan StockWriteWindow { get; set; } = TimeSpan.FromMinutes(1);
 }
 
 public static class HttpExtensions
@@ -94,6 +97,16 @@ public static class HttpExtensions
                 {
                     PermitLimit = settings.ReportPermitLimit,
                     Window = settings.ReportWindow,
+                    QueueLimit = 0,
+                });
+            });
+            o.AddPolicy(RateLimitingSettings.StockWritePolicy, http =>
+            {
+                var settings = http.RequestServices.GetRequiredService<IOptions<RateLimitingSettings>>().Value;
+                return RateLimitPartition.GetFixedWindowLimiter(UserOrIp(http), _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = settings.StockWritePermitLimit,
+                    Window = settings.StockWriteWindow,
                     QueueLimit = 0,
                 });
             });

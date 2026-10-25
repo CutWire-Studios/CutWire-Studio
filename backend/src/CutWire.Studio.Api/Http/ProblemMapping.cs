@@ -18,6 +18,7 @@ public static class ProblemMapping
         ErrorKind.Unauthorized => StatusCodes.Status401Unauthorized,
         ErrorKind.Forbidden => StatusCodes.Status403Forbidden,
         ErrorKind.TooLarge => StatusCodes.Status413PayloadTooLarge,
+        ErrorKind.RateLimited => StatusCodes.Status429TooManyRequests,
         ErrorKind.Unavailable => StatusCodes.Status503ServiceUnavailable,
         _ => StatusCodes.Status500InternalServerError,
     };
@@ -57,9 +58,20 @@ public static class ProblemMapping
     public static IResult ToHttpResult(this Error error)
     {
         var problem = error.ToProblem();
+        if (error.Kind == ErrorKind.RateLimited && error.Extensions?.GetValueOrDefault("retryAfter") is int seconds)
+            return new RetryAfterResult(seconds, Results.Problem(problem));
         return Results.Problem(problem);
     }
 
     public static IResult ToHttpResult<T>(this Result<T> result, Func<T, IResult> onSuccess) =>
         result.IsSuccess ? onSuccess(result.Value) : result.Error.ToHttpResult();
+}
+
+internal sealed class RetryAfterResult(int seconds, IResult inner) : IResult
+{
+    public Task ExecuteAsync(HttpContext httpContext)
+    {
+        httpContext.Response.Headers.RetryAfter = seconds.ToString();
+        return inner.ExecuteAsync(httpContext);
+    }
 }
