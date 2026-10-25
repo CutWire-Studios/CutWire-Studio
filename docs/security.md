@@ -168,5 +168,5 @@ Not changed by the repository; apply in Settings.
 - Branch protection or ruleset on `main`: require a pull request, require status checks (`web`, `backend`, `analyze`, `audit-npm`, `audit-nuget`, `secrets`, `dependency-review`), require branches up to date, require conversation resolution, block force pushes and deletions, require review from code owners once there is a second maintainer (a solo maintainer cannot approve their own PR; use the ruleset without the review requirement but keep the status checks)
 - Security: enable private vulnerability reporting, Dependabot alerts and security updates, secret scanning with push protection, code scanning default setup off (the workflow is used)
 - Actions: default workflow token permissions to read-only, require approval for outside collaborators' workflow runs, allow only actions pinned by SHA if the option is available
-- Accounts: require 2FA for the organisation; keep `ANSIBLE_DISPATCH_TOKEN` a fine-grained token limited to `cutwire-ansible` with only the permission needed to dispatch, with an expiry
+- Accounts: require 2FA for the organisation; the `cutwire-deploy-bot` App is installed only on `CutWire-Studio-Deploy` with Contents + Pull requests write; rotate its private key yearly
 - Packages: GHCR package visibility and access limited to the repository

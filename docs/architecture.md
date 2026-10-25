@@ -179,15 +179,11 @@ Port to .NET from `CutWire-Marketplace/backend/internal`:
 - `/api/v1`, resource-oriented. Cursor pagination. RFC 7807 errors with stable `code`s. ETags. OpenAPI 3.1 generated, and it drives `api-client`.
 - Only additive changes inside v1. Separate `drift` client scopes, so the old marketplace contract is never involved.
 
-## Deployment (`CutWire-Ansible`)
-- New role `roles/studio` (copied from `roles/forge`):
-  - compose with `postgres:17-alpine` (volume `pgdata`) and `ghcr.io/cutwire-studios/cutwire-studio`, on port **8087**, bound to 127.0.0.1, with `enable_ipv6: true`.
-  - volume `blobs`, the read-only SFX bind mount, and imgproxy + potoken sidecars.
-- `vars.yml`: `studio_*` vars. `http_sites` + `tunnel_ingress` for `cutwire.studio`. `nginx/templates/studio.conf.j2` (`client_max_body_size 16m`; pass-through `/files` caching headers). A `cloudflare_access_apps` entry for `/community/mod` is optional, as a second factor for moderators.
-- `playbooks/studio.yml`, plus `.github/workflows/deploy-studio.yml` (repository_dispatch).
-- Secrets via `bws-upsert`: DB password, OpenIddict signing/encryption certificates, SMTP, provider keys, CF AI token, social client secrets.
-- Studio repo CI: `.github/workflows/build.yml` (web build + tests → dotnet test → image push to GHCR → dispatch deploy).
-- Needs a Cloudflare zone for `cutwire.studio` (a manual step in Cloudflare; the `cloudflare` role then manages DNS and tunnel).
+## Deployment
+- **Images:** `build.yml` builds on every push to `main` and pushes `ghcr.io/cutwire-studios/cutwire-studio:<short-sha>` (and `latest`).
+- **Deploy repo** `CutWire-Studios/CutWire-Studio-Deploy` (private) holds `docker-compose.yml` (Postgres 17, studio, imgproxy, potoken) with the image pinned as `<tag>@sha256:<digest>`. After each image push, the `cutwire-deploy-bot` GitHub App opens a PR there bumping the pin. Merging it runs that repo's `deploy.yml` on a self-hosted runner on edge1 (rootless podman as `deploy`), which updates `~/studio`, pulls and restarts the stack, and checks `/healthz`.
+- **Host setup** stays in `CutWire-Ansible`: `roles/studio` (directories, OpenIddict PFX certificates, `.env` from the vault, the shared SFX directory), `roles/actions_runner` (the runner service), the nginx vhost `studio.conf.j2`, and tunnel/DNS for `cutwire.studio` (its own Cloudflare zone).
+- Secrets live in Bitwarden → Ansible vault → `~/studio/.env` on the server; GitHub never sees them.
 
 ## Execution (subagents, sequential waves; I orchestrate and review)
 - Each wave lists its agents and their scope. Agents within a wave touch separate directories.

@@ -19,7 +19,7 @@ Workflows: `build` = `.github/workflows/build.yml`, `security` = `security.yml`,
 | PO.3.3 Configure toolchain to generate audit trail | Partial | GitHub Actions logs, PR history, build/provenance attestations | Enable branch protection so merges are reviewable; consider the organisation audit log |
 | PO.4.1 Define criteria for checking security | Met | CI gates: analyzers as errors, high/critical advisory failures, Trivy HIGH/CRITICAL, gitleaks, CodeQL; release checklist | |
 | PO.4.2 Gather and review information to support criteria | Met | CI results, SARIF in code scanning, CSP reports at `/api/v1/csp-report` | Owner reviews code scanning alerts |
-| PO.5.1 Separate and protect environments | Partial | Dev uses `deploy/compose.dev.yml` and `Security:AllowInsecureDefaults`; production refuses dev defaults (`ProductionGuard`); CI has no production secrets except `ANSIBLE_DISPATCH_TOKEN` in one job | Deployment hardening lives in the private `cutwire-ansible` repo (not assessed) |
+| PO.5.1 Separate and protect environments | Partial | Dev uses `deploy/compose.dev.yml` and `Security:AllowInsecureDefaults`; production refuses dev defaults (`ProductionGuard`); CI has no production secrets; the only deploy credential is the `cutwire-deploy-bot` App key, which can only open PRs on the deploy repo, and deploys need a human merge | Host hardening lives in the private `cutwire-ansible` repo (not assessed) |
 | PO.5.2 Secure and harden development endpoints | Not met | | Developer machines are outside the repo; owner enables 2FA, disk encryption, signed commits if wanted |
 
 ## PS: Protect the Software
@@ -27,8 +27,8 @@ Workflows: `build` = `.github/workflows/build.yml`, `security` = `security.yml`,
 | ID | Status | Evidence | Remaining gap / owner action |
 | --- | --- | --- | --- |
 | PS.1.1 Store code under least-privilege access control | Partial | CODEOWNERS; workflows use read-only token by default | Owner: branch protection/ruleset on `main`, 2FA for the organisation, minimal collaborator permissions |
-| PS.2.1 Help consumers verify release integrity | Met | `build` image job: signed build-provenance attestation, BuildKit SBOM and provenance, digest pushed to GHCR; verify with `gh attestation verify` | No keyless cosign signature (attestation covers it) |
-| PS.3.1 Archive and protect each release | Partial | Every build is an immutable `sha-<commit>` image in GHCR with provenance; git history | No tagged releases or release notes; no archive outside GHCR/GitHub. Owner: restrict package deletion |
+| PS.2.1 Help consumers verify release integrity | Partial | `build` image job: BuildKit SBOM and provenance, digest pinned in the deploy repo; the signed `attest-build-provenance` step runs only when the `PUBLIC_REPO` variable is `true` | While private on the Free plan, there are no signed attestations, and CodeQL and dependency review are off (they need GHAS). Set `PUBLIC_REPO=true` when the repo goes public |
+| PS.3.1 Archive and protect each release | Partial | Every build is an immutable `<short-commit>` image, pinned by digest in the deploy repo, in GHCR with provenance; git history | No tagged releases or release notes; no archive outside GHCR/GitHub. Owner: restrict package deletion |
 | PS.3.2 Collect, maintain and share provenance data (SBOM) | Met | BuildKit SBOM attached to the image (`docker buildx imagetools inspect --format '{{ json .SBOM }}'`); lock files committed | |
 
 ## PW: Produce Well-Secured Software
@@ -81,7 +81,7 @@ Workflows: `build` = `.github/workflows/build.yml`, `security` = `security.yml`,
 1. Enable GitHub private vulnerability reporting (Settings, Security).
 2. Enable Dependabot alerts and security updates, secret scanning and push protection.
 3. Add branch protection or a ruleset on `main` with the required checks listed in security.md.
-4. Enforce 2FA for the organisation; scope `ANSIBLE_DISPATCH_TOKEN` to dispatch on `cutwire-ansible` only, with an expiry.
+4. Enforce 2FA for the organisation; keep the `cutwire-deploy-bot` App installed on `CutWire-Studio-Deploy` only.
 5. Set read-only default workflow permissions and restrict package access in GHCR.
 6. In the deployment set `Stock__Media__SealKey`, OpenIddict certificate paths, a non-default DB password, `AllowedHosts`, and `ForwardedHeaders__KnownProxies`/`KnownNetworks` for the real proxy or tunnel.
 7. Private repository only: dependency review and code scanning need GitHub Advanced Security; if that is not available, remove those jobs.

@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-CutWire Studio is deployed continuously from `main`. Only the current `main` branch and the image published from it (`ghcr.io/cutwire-studios/cutwire-studio:latest`, tags `sha-<commit>`) receive security fixes. There are no maintained release branches.
+CutWire Studio is deployed continuously from `main`. Only the current `main` branch and the image published from it (`ghcr.io/cutwire-studios/cutwire-studio:latest`, tags `<short-commit>`) receive security fixes. There are no maintained release branches.
 
 ## Reporting a vulnerability
 

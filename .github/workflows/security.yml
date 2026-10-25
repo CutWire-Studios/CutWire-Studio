@@ -17,7 +17,8 @@ concurrency:
 
 jobs:
   dependency-review:
-    if: github.event_name == 'pull_request'
+    # Needs GitHub Advanced Security on a private repo; set the PUBLIC_REPO variable to true once public.
+    if: github.event_name == 'pull_request' && vars.PUBLIC_REPO == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

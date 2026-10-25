@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   analyze:
+    # Code scanning on a private repo needs GitHub Advanced Security; set the PUBLIC_REPO variable to true once public.
+    if: vars.PUBLIC_REPO == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

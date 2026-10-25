@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 # Superseded PR runs are cancelled; runs on main are never cancelled because
-# they publish the image and trigger the deploy.
+# they publish the image and open the deploy PR.
 concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -76,6 +76,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      digest: ${{ steps.push.outputs.digest }}
     permissions:
       contents: read
       packages: write
@@ -85,6 +88,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
+      - id: meta
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
       # Build locally first so a vulnerable image is never pushed.
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
@@ -121,30 +126,55 @@ jobs:
           sbom: true
           provenance: mode=max
           tags: |
-            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE }}:latest
           cache-from: type=gha
       # Signed SLSA provenance, stored next to the image in GHCR.
       # Verify with: gh attestation verify oci://ghcr.io/cutwire-studios/cutwire-studio:<tag> -R cutwire-studios/cutwire-studio
-      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+      # Attestations need a public repo (or Enterprise Cloud); set the PUBLIC_REPO variable to true once public.
+      - if: vars.PUBLIC_REPO == 'true'
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-name: ${{ env.IMAGE }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
-  dispatch-deploy:
+  # Opens a PR on CutWire-Studio-Deploy that pins the new image; merging it
+  # deploys (that repo's deploy workflow runs on the server's self-hosted runner).
+  # Needs the cutwire-deploy-bot GitHub App installed on CutWire-Studio-Deploy
+  # (Contents + Pull requests write): DEPLOY_APP_CLIENT_ID variable, DEPLOY_APP_PRIVATE_KEY secret.
+  bump-deploy:
     needs: image
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Uses its own token (ANSIBLE_DISPATCH_TOKEN), nothing from GITHUB_TOKEN.
     permissions: {}
     steps:
-      # The body goes in on stdin because client_payload must arrive as a JSON object.
-      - name: Trigger cutwire-ansible
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.DEPLOY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          owner: CutWire-Studios
+          repositories: CutWire-Studio-Deploy
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          repository: CutWire-Studios/CutWire-Studio-Deploy
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Open a PR bumping the image pin
         env:
-          GH_TOKEN: ${{ secrets.ANSIBLE_DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG: ${{ needs.image.outputs.tag }}
+          DIGEST: ${{ needs.image.outputs.digest }}
         run: |
-          jq -nc \
-            --arg tag "sha-$GITHUB_SHA" \
-            '{event_type:"deploy-studio", client_payload:{image_tag:$tag}}' \
-          | gh api --method POST repos/cutwire-studios/cutwire-ansible/dispatches --input -
+          if [ -z "$DIGEST" ]; then echo "Image digest missing"; exit 1; fi
+          sed -i -E "s#(image: ghcr.io/cutwire-studios/cutwire-studio):[^[:space:]]+#\\1:${TAG}@${DIGEST}#" docker-compose.yml
+          if git diff --quiet; then echo "Already on $TAG"; exit 0; fi
+          branch="bump/cutwire-studio-$TAG"
+          git config user.name "cutwire-deploy-bot[bot]"
+          git config user.email "cutwire-deploy-bot[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "chore: deploy cutwire-studio:$TAG"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Deploy cutwire-studio:$TAG" \
+            --body "Built from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}. Merging deploys it."
