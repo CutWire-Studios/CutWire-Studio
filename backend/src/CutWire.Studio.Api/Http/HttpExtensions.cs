@@ -91,8 +91,8 @@ public static class HttpExtensions
         services.PostConfigure<HostFilteringOptions>(o =>
         {
             if (o.AllowedHosts.Contains("*")) return;
-            o.AllowedHosts.Add("localhost");
-            o.AllowedHosts.Add("127.0.0.1");
+            // Bound from configuration this is a fixed-size array, so replace it rather than Add.
+            o.AllowedHosts = [.. o.AllowedHosts, "localhost", "127.0.0.1"];
         });
 
         services.AddOptions<RateLimitingSettings>().Bind(configuration.GetSection(RateLimitingSettings.Section));
