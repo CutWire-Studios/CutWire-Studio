@@ -3,7 +3,7 @@
 
 # Base images are pinned by digest (tag in the comment); Dependabot's docker ecosystem bumps both.
 # node:24-slim
-FROM docker.io/library/node:24-slim@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205 AS web
+FROM docker.io/library/node:26-slim@sha256:36793bcbb160a6a16cede1e62b93f84e26b78a972a8a4c0b879c1c12f22761ec AS web
 RUN corepack enable && corepack prepare pnpm@12.15.0 --activate
 WORKDIR /src/web
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml web/tsconfig.base.json ./
