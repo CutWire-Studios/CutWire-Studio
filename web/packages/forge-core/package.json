@@ -88,7 +88,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.131.0",
+    "@anthropic-ai/sdk": "^1.1.0",
     "@bokuweb/zstd-wasm": "^0.0.27",
     "fflate": "^0.8.3",
     "immer": "^11.1.18",
