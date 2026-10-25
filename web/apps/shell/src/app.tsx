@@ -4,6 +4,7 @@ import { Route, Routes, useLocation } from "react-router-dom"
 import { AccountMenu } from "./account/account-menu"
 import { accountRoutes } from "./account/routes"
 import { communityRoutes } from "./community/routes"
+import { stockRoutes } from "./stock/routes"
 import { Launcher } from "./launcher"
 
 function ComingSoon({ title }: { title: string }) {
@@ -32,7 +33,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<Launcher />} />
           {communityRoutes}
-          <Route path="/stock/*" element={<ComingSoon title="Stock Library" />} />
+          {stockRoutes}
           {accountRoutes}
           <Route path="*" element={<ComingSoon title="Page not found" />} />
         </Routes>

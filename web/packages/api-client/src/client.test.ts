@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { ApiError, api, me, parseProblem } from "./client"
+import { ApiError, api, installId, me, parseProblem } from "./client"
 
 const problem = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/problem+json" } })
@@ -35,5 +35,27 @@ describe("api client", () => {
     expect(await me()).toBeNull()
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(problem(500, { title: "Boom", code: "server" })))
     await expect(me()).rejects.toMatchObject({ status: 500 })
+  })
+
+  it("generates the install id once, persists it and sends it on every request", async () => {
+    const store = new Map<string, string>()
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+    })
+    const first = installId()
+    expect(first).toMatch(/^[0-9a-f-]{36}$/)
+    expect(store.get("studio-install-id")).toBe(first)
+    expect(installId()).toBe(first)
+
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }))
+    vi.stubGlobal("fetch", fetchMock)
+    await api("/stock/catalog")
+    expect((fetchMock.mock.calls[0]![1].headers as Headers).get("X-Studio-Install")).toBe(first)
+  })
+
+  it("reuses an install id already in storage", () => {
+    vi.stubGlobal("localStorage", { getItem: () => "existing-id", setItem: vi.fn() })
+    expect(installId()).toBe("existing-id")
   })
 })
