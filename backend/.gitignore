@@ -1,1 +1,3 @@
 data/
+# The BloomGen word list is source, not runtime data.
+!tools/BloomGen/data/
