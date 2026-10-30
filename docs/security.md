@@ -129,6 +129,15 @@ Short form: assets, what an attacker wants, the controls that already exist, and
 | Blobs (`Infrastructure/Blobs`) | Path traversal, content spoofing, disk exhaustion, orphan retention | Content-addressed by parsed SHA-256, no user-supplied paths, GC with retention, size limits | Volume permissions and backups are a deployment concern |
 | Build and delivery (`.github`, `deploy`) | Poisoned dependency or action, tampered image | See "Supply chain" below | Owner account security (2FA, branch protection) is outside the repo |
 
+## Drift client request signing
+
+Signed Drift requests (`X-Cutwire-Signature`, described in `marketplace.md`) are soft gating, not access control.
+
+- The HMAC key ships inside the Drift binary, so anyone who extracts it can sign requests. It keeps out casual and scripted traffic and ties requests to a client id. It is not a secret.
+- Distribution and app version are headers the client sends. Targeting by them (layouts, flags, source hiding) is moderation and rollout control. Anyone can send `X-Cutwire-Distribution: windows-store` or an older `X-Cutwire-App`.
+- The nonce cache is per process. A replay inside the skew window is refused only by the instance that saw the first request, so a restart or a second instance weakens it. Only validly signed requests reach the cache.
+- `appsettings.Development.json` contains a development key. Production sets `DriftClient__Keys__0` (and `__1` during rotation) and must not reuse that key. `ProductionGuard` does not check the list: if it is empty, signed requests fail with 401 and unsigned requests still work.
+
 ## Production configuration (PW.9)
 
 `ProductionGuard` (called first in `Program.cs`) aborts startup outside Development with a list of problems when any of these hold:

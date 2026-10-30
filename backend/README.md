@@ -75,7 +75,7 @@ dotnet run --project src/CutWire.Studio.Api   # http://localhost:8087, migration
 podman stop studio-pg
 ```
 
-Configuration is standard ASP.NET (appsettings + env vars, `__` as separator): `ConnectionStrings__Default`, `Storage__BlobRoot`, `PublicUrl`, `Database__AutoMigrate`, `Jobs__Enabled`, `BlobGc__Retention`, `RateLimiting__PermitLimit`, `Spa__Root`, `ASPNETCORE_URLS`. Auth, email and OAuth settings (`Auth__*`, `Email__Smtp__*`) are described in `docs/auth.md`.
+Configuration is standard ASP.NET (appsettings + env vars, `__` as separator): `ConnectionStrings__Default`, `Storage__BlobRoot`, `PublicUrl`, `Database__AutoMigrate`, `Jobs__Enabled`, `BlobGc__Retention`, `RateLimiting__PermitLimit`, `Spa__Root`, `ASPNETCORE_URLS`, `DriftClient__Keys__0` (HMAC key for signed Drift requests, see `../docs/marketplace.md`), `Stock__Sfx__CachePath` (SFX peaks and hashes cache file; empty keeps them in memory). Auth, email and OAuth settings (`Auth__*`, `Email__Smtp__*`) are described in `docs/auth.md`.
 
 Outside Development the app refuses to start without `Stock__Media__SealKey` (32+ chars), a non-default DB password, a real `AllowedHosts` and OpenIddict certificates; `Security__AllowInsecureDefaults=true` opts out for local runs. Trusted reverse proxies: `ForwardedHeaders__KnownProxies__0`, `ForwardedHeaders__KnownNetworks__0` (CIDR). See `../docs/security.md`.
 

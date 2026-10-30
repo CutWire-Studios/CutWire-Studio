@@ -32,9 +32,10 @@ Studio replaces both with one "workspace" site. It has a launcher for creative t
 /forge/...        Forge (effect | transition | sound effect makers via ?kind=)
 /themes/...       Drift Theme Maker
 /edit/...         RESERVED: Drift Web (placeholder page; COOP/COEP headers already configured for this prefix)
-/stock/...        Stock media, SFX library, Drift Assets (ex-marketplace browsing)
+/stock/...        Stock media, SFX library, Drift Assets (ex-marketplace browsing); the web app still uses /api/v1/stock/* for now
 /account/...      sign in/up, profile, sessions, tokens, connected devices
 /api/v1/...       public REST API (OpenAPI generated)
+/api/v1/marketplace/...  unified marketplace for signed Drift clients and the web app (see marketplace.md)
 /connect/...      OpenIddict endpoints (authorize, token, device, userinfo, jwks)
 /mcp              Forge MCP (streamable HTTP, OAuth 2.1 protected)
 /files/{sha256}   blob downloads (immutable, Range support)
@@ -135,7 +136,8 @@ Initial handlers:
   - `drift-desktop`: authorization code + PKCE with a loopback or `cutwire://` redirect, plus the device authorization grant for headless use and Android TV. This gets the API ready for new Drift releases; the Drift changes themselves are out of scope.
   - `mcp`: OAuth 2.1 authorization code + PKCE with dynamic client registration and protected-resource metadata, as the MCP auth spec requires.
 - Personal access tokens (scoped: `forge:read`, `forge:write`, `community:publish`) for MCP clients that can't do OAuth.
-- Anonymous Drift and stock usage is identified by an `X-Studio-Install` id and IP rate limits. HMAC signing is dropped, because the key ships inside an open-source client and so isn't a secret.
+- Anonymous Drift and stock usage is identified by an `X-Studio-Install` id and IP rate limits.
+- HMAC request signing is back for Drift clients (`X-Cutwire-Signature`, verified on every route). The key ships inside the client, so it is soft gating, not a secret; see `marketplace.md` and `security.md`.
 
 ### Forge integration and MCP fix
 - Move `CutWire-Tinker/src/core` to `web/packages/forge-core` and `src/{features,services,state,shared}` to `web/apps/forge`. Base path `/forge`.
@@ -156,7 +158,7 @@ Port to .NET from `CutWire-Marketplace/backend/internal`:
 - **Infrastructure kept**: imgproxy and potoken stay as sidecar containers.
 - **Removed**: Redis, replaced by `IMemoryCache` plus a Postgres cache table for provider responses.
 - **As built** (details in `backend/README.md`):
-  - Catalog types are `video`, `photo`, `audio`, `music`, `greenscreen`. Item ids are `base64url("provider:type:native")` (unsigned: HMAC client signing is dropped).
+  - Catalog types are `video`, `photo`, `audio`, `music`, `greenscreen`. Item ids are `base64url("provider:type:native")`.
   - Download results are blobs referenced by `download_jobs` until the `stock-expiry` job releases them to the blob GC; the result URL is an AES-GCM sealed, expiring `/api/v1/stock/files/{token}`. Previews and thumbnails go through a sealed relay (`/stock/media/{token}`) and optionally imgproxy, so origins never reach a client.
   - The Drift Assets pack is mirrored into blobs (new tables `drift_asset_packs`, `provider_cache`) and served through `/files/{sha256}`; the SFX library is read from `Stock:Sfx:Path` and served by `/stock/sfx/files/...`.
   - `provider_settings.hidden_for` lists the Drift distributions (`windows`, `windows-store`, `macos`, `appimage`, `flatpak`, `flathub`, `arch`, `android-github`, `android-play`, `source`, `unknown`) that must not see a source, for store moderation. Drift sends `X-Cutwire-Distribution`; a missing header counts as `unknown`, and background jobs skip the check. The header is unsigned, so this is not access control. `asset_categories` and `sfx_categories` carry enabled/label/sort only.
@@ -224,7 +226,7 @@ Each agent prompt contains: the scope (directories it owns), the relevant sectio
 - Per your instructions: no visual or screenshot verification. Building is the bar.
 
 ## Out of scope / follow-ups
-- Drift client changes to use the new API (the old marketplace stays live meanwhile).
+- Drift uses `/api/v1/marketplace` (signed requests; see `marketplace.md`). The old marketplace stays live for older Drift clients.
 - Drift Web itself (only `/edit` is reserved, with COOP/COEP).
 - Language packs: Drift can't load translations at runtime yet (embedded `.qm` only). The kind is defined in the registry but disabled.
 - Offsite backups: there are no backups on edge1 today. Recommend nightly `pg_dump` + restic of `blobs`; the target still needs to be decided.
