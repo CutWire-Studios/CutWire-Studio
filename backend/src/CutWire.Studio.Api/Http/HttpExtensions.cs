@@ -87,12 +87,16 @@ public static class HttpExtensions
             }
         });
 
-        // The container health check and local probes use a loopback Host header.
+        // The container health check and local probes use a loopback Host header, and imgproxy
+        // fetches the media relay back through Stock:Media:InternalUrl.
         services.PostConfigure<HostFilteringOptions>(o =>
         {
             if (o.AllowedHosts.Contains("*")) return;
+            string[] extra = ["localhost", "127.0.0.1"];
+            if (Uri.TryCreate(configuration["Stock:Media:InternalUrl"], UriKind.Absolute, out var internalUrl))
+                extra = [.. extra, internalUrl.Host];
             // Bound from configuration this is a fixed-size array, so replace it rather than Add.
-            o.AllowedHosts = [.. o.AllowedHosts, "localhost", "127.0.0.1"];
+            o.AllowedHosts = [.. o.AllowedHosts, .. extra];
         });
 
         services.AddOptions<RateLimitingSettings>().Bind(configuration.GetSection(RateLimitingSettings.Section));
