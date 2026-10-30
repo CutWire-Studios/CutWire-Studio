@@ -85,6 +85,7 @@ public sealed class MarketplaceBrowse(
     MarketplaceManifest manifest,
     DriftAssetsCatalog driftAssets,
     SfxCatalog sfx,
+    ISfxAudio sfxAudio,
     StockBrowse stock,
     StockSettings stockSettings,
     StockAssembler assembler,
@@ -190,9 +191,13 @@ public sealed class MarketplaceBrowse(
     private async Task<Result<MarketItemPageDto>> SfxPageAsync(MarketCaller c, MarketQuery q, int limit, CancellationToken ct)
     {
         if (MarketCursor.DecodeOffset(q.Cursor) is not { } offset) return MarketErrors.InvalidCursor;
+        var (categoryId, subId) = SplitSfxCategory(q.Category);
         var matches = (await sfx.GetAsync(ct)).Categories
-            .Where(cat => string.IsNullOrEmpty(q.Category) || cat.Id == q.Category)
-            .SelectMany(cat => cat.Sounds.Where(s => MarketCursor.Matches(q.Q, s.Title, s.Id, string.Join(' ', s.Tags), cat.Id, cat.Label)).Select(s => (Sound: s, Category: cat)));
+            .Where(cat => categoryId is null || cat.Id == categoryId)
+            .SelectMany(cat => cat.Sounds
+                .Where(s => subId is null || s.Data?.Subcategory == subId)
+                .Where(s => MarketCursor.Matches(q.Q, s.Title, s.Id, string.Join(' ', s.Tags), cat.Id, cat.Label))
+                .Select(s => (Sound: s, Category: cat)));
         return Page(matches, offset, limit, m => SfxItem(c, m.Sound, m.Category));
     }
 
@@ -208,9 +213,22 @@ public sealed class MarketplaceBrowse(
 
     public static string DriftUrl(DriftIndexFile f) => $"/files/{f.Sha256}?name={Uri.EscapeDataString(f.Name)}";
 
-    private static MarketItemDto SfxItem(MarketCaller c, SfxSoundDto s, SfxCategoryDto category) =>
-        new(s.Id, "sfx", s.Title, null, "", c.Abs(s.PreviewUrl), "audio", s.DurationMs, null, null, s.Tags, SfxLicense,
-            [new MarketVariantDto("default", "Original", null, null, MarketMime.For(SfxFileName(s)), s.Size)], null, category.Id, null);
+    /// <summary>An sfx category filter is <c>category</c> or <c>category/subcategory</c>; the manifest lists the latter as the children of each category.</summary>
+    public static (string? Category, string? Subcategory) SplitSfxCategory(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return (null, null);
+        var slash = value.IndexOf('/');
+        return slash < 0 ? (value, null) : (value[..slash], value[(slash + 1)..]);
+    }
+
+    private MarketItemDto SfxItem(MarketCaller c, SfxSoundDto s, SfxCategoryDto category)
+    {
+        var peaks = s.Data is null ? null : sfxAudio.Lookup(s.Data).Peaks;
+        return new(s.Id, "sfx", s.Title, null, "", c.Abs(s.PreviewUrl), "audio", s.DurationMs, null, null, s.Tags, SfxLicense,
+            [new MarketVariantDto("default", "Original", null, null, MarketMime.For(SfxFileName(s)), s.Size)], null, category.Id,
+            peaks is null ? null : Extra(new { peaks }));
+    }
+
 
     public static string SfxFileName(SfxSoundDto s) => Uri.UnescapeDataString(s.DownloadUrl.Split('/')[^1]);
 

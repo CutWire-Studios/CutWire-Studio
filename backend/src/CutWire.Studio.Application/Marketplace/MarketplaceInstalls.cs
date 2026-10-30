@@ -18,6 +18,7 @@ public sealed class MarketplaceInstalls(
     MarketplaceManifest manifest,
     DriftAssetsCatalog driftAssets,
     SfxCatalog sfx,
+    ISfxAudio sfxAudio,
     DownloadJobs jobs,
     ICommandHandler<RecordDownloadCommand, DownloadTarget> record,
     IAppDbContext db)
@@ -86,7 +87,8 @@ public sealed class MarketplaceInstalls(
         if (sound is null) return MarketErrors.ItemNotFound;
         if (!string.IsNullOrWhiteSpace(command.VariantId) && command.VariantId != "default") return Error.NotFound("variant_not_found", "That variant is not available.");
         var name = MarketplaceBrowse.SfxFileName(sound);
-        return Ready("sfx", [new InstallFileDto("main", name, c.Abs(sound.DownloadUrl), sound.Size, null, MarketMime.For(name))], SfxLicense);
+        return Ready("sfx", [new InstallFileDto("main", name, c.Abs(sound.DownloadUrl), sound.Size,
+            sound.Data is null ? null : sfxAudio.Lookup(sound.Data).Sha256, MarketMime.For(name))], SfxLicense);
     }
 
     private async Task<Result<InstallJobDto>> StockAsync(MarketCaller c, string type, MarketInstallCommand command, CancellationToken ct)

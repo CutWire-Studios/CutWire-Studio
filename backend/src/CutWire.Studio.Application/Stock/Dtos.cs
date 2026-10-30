@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CutWire.Studio.Application.Stock;
 
 public sealed record StockFilterOptionDto(string Id, string Label);
@@ -46,8 +48,9 @@ public sealed record DownloadJobDto(string Id, string Status, double Progress, D
 public sealed record CreateDownloadCommand(StockCaller Caller, string ItemId, string? VariantId);
 public sealed record CreateResolveCommand(StockCaller Caller, string Url);
 
-public sealed record SfxSoundDto(string Id, string Title, int DurationMs, IReadOnlyList<string> Tags, string PreviewUrl, string DownloadUrl, long Size);
-public sealed record SfxCategoryDto(string Id, string Label, IReadOnlyList<SfxSoundDto> Sounds);
+public sealed record SfxSoundDto(string Id, string Title, int DurationMs, IReadOnlyList<string> Tags, string PreviewUrl, string DownloadUrl, long Size,
+    [property: JsonIgnore] SfxSoundData? Data = null);
+public sealed record SfxCategoryDto(string Id, string Label, IReadOnlyList<SfxSoundDto> Sounds, [property: JsonIgnore] IReadOnlyList<SfxSubcategoryData>? Subcategories = null);
 public sealed record SfxLibraryDto(string Version, IReadOnlyList<SfxCategoryDto> Categories);
 
 public sealed record DriftAssetVariantDto(string Id, string Label, string DownloadUrl, long Size);

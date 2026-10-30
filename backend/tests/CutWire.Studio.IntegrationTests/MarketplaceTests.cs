@@ -25,6 +25,7 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
         services.AddSingleton<IStockProvider>(Beta);
         services.AddSingleton<IStockProvider>(Gamma);
         services.AddSingleton<IStockProvider>(Down);
+        services.AddSingleton<ISfxPcmDecoder, FakePcmDecoder>();
     });
 })
 {
@@ -34,6 +35,14 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
     private static readonly FakeProvider Beta = new("fakeb", StockTypeIds.Photo);
     private static readonly FakeProvider Gamma = new("fakec", StockTypeIds.Photo);
     private static readonly FakeProvider Down = new("fakex", StockTypeIds.Photo, broken: true);
+
+    private const string RainPeaks = "AP8=";
+    private static readonly string RainSha = new('a', 64);
+
+    private sealed class FakePcmDecoder : ISfxPcmDecoder
+    {
+        public Task<short[]> DecodeAsync(string path, CancellationToken ct) => Task.FromResult(new short[] { 16384, 16384 });
+    }
 
     private static readonly string SfxDir = Directory.CreateTempSubdirectory("market-sfx-").FullName;
 
@@ -45,10 +54,10 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
         File.WriteAllText(Path.Combine(SfxDir, "previews", "ab12.opus"), "OPUSDATA");
         File.WriteAllText(Path.Combine(SfxDir, "sfx.json"), """
             {"schema":1,
-             "categories":[{"id":"ui","label":"UI","subcategories":[{"id":"click","label":"Clicks"}]},{"id":"nature","label":"Nature","subcategories":[]}],
+             "categories":[{"id":"ui","label":"UI","subcategories":[{"id":"click","label":"Clicks"}]},{"id":"nature","label":"Nature","subcategories":[{"id":"weather","label":"Weather"},{"id":"empty","label":"Empty"}]}],
              "sounds":[
                {"id":"s1","name":"Click one","category":"ui","subcategory":"click","duration":0.25,"size":19,"path":"ui/click one.flac","preview":"ab12.opus"},
-               {"id":"s2","name":"Rain","category":"nature","subcategory":"","duration":3,"size":5,"path":"nature/rain.flac","preview":"rain.opus"},
+               {"id":"s2","name":"Rain","category":"nature","subcategory":"weather","duration":3,"size":5,"path":"nature/rain.flac","preview":"rain.opus","peaks":"AP8=","sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
                {"id":"s3","name":"Thunder","category":"nature","subcategory":"","duration":4,"size":6,"path":"nature/thunder.flac","preview":"thunder.opus"}
              ]}
             """);
@@ -468,6 +477,10 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
         Ids(await Get(Items + "sfx/items?q=clicks")).ShouldBe(["s1"]);
         Ids(await Get(Items + "sfx/items?q=nature")).ShouldBe(["s2", "s3"]);
         Ids(await Get(Items + "sfx/items?category=ui")).ShouldBe(["s1"]);
+        Ids(await Get(Items + "sfx/items?category=ui/click")).ShouldBe(["s1"]);
+        Ids(await Get(Items + "sfx/items?category=nature/weather")).ShouldBe(["s2"]);
+        Ids(await Get(Items + "sfx/items?category=nature/empty")).ShouldBeEmpty();
+        Ids(await Get(Items + "sfx/items?category=ui/weather")).ShouldBeEmpty();
 
         var click = first["items"]![0]!;
         click["mediaKind"]!.GetValue<string>().ShouldBe("audio");
@@ -477,7 +490,60 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
     }
 
     [Fact]
-    public async Task Sfx_InstallHasOneMainFileWithoutSha256_AndSignedFetchOfItsBytesWorks()
+    public async Task Sfx_ManifestListsSubcategoriesAsChildrenWithCategorySlashSubIds()
+    {
+        var categories = (await Manifest())["sources"]!["sfx"]!["categories"]!.AsArray();
+
+        var ui = categories.Single(c => c!["id"]!.GetValue<string>() == "ui")!;
+        ui["children"]!.AsArray().Select(c => c!["id"]!.GetValue<string>()).ShouldBe(["ui/click"]);
+        var nature = categories.Single(c => c!["id"]!.GetValue<string>() == "nature")!;
+        nature["children"]!.AsArray().Select(c => c!["id"]!.GetValue<string>()).ShouldBe(["nature/weather"]);
+        nature["children"]![0]!["label"]!.GetValue<string>().ShouldBe("Weather");
+    }
+
+    [Fact]
+    public async Task Sfx_PeaksPassThroughFromTheIndex_AndAreComputedInTheBackgroundOtherwise()
+    {
+        var rain = await Get(Items + "sfx/items/s2");
+        rain["extra"]!["peaks"]!.GetValue<string>().ShouldBe(RainPeaks);
+
+        JsonNode? click = null;
+        for (var i = 0; i < 100 && click is null; i++)
+        {
+            var item = await Get(Items + "sfx/items/s1");
+            if (item["extra"]?["peaks"] is not null) click = item;
+            else await Task.Delay(50, Ct);
+        }
+
+        click.ShouldNotBeNull();
+        Convert.FromBase64String(click["extra"]!["peaks"]!.GetValue<string>()).Length.ShouldBe(64);
+        (await Get(Items + "sfx/items/s3"))["extra"].ShouldBeNull();
+        Ids(await Get(Items + "sfx/items?limit=3"))[0].ShouldBe("s1");
+    }
+
+    [Fact]
+    public async Task Sfx_InstallCarriesTheIndexSha256_OrOneComputedFromTheFile()
+    {
+        var rain = await Ok(await Send(HttpMethod.Post, Target + "/installs", new { source = "sfx", itemId = "s2" }));
+        rain["files"]![0]!["sha256"]!.GetValue<string>().ShouldBe(RainSha);
+
+        for (var i = 0; i < 100; i++)
+        {
+            var job = await Ok(await Send(HttpMethod.Post, Target + "/installs", new { source = "sfx", itemId = "s1" }));
+            if (job["files"]![0]!["sha256"] is { } sha)
+            {
+                sha.GetValue<string>().ShouldBe(Sha(Encoding.UTF8.GetBytes("FLACDATA-0123456789")));
+                return;
+            }
+
+            await Task.Delay(50, Ct);
+        }
+
+        Assert.Fail("sha256 was never computed");
+    }
+
+    [Fact]
+    public async Task Sfx_InstallHasOneMainFile_AndSignedFetchOfItsBytesWorks()
     {
         var job = await Ok(await Send(HttpMethod.Post, Target + "/installs", new { source = "sfx", itemId = "s1" }));
 
@@ -486,7 +552,6 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
         file["name"]!.GetValue<string>().ShouldBe("click one.flac");
         file["mime"]!.GetValue<string>().ShouldBe("audio/flac");
         file["size"]!.GetValue<long>().ShouldBe(19);
-        file["sha256"].ShouldBeNull();
 
         var bytes = await Send(HttpMethod.Get, PathOf(file["url"]!));
         bytes.StatusCode.ShouldBe(HttpStatusCode.OK);

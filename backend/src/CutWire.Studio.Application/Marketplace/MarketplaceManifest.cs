@@ -125,7 +125,8 @@ public sealed class MarketplaceManifest(
         var sounds = await sfx.GetAsync(ct);
         if (sounds.Categories.Count > 0)
             sources["sfx"] = new MarketSourceDto("sfx", "Sound effects", "audio", true,
-                sounds.Categories.Select(c => new MarketCategoryDto(c.Id, c.Label, "audio", null)).ToList(), null, null, false);
+                sounds.Categories.Select(c => new MarketCategoryDto(c.Id, c.Label, "audio",
+                    c.Subcategories is { Count: > 0 } subs ? subs.Select(s => new MarketCategoryDto($"{c.Id}/{s.Id}", s.Label, "audio", null)).ToList() : null)).ToList(), null, null, false);
 
         var catalog = await stock.CatalogAsync(new StockCaller("manifest", null, distribution), ct);
         foreach (var type in catalog.Types)
