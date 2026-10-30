@@ -155,8 +155,20 @@ public abstract class StockTestBase : IDisposable
 
     protected static string ItemId(string provider, string type, string native) => ItemIds.Encode(provider, type, native);
 
-    protected Task<HttpResponseMessage> Download(HttpClient client, string itemId, string? variant = null) =>
-        client.PostAsJsonAsync("/api/v1/stock/downloads", new { itemId, variantId = variant }, Ct);
+    protected const string Market = "/api/v1/marketplace";
+
+    /// <summary>The web app: a same-origin caller identified by its install id.</summary>
+    protected HttpClient Web(string? install = null)
+    {
+        var client = Client(install);
+        client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        return client;
+    }
+
+    protected static string PathOf(JsonNode url) => new Uri(url.GetValue<string>()).PathAndQuery;
+
+    protected Task<HttpResponseMessage> Download(HttpClient client, string itemId, string? variant = null, string source = "stock.photo") =>
+        client.PostAsJsonAsync(Market + "/installs", new { source, itemId, variantId = variant }, Ct);
 
     protected async Task<JsonNode> WaitFor(HttpClient client, string url, Func<JsonNode, bool> done)
     {

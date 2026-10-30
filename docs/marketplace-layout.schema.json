@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://cutwire.studio/schemas/marketplace-layout.schema.json",
   "title": "Marketplace layout",
-  "description": "The pages array of a marketplace layout. Rules JSON Schema cannot express, enforced by the server: page ids are unique across the layout; section ids are unique per page; chips.target names a grid section on the same page; page references (seeAll.page, open-page.page) name a page in the layout; a stock-browser needs a stock.<type> source and an sfx-browser the sfx source.",
+  "description": "The pages array of a marketplace layout. Rules JSON Schema cannot express, enforced by the server: page ids are unique across the layout and are not `item` or `downloads`, which the web and Drift clients use as fixed routes and tabs; section ids are unique per page; chips.target names a grid section on the same page; page references (seeAll.page, open-page.page) name a page in the layout; a stock-browser needs a stock.<type> source and an sfx-browser the sfx source.",
   "type": "array",
   "minItems": 1,
   "maxItems": 12,
@@ -17,7 +17,7 @@
       "additionalProperties": false,
       "required": ["id", "title", "sections"],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
+        "id": { "$ref": "#/$defs/id", "not": { "enum": ["item", "downloads"] } },
         "title": { "$ref": "#/$defs/text" },
         "titles": {
           "type": "object",

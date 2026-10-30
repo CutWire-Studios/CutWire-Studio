@@ -50,7 +50,7 @@ describe("api client", () => {
 
     const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }))
     vi.stubGlobal("fetch", fetchMock)
-    await api("/stock/catalog")
+    await api("/marketplace/sources")
     expect((fetchMock.mock.calls[0]![1].headers as Headers).get("X-Studio-Install")).toBe(first)
   })
 

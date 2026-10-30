@@ -75,7 +75,6 @@ api.MapMeta();
 api.MapForge();
 api.MapForgeAi();
 api.MapThemeDrafts();
-api.MapStock();
 api.MapStockMedia();
 api.MapMarketplace();
 var account = api.MapGroup("/account");

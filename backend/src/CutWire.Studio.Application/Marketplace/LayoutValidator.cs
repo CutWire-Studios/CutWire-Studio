@@ -66,6 +66,8 @@ public static class LayoutValidator
     {
         Keys(page, path, ["id", "title", "titles", "icon", "sections"], v);
         var id = Id(page, "id", path, v);
+        if (id is not null && LayoutDocument.ReservedPageIds.Contains(id))
+            v.Add(new($"{path}.id", "reserved", $"Page id \"{id}\" is reserved for a fixed client route."));
         if (id is not null && !seen.Add(id)) v.Add(new($"{path}.id", "duplicate", $"Page id \"{id}\" is used twice."));
         Str(page, "title", path, true, LayoutDocument.MaxString, v);
         Str(page, "icon", path, false, LayoutDocument.MaxString, v);

@@ -28,6 +28,9 @@ public static partial class LayoutDocument
     public static readonly string[] Tones = ["info", "warning"];
     public static readonly string[] ActionTypes = ["open-page", "open-item", "open-url"];
 
+    /// <summary>Page ids the web and Drift clients use as fixed routes and tabs, so a layout cannot claim them.</summary>
+    public static readonly string[] ReservedPageIds = ["item", "downloads"];
+
     public static bool IsId(string value) => IdPattern().IsMatch(value);
 
     public static bool IsSourceId(string value) => SourcePattern().IsMatch(value);

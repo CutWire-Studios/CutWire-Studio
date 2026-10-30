@@ -49,21 +49,15 @@ public sealed class DriftClientTests(PostgresFixture postgres) : StockTestBase(p
     [Fact]
     public async Task SignedRequestSucceeds()
     {
-        var response = await Client().SendAsync(Signed(HttpMethod.Get, "/api/v1/stock/catalog"), Ct);
+        var response = await Client().SendAsync(Signed(HttpMethod.Get, "/api/v1/marketplace"), Ct);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task UnsignedRequestStillWorks()
-    {
-        (await Client().GetAsync("/api/v1/stock/catalog", Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
-    }
-
-    [Fact]
     public async Task BadSignatureIs401InvalidClient()
     {
-        var response = await Client().SendAsync(Signed(HttpMethod.Get, "/api/v1/stock/catalog", signature: new string('0', 64)), Ct);
+        var response = await Client().SendAsync(Signed(HttpMethod.Get, "/api/v1/marketplace", signature: new string('0', 64)), Ct);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         JsonNode.Parse(await response.Content.ReadAsStringAsync(Ct))!["code"]!.GetValue<string>().ShouldBe("invalid_client");
@@ -73,13 +67,14 @@ public sealed class DriftClientTests(PostgresFixture postgres) : StockTestBase(p
     public async Task SignedQuotaFollowsTheClientIdAcrossInstallIds()
     {
         await F.Sql("update provider_settings set quota_scope = 'client', quota_limit = 1 where provider = 'fake'");
-        await Ok(await Client().GetAsync("/api/v1/stock/catalog", Ct));
+        await Ok(await Client().SendAsync(Signed(HttpMethod.Get, "/api/v1/marketplace"), Ct));
         await F.Sql("update provider_settings set quota_scope = 'client', quota_limit = 1 where provider = 'fake'");
+        F.Factory.Services.GetRequiredService<CutWire.Studio.Application.Marketplace.ManifestCache>().Invalidate();
 
         var statuses = new List<HttpStatusCode>();
         for (var i = 0; i < 2; i++)
         {
-            var request = Signed(HttpMethod.Post, "/api/v1/stock/downloads", new { itemId = ItemId("fake", "photo", "p1") });
+            var request = Signed(HttpMethod.Post, "/api/v1/marketplace/installs", new { source = "stock.photo", itemId = ItemId("fake", "photo", "p1") });
             request.Headers.Add("X-Studio-Install", "install-" + i);
             statuses.Add((await F.Factory.Browser(cookies: false).SendAsync(request, Ct)).StatusCode);
         }

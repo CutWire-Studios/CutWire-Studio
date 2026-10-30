@@ -329,8 +329,6 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
 
     private const string Items = Target + "/sources/";
 
-    private static string PathOf(JsonNode url) => new Uri(url.GetValue<string>()).PathAndQuery;
-
     private Task<HttpResponseMessage> Send(HttpMethod method, string target, object? body = null, string distribution = "appimage", string version = "1.2.3") =>
         Client().SendAsync(SignedTo(method, target, body, distribution, version), Ct);
 

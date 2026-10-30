@@ -205,8 +205,11 @@ public sealed class AdminAnonymousTests : IDisposable
 }
 
 [Collection(PostgresCollection.Name)]
-public sealed class AdminDistributionTests(PostgresFixture postgres) : StockTestBase(postgres)
+public sealed class AdminDistributionTests(PostgresFixture postgres) : StockTestBase(postgres, extra: b => b.UseSetting("DriftClient:Keys:0", Key))
 {
+    private const string Key = "integration-drift-key";
+    private static readonly string ClientId = new('c', 64);
+
     private async Task<HttpClient> Admin()
     {
         var email = AuthTestSupport.NewEmail();
@@ -220,9 +223,26 @@ public sealed class AdminDistributionTests(PostgresFixture postgres) : StockTest
     private async Task<bool> Lists(string? distribution)
     {
         var client = Client();
-        if (distribution is not null) client.DefaultRequestHeaders.Add(Distributions.Header, distribution);
-        var body = await Ok(await client.GetAsync("/api/v1/stock/catalog", Ct));
-        return body["types"]!.AsArray().SelectMany(t => t!["providers"]!.AsArray()).Any(p => p!["id"]!.GetValue<string>() == "fake");
+        const string target = "/api/v1/marketplace";
+        var request = new HttpRequestMessage(HttpMethod.Get, target);
+        if (distribution is null)
+        {
+            request.Headers.Add("Sec-Fetch-Site", "same-origin");
+        }
+        else
+        {
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+            var nonce = Guid.NewGuid().ToString("N");
+            request.Headers.Add("X-Cutwire-Client", ClientId);
+            request.Headers.Add("X-Cutwire-Timestamp", timestamp);
+            request.Headers.Add("X-Cutwire-Nonce", nonce);
+            request.Headers.Add("X-Cutwire-App", "Drift/1.2.3 (linux)");
+            request.Headers.Add("X-Cutwire-Distribution", distribution);
+            request.Headers.Add("X-Cutwire-Signature", CutWire.Studio.Api.Http.DriftClientAuth.SignatureFor(Key, timestamp, nonce, ClientId, "GET", target, []));
+        }
+
+        var body = await Ok(await client.SendAsync(request, Ct));
+        return body["sources"]!.AsObject().Where(kv => kv.Key.StartsWith("stock.")).SelectMany(kv => kv.Value!["providers"]!.AsArray()).Any(p => p!["id"]!.GetValue<string>() == "fake");
     }
 
     [Fact]

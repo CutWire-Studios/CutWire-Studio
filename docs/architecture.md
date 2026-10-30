@@ -32,7 +32,7 @@ Studio replaces both with one "workspace" site. It has a launcher for creative t
 /forge/...        Forge (effect | transition | sound effect makers via ?kind=)
 /themes/...       Drift Theme Maker
 /edit/...         RESERVED: Drift Web (placeholder page; COOP/COEP headers already configured for this prefix)
-/stock/...        Stock media, SFX library, Drift Assets (ex-marketplace browsing); the web app still uses /api/v1/stock/* for now
+/stock/...        Byte routes only (files/{token}, media/{token}, sfx/files/...); the /stock/* JSON endpoints were removed, browse and install go through /marketplace
 /account/...      sign in/up, profile, sessions, tokens, connected devices
 /api/v1/...       public REST API (OpenAPI generated)
 /api/v1/marketplace/...  unified marketplace for signed Drift clients and the web app (see marketplace.md)

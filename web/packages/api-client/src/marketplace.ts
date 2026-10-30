@@ -1,6 +1,36 @@
 import { api, apiResponse } from "./client"
-import type { JobError, StockLicense, StockProvider, StockQuota } from "./stock"
 
+export interface StockFilterOption {
+  id: string
+  label: string
+}
+export interface StockFilter {
+  id: string
+  label: string
+  kind: "select" | "toggle" | "range"
+  options?: StockFilterOption[]
+}
+export interface StockQuota {
+  limit: number
+  window: "day" | "hour"
+  remaining: number | null
+}
+export interface StockProvider {
+  id: string
+  label: string
+  capabilities: string[]
+  filters: StockFilter[]
+  quota?: StockQuota
+}
+export interface StockLicense {
+  name: string
+  url: string | null
+  attribution: string | null
+}
+export interface JobError {
+  code: string
+  detail: string
+}
 export interface MarketCategory {
   id: string
   label: string

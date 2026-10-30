@@ -200,6 +200,12 @@ public class MarketplaceLayoutTests
         Rejects(Page("""{"id":"h","type":"hero","title":"t","action":"go"}"""), "pages[0].sections[0].action", "type");
     }
 
+    [Theory]
+    [InlineData("item")]
+    [InlineData("downloads")]
+    public void Validate_RejectsReservedPageIds(string id) =>
+        Rejects(Page("""{"id":"n","type":"notice","text":"x"}""", id), "pages[0].id", "reserved");
+
     [Fact]
     public void Validate_ReturnsViolationsAsValidationError()
     {

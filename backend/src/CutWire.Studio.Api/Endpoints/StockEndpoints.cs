@@ -12,14 +12,8 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace CutWire.Studio.Api.Endpoints;
 
-public sealed record StockDownloadRequest(string? ItemId, string? VariantId);
-
-public sealed record StockResolveRequest(string? Url);
-
 public static class StockEndpoints
 {
-    private static readonly string[] ReservedQuery = ["type", "provider", "q", "cursor", "limit"];
-
     /// <summary>Anonymous callers are identified by the install id (falling back to a hash of the IP); signed-in users also carry their account for per-account quota.</summary>
     public static StockCaller StockCallerOf(this HttpContext http)
     {
@@ -32,86 +26,6 @@ public static class StockEndpoints
         Guid? user = http.User.Identity?.IsAuthenticated == true && Guid.TryParse(http.User.FindFirstValue(Claims.Subject), out var id) ? id : null;
         var distribution = drift?.Distribution ?? http.Request.Headers[Distributions.Header].ToString().Trim().ToLowerInvariant();
         return new StockCaller(client, user, distribution.Length == 0 ? Distributions.Unknown : distribution);
-    }
-
-    public static void MapStock(this RouteGroupBuilder api)
-    {
-        var stock = api.MapGroup("/stock").WithTags("Stock");
-
-        stock.MapGet("/catalog", async (HttpContext http, StockBrowse browse, CancellationToken ct) =>
-            {
-                http.Response.Headers.CacheControl = "no-store";
-                return Results.Ok(await browse.CatalogAsync(http.StockCallerOf(), ct));
-            })
-            .WithName("GetStockCatalog")
-            .Produces<StockCatalogDto>();
-
-        stock.MapGet("/search", async (HttpContext http, StockBrowse browse, string? type, string? provider, string? q, string? cursor, int? limit, CancellationToken ct) =>
-            {
-                var filters = http.Request.Query
-                    .Where(kv => !ReservedQuery.Contains(kv.Key, StringComparer.OrdinalIgnoreCase))
-                    .ToDictionary(kv => kv.Key, kv => kv.Value.ToString(), StringComparer.Ordinal);
-                http.Response.Headers.CacheControl = "no-store";
-                return (await browse.SearchAsync(http.StockCallerOf(), type, provider, q, cursor, limit, filters, ct)).ToHttpResult(Results.Ok);
-            })
-            .WithName("SearchStock")
-            .Produces<StockPageDto>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
-
-        stock.MapGet("/items/{id}", async (string id, HttpContext http, StockBrowse browse, CancellationToken ct) =>
-            (await browse.GetItemAsync(http.StockCallerOf(), id, ct)).ToHttpResult(Results.Ok))
-            .WithName("GetStockItem")
-            .Produces<StockItemDto>()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
-
-        stock.MapPost("/resolve", async (StockResolveRequest body, HttpContext http, StockResolve resolve, CancellationToken ct) =>
-            (await resolve.StartAsync(new CreateResolveCommand(http.StockCallerOf(), body.Url ?? ""), ct)).ToHttpResult(job => Results.Json(job, statusCode: StatusCodes.Status202Accepted)))
-            .WithName("CreateStockResolve")
-            .RequireRateLimiting(RateLimitingSettings.StockWritePolicy)
-            .Produces<ResolveJobDto>(StatusCodes.Status202Accepted)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status429TooManyRequests)
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
-
-        stock.MapGet("/resolve/{id}", (string id, HttpContext http, StockResolve resolve) =>
-            {
-                http.Response.Headers.CacheControl = "no-store";
-                return resolve.Get(http.StockCallerOf(), id).ToHttpResult(Results.Ok);
-            })
-            .WithName("GetStockResolve")
-            .Produces<ResolveJobDto>()
-            .ProducesProblem(StatusCodes.Status404NotFound);
-
-        stock.MapPost("/downloads", async (StockDownloadRequest body, HttpContext http, DownloadJobs jobs, CancellationToken ct) =>
-            (await jobs.CreateAsync(new CreateDownloadCommand(http.StockCallerOf(), body.ItemId ?? "", body.VariantId), ct))
-            .ToHttpResult(job => Results.Json(job, statusCode: StatusCodes.Status201Created)))
-            .WithName("CreateStockDownload")
-            .RequireRateLimiting(RateLimitingSettings.StockWritePolicy)
-            .Produces<DownloadJobDto>(StatusCodes.Status201Created)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status429TooManyRequests)
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
-
-        stock.MapGet("/downloads/{id}", async (string id, HttpContext http, DownloadJobs jobs, CancellationToken ct) =>
-            {
-                http.Response.Headers.CacheControl = "no-store";
-                return (await jobs.GetAsync(http.StockCallerOf(), id, ct)).ToHttpResult(Results.Ok);
-            })
-            .WithName("GetStockDownload")
-            .Produces<DownloadJobDto>()
-            .ProducesProblem(StatusCodes.Status404NotFound);
-
-        stock.MapGet("/sfx", async (HttpContext http, SfxCatalog sfx, CancellationToken ct) => http.JsonWithEtag(await sfx.GetAsync(ct)))
-            .WithName("GetStockSfx")
-            .Produces<SfxLibraryDto>();
-
-        stock.MapGet("/drift-assets", async (HttpContext http, DriftAssetsCatalog assets, CancellationToken ct) => http.JsonWithEtag(await assets.GetAsync(ct)))
-            .WithName("GetStockDriftAssets")
-            .Produces<DriftAssetLibraryDto>();
     }
 
     /// <summary>Token-gated byte endpoints. The sealed token is the credential, so they skip the per-IP limiter (a grid of thumbnails would trip it).</summary>

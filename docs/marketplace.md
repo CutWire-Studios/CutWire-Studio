@@ -2,7 +2,7 @@
 
 One API under `/api/v1/marketplace` for everything Drift can browse and install: Drift Assets, sound effects (SFX), stock media and community items. The manifest tells a client which pages and sections to show and which sources exist for it. Routes: `Api/Endpoints/MarketplaceEndpoints.cs`. Signing: `Api/Http/DriftClientAuth.cs`. Manifest, browse, installs and layout validation: `Application/Marketplace/`. Layout and flag types: `Domain/Marketplace/Marketplace.cs`. Admin editing: `Application/Admin/MarketplaceAdmin.cs`. The layout document is published as `docs/marketplace-layout.schema.json`, and `backend/openapi.json` covers the routes.
 
-The older `/api/v1/stock/*` endpoints stay in place for the web app's stock pages. Drift does not use them.
+The old `/api/v1/stock/*` JSON endpoints (catalog, search, items, resolve, downloads, sfx, drift-assets) were removed once the web app moved to `/api/v1/marketplace/*`. Only the byte routes remain: `/stock/files/{token}`, `/stock/media/{token}` and `/stock/sfx/files/{area}/{path}`.
 
 ## Callers
 
@@ -77,7 +77,7 @@ Flags the server reads:
 
 ## Layout document
 
-A layout is `pages`: 1 to 12 pages, each with 1 to 30 sections. Section types: `hero`, `notice`, `shelf`, `grid`, `chips`, `stock-browser`, `sfx-browser`, `downloads`. `shelf`, `grid`, `chips`, `stock-browser` and `sfx-browser` are bound to a source. Keys that are not listed are rejected, so a typo in the admin editor fails loudly. URLs must be `https`. Limits are in `Application/Marketplace/LayoutDocument.cs` and the schema file.
+A layout is `pages`: 1 to 12 pages, each with 1 to 30 sections. The page ids `item` and `downloads` are reserved: the web and Drift clients use them as fixed routes and tabs, so a layout that declares them is rejected (`reserved`). Section types: `hero`, `notice`, `shelf`, `grid`, `chips`, `stock-browser`, `sfx-browser`, `downloads`. `shelf`, `grid`, `chips`, `stock-browser` and `sfx-browser` are bound to a source. Keys that are not listed are rejected, so a typo in the admin editor fails loudly. URLs must be `https`. Limits are in `Application/Marketplace/LayoutDocument.cs` and the schema file.
 
 ## Listing
 
@@ -114,7 +114,7 @@ Query: `category`, `q`, `cursor`, `limit` (default 24, max 50), `sort`, `period`
 
 - `drift-assets`, `sfx` and `community.<kind>` are **ready** at once. The id is `ready_<guid>`, `status` is `ready`, `progress` is 1, and `files` lists the files (role `main`; for Drift Assets, the variant's files with `main` first, each with its sha256). Nothing is stored, and a `ready_` id is not polled, so `GET` returns 404 `install_not_found`.
 - Community installs record a download and return `/files/{sha256}`. If the caller's version is below the item's `minAppVersion`, the response is 409 `app_too_old` with a `minAppVersion` extension.
-- `stock.<type>` installs are **jobs**. The id is `stock_<jobId>` and the status, progress, file, license and error come from the download job. Quota and failure rules are the same as `/stock/downloads`, and a failed job refunds its slot.
+- `stock.<type>` installs are **jobs**. The id is `stock_<jobId>` and the status, progress, file, license and error come from the download job. Quota and failure rules are those of the stock download queue, and a failed job refunds its slot.
 - Non-default variants are rejected with 404 `variant_not_found` for SFX.
 
 ## SFX peaks and cache
