@@ -100,7 +100,6 @@ public sealed class MarketplaceBrowse(
     private const string CommunityPrefix = "community.";
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-    private static readonly StockLicenseDto DriftLicense = new("Drift Assets", null, null);
     private static readonly StockLicenseDto SfxLicense = new("Drift sound effects", null, null);
 
     private static JsonElement Extra(object value) => JsonSerializer.SerializeToElement(value, Json);
@@ -208,7 +207,7 @@ public sealed class MarketplaceBrowse(
                 MarketMime.For(v.Files["main"].Name), v.Files["main"].Size)).ToList()
             : [new MarketVariantDto("default", "Default", null, null, MarketMime.For(a.Files["main"].Name), a.Files["main"].Size)];
         return new MarketItemDto(a.Id, "drift-assets", a.Name, null, c.Abs(DriftUrl(a.Files["thumbnail"])), c.Abs(DriftUrl(a.Files["preview"])),
-            DriftAssetsCatalog.KindFor(a.Kind), null, null, null, [], DriftLicense, variants, null, a.Category, Extra(new { kind = a.Kind, categoryLabel }));
+            DriftAssetsCatalog.KindFor(a.Kind), null, null, null, [], DriftLicenses.For(a.License), variants, null, a.Category, Extra(new { kind = a.Kind, categoryLabel }));
     }
 
     public static string DriftUrl(DriftIndexFile f) => $"/files/{f.Sha256}?name={Uri.EscapeDataString(f.Name)}";

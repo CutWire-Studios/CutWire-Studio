@@ -128,6 +128,10 @@ public sealed class DriftIndexAsset
     public string Kind { get; set; } = "";
     public string Category { get; set; } = "";
     public string Path { get; set; } = "";
+
+    /// <summary>SPDX id of the asset's licence, as published in the index.</summary>
+    public string? License { get; set; }
+
     public Dictionary<string, DriftIndexFile> Files { get; set; } = [];
     public List<DriftIndexVariant> Variants { get; set; } = [];
 
@@ -139,6 +143,23 @@ public sealed class DriftIndexVariant
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public Dictionary<string, DriftIndexFile> Files { get; set; } = [];
+}
+
+public static class DriftLicenses
+{
+    public static readonly StockLicenseDto Fallback = new("Drift Assets", null, null);
+
+    private static readonly Dictionary<string, StockLicenseDto> Known = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["CC0-1.0"] = new("CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/", null),
+        ["CC-BY-4.0"] = new("CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/", null),
+        ["CC-BY-SA-4.0"] = new("CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/", null),
+        ["CC-BY-NC-SA-4.0"] = new("CC BY-NC-SA 4.0", "https://creativecommons.org/licenses/by-nc-sa/4.0/", null),
+    };
+
+    /// <summary>Known SPDX ids map to a named licence with its URL; an unknown id is reported as-is; no id keeps the pack name.</summary>
+    public static StockLicenseDto For(string? spdx) =>
+        string.IsNullOrWhiteSpace(spdx) ? Fallback : Known.TryGetValue(spdx.Trim(), out var known) ? known : new(spdx.Trim(), null, null);
 }
 
 public sealed record DriftRawCategory(string Id, string Label, IReadOnlyList<DriftIndexAsset> Assets);

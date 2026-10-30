@@ -362,6 +362,8 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
     private static JsonObject DriftAsset(string id, string name, string kind, string category, bool variants)
     {
         var asset = new JsonObject { ["id"] = id, ["name"] = name, ["kind"] = kind, ["category"] = category, ["path"] = category + "/" + id, ["files"] = DriftFiles(id + "-main", id) };
+        if (id == "crate") asset["license"] = "CC0-1.0";
+        if (id == "party-hat") asset["license"] = "Custom-1.0";
         if (variants) asset["variants"] = new JsonArray(new JsonObject { ["id"] = "gold", ["name"] = "Gold", ["files"] = DriftFiles(id + "-gold", "gold") });
         return asset;
     }
@@ -430,6 +432,9 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
         hat["category"]!.GetValue<string>().ShouldBe("memes");
         hat["thumbUrl"]!.GetValue<string>().ShouldStartWith("http");
         hat["variants"]!.AsArray().Select(v => v!["id"]!.GetValue<string>()).ShouldBe(["gold"]);
+        hat["license"]!["name"]!.GetValue<string>().ShouldBe("Custom-1.0");
+        second["items"]![0]!["license"]!["name"]!.GetValue<string>().ShouldBe("CC0 1.0");
+        second["items"]![0]!["license"]!["url"]!.GetValue<string>().ShouldBe("https://creativecommons.org/publicdomain/zero/1.0/");
         second["items"]![0]!["mediaKind"]!.GetValue<string>().ShouldBe("model3d");
         (await Send(HttpMethod.Get, Items + "drift-assets/items?cursor=garbage")).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
@@ -455,6 +460,7 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
 
         var plain = await Ok(await Send(HttpMethod.Post, Target + "/installs", new { source = "drift-assets", itemId = "crate" }));
         plain["status"]!.GetValue<string>().ShouldBe("ready");
+        plain["license"]!["name"]!.GetValue<string>().ShouldBe("CC0 1.0");
         var files = plain["files"]!.AsArray();
         files.Select(f => f!["role"]!.GetValue<string>()).ShouldBe(["main", "preview", "thumbnail"]);
         files[0]!["sha256"]!.GetValue<string>().ShouldBe(Sha(Encoding.UTF8.GetBytes("crate-main")));

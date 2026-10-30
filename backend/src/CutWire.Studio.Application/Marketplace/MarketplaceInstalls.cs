@@ -25,7 +25,6 @@ public sealed class MarketplaceInstalls(
 {
     public const string StockJobPrefix = "stock_";
 
-    private static readonly StockLicenseDto DriftLicense = new("Drift Assets", null, null);
     private static readonly StockLicenseDto SfxLicense = new("Drift sound effects", null, null);
 
     public async Task<Result<InstallJobDto>> CreateAsync(MarketCaller c, MarketInstallCommand command, CancellationToken ct)
@@ -78,7 +77,7 @@ public sealed class MarketplaceInstalls(
 
         var ordered = files.OrderBy(f => f.Key == "main" ? 0 : 1).ThenBy(f => f.Key, StringComparer.Ordinal)
             .Select(f => new InstallFileDto(f.Key, f.Value.Name, c.Abs(MarketplaceBrowse.DriftUrl(f.Value)), f.Value.Size, f.Value.Sha256, MarketMime.For(f.Value.Name))).ToList();
-        return Ready("drift-assets", ordered, DriftLicense);
+        return Ready("drift-assets", ordered, DriftLicenses.For(asset.License));
     }
 
     private async Task<Result<InstallJobDto>> SfxAsync(MarketCaller c, MarketInstallCommand command, CancellationToken ct)
