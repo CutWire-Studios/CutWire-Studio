@@ -2,9 +2,10 @@
 # Build from the repository root: docker build -f deploy/Dockerfile .
 
 # Base images are pinned by digest (tag in the comment); Dependabot's docker ecosystem bumps both.
-# node:24-slim
+# node:26-slim
 FROM docker.io/library/node:26-slim@sha256:36793bcbb160a6a16cede1e62b93f84e26b78a972a8a4c0b879c1c12f22761ec AS web
-RUN corepack enable && corepack prepare pnpm@12.15.0 --activate
+# Node 25+ images no longer ship Corepack.
+RUN npm install -g pnpm@12.15.0
 WORKDIR /src/web
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml web/tsconfig.base.json ./
 COPY web/apps ./apps
