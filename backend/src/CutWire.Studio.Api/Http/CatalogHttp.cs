@@ -21,9 +21,10 @@ public static class CatalogHttp
         return new Viewer(id, http.User.IsInRole("moderator") || http.User.IsInRole("admin"));
     }
 
+    /// <summary>download_events.install_id holds 64 characters, so a 64-hex client id is cut to fit with its prefix.</summary>
     public static string? InstallIdOf(this HttpContext http)
     {
-        if (http.DriftClientOf() is { } drift) return "c:" + drift.ClientId;
+        if (http.DriftClientOf() is { } drift) return "c:" + drift.ClientId[..62];
         var value = http.Request.Headers[InstallHeader].ToString().Trim();
         return value.Length is > 0 and <= 64 && value.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.') ? value : null;
     }

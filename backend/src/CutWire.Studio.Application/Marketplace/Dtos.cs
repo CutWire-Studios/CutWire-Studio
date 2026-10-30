@@ -45,7 +45,10 @@ public sealed record MarketItemDto(
     string? Category,
     JsonElement? Extra);
 
-public sealed record MarketItemPageDto(IReadOnlyList<MarketItemDto> Items, string? NextCursor, StockQuotaDto? Quota);
+/// <summary><paramref name="Warnings"/> names providers a fan-out query skipped because they failed, as <c>providerId:code</c>.</summary>
+public sealed record MarketItemPageDto(IReadOnlyList<MarketItemDto> Items, string? NextCursor, StockQuotaDto? Quota, IReadOnlyList<string>? Warnings = null);
+
+public sealed record MarketResolveJobDto(string Id, string Status, MarketItemDto? Item, StockJobErrorDto? Error);
 
 public sealed record InstallFileDto(string Role, string Name, string Url, long Size, string? Sha256, string? Mime);
 

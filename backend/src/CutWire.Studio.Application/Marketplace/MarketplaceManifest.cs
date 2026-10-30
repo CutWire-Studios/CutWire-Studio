@@ -51,11 +51,20 @@ public sealed class MarketplaceManifest(
 
     public async Task<MarketplaceManifestDto> BuildAsync(string callerDistribution, SemVersion? version, CancellationToken ct)
     {
-        var distribution = Distributions.All.Contains(callerDistribution) ? callerDistribution : Distributions.Unknown;
-        var features = await FeaturesAsync(distribution, version, ct);
-        var sources = Filter(await cache.SourcesAsync(distribution, () => SourcesAsync(distribution, ct)), features);
+        var distribution = Normalize(callerDistribution);
+        var (features, sources) = await TargetAsync(distribution, version, ct);
         var pages = Prune(await PagesAsync(distribution, version, ct), sources);
         return new MarketplaceManifestDto(MarketplaceManifestDto.CurrentSchema, features, sources, JsonSerializer.SerializeToElement(pages));
+    }
+
+    public static string Normalize(string distribution) => Distributions.All.Contains(distribution) ? distribution : Distributions.Unknown;
+
+    /// <summary>The folded flags and the sources visible to a caller, for <paramref name="distribution"/> already passed through <see cref="Normalize"/>.</summary>
+    public async Task<(Dictionary<string, JsonElement> Features, IReadOnlyDictionary<string, MarketSourceDto> Sources)> TargetAsync(
+        string distribution, SemVersion? version, CancellationToken ct)
+    {
+        var features = await FeaturesAsync(distribution, version, ct);
+        return (features, Filter(await cache.SourcesAsync(distribution, () => SourcesAsync(distribution, ct)), features));
     }
 
     /// <summary>Matching flags are applied from least to most specific (distribution list, then each version bound), then oldest to newest, so the last one wins.</summary>

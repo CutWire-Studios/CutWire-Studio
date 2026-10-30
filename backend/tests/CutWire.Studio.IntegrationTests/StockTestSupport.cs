@@ -39,7 +39,7 @@ public static class StockData
 }
 
 /// <summary>A scriptable provider. Item ids: p1, p2, p3 (searchable), boom (fulfil fails with ItemRemoved).</summary>
-public sealed class FakeProvider(string id, string type, QuotaDefault? quota = null, bool audio = false) : IStockProvider
+public sealed class FakeProvider(string id, string type, QuotaDefault? quota = null, bool audio = false, bool broken = false) : IStockProvider
 {
     public List<ProviderQuery> Queries { get; } = [];
 
@@ -72,6 +72,7 @@ public sealed class FakeProvider(string id, string type, QuotaDefault? quota = n
     public Task<ProviderPage> SearchAsync(ProviderQuery query, CancellationToken ct)
     {
         Queries.Add(query);
+        if (broken) throw new StockException(StockReason.SourceBlocked, "upstream down");
         var items = new[] { "p1", "p2", "p3" }.Where(n => string.IsNullOrEmpty(query.Q) || ("item " + n).Contains(query.Q.ToLowerInvariant()) || n == query.Q).Select(n => Make(n)).ToList();
         if (query.Q == "fail") throw new StockException(StockReason.SourceBlocked, "upstream rate limited");
         return Task.FromResult(new ProviderPage(items, query.Cursor is null ? "2" : null));

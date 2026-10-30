@@ -51,6 +51,8 @@ public static class DependencyInjection
 
         services.AddSingleton<Marketplace.ManifestCache>();
         services.AddScoped<Marketplace.MarketplaceManifest>();
+        services.AddScoped<Marketplace.MarketplaceBrowse>();
+        services.AddScoped<Marketplace.MarketplaceInstalls>();
 
         return services;
     }

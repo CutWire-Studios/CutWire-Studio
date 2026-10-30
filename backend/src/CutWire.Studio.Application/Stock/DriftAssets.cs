@@ -141,6 +141,8 @@ public sealed class DriftIndexVariant
     public Dictionary<string, DriftIndexFile> Files { get; set; } = [];
 }
 
+public sealed record DriftRawCategory(string Id, string Label, IReadOnlyList<DriftIndexAsset> Assets);
+
 /// <summary>The mirrored Drift Assets pack, shaped for the Stock UI. Files are content-addressed blobs served by <c>/files/{sha256}</c>.</summary>
 public sealed class DriftAssetsCatalog(IAppDbContext db)
 {
@@ -171,6 +173,27 @@ public sealed class DriftAssetsCatalog(IAppDbContext db)
         }
 
         return new DriftAssetLibraryDto(index.Version, categories.OrderBy(c => c.Sort).Select(c => c.Category).ToList());
+    }
+
+    /// <summary>The enabled categories in display order with their raw index assets, so callers can read every file and sha256.</summary>
+    public async Task<IReadOnlyList<DriftRawCategory>> GetRawAsync(CancellationToken ct)
+    {
+        var pack = await db.DriftAssetPacks.AsNoTracking().FirstOrDefaultAsync(p => p.IsCurrent, ct);
+        if (pack is null) return [];
+        var index = DriftIndex.Parse(pack.IndexJson);
+        var overrides = (await db.AssetCategories.AsNoTracking().ToListAsync(ct)).ToDictionary(c => c.Category);
+
+        var categories = new List<(int Sort, DriftRawCategory Category)>();
+        foreach (var c in index.Categories)
+        {
+            overrides.TryGetValue(c.Id, out var setting);
+            if (setting is { Enabled: false }) continue;
+            var assets = index.Assets.Where(a => a.Category == c.Id).ToList();
+            if (assets.Count == 0) continue;
+            categories.Add((setting?.Sort ?? c.Sort, new DriftRawCategory(c.Id, string.IsNullOrWhiteSpace(setting?.Label) ? c.Label : setting.Label, assets)));
+        }
+
+        return categories.OrderBy(c => c.Sort).Select(c => c.Category).ToList();
     }
 
     private static DriftAssetDto ToDto(DriftIndexAsset a)
