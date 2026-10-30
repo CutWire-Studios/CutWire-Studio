@@ -33,7 +33,7 @@ builder.Services.AddStudioMcp();
 builder.Services.AddRazorPages(o =>
 {
     o.Conventions.AuthorizeFolder("/Admin", AuthPolicies.AdminArea);
-    foreach (var page in new[] { "Admins", "Stock", "Distributions", "Categories" })
+    foreach (var page in new[] { "Admins", "Stock", "Distributions", "Categories", "Marketplace", "MarketplaceLayout", "MarketplaceFlag" })
         o.Conventions.AuthorizePage("/Admin/" + page, AuthPolicies.AdminOnly);
 });
 

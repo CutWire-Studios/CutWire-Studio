@@ -43,7 +43,7 @@ public sealed class AdminAreaTests(PostgresFixture postgres)
     private const string BootstrapEmail = "bootstrap-admin@example.com";
 
     private static readonly string[] ModeratorPages = ["/admin", "/admin/queue?type=reported", "/admin/queue?type=hidden", "/admin/queue?type=flagged", "/admin/users", "/admin/audit"];
-    private static readonly string[] AdminPages = ["/admin/admins", "/admin/stock", "/admin/distributions", "/admin/categories"];
+    private static readonly string[] AdminPages = ["/admin/admins", "/admin/stock", "/admin/distributions", "/admin/categories", "/admin/marketplace", "/admin/marketplacelayout", "/admin/marketplaceflag"];
 
     private Task<int> RoleCount(Guid userId, string role) => F.Db(db => db.Database
         .SqlQuery<int>($"select count(*)::int as \"Value\" from user_roles ur join roles r on r.id = ur.role_id where ur.user_id = {userId} and r.name = {role}")
@@ -258,5 +258,150 @@ public sealed class AdminDistributionTests(PostgresFixture postgres) : StockTest
         saved.ShouldContain("Saved fake (photo).");
         var row = await F.Db(db => db.ProviderSettings.AsNoTracking().SingleAsync(s => s.Provider == "fake", Ct));
         (row.Label, row.QuotaLimit, row.QuotaWindow, row.QuotaScope).ShouldBe(("Renamed", 5, "hour", "account"));
+    }
+}
+
+[Collection(PostgresCollection.Name)]
+public sealed class AdminMarketplaceTests(PostgresFixture postgres) : StockTestBase(postgres)
+{
+    private const string Page = """[{"id":"admin-made","title":"Admin made","sections":[{"id":"n","type":"notice","text":"hello"}]}]""";
+
+    private async Task<(HttpClient Client, Guid Id)> Staff(string role)
+    {
+        var email = AuthTestSupport.NewEmail();
+        var client = F.Factory.Browser();
+        var userId = await F.Factory.SignUpAndVerify(client, email, AuthTestSupport.NewHandle(), Ct);
+        await F.Sql($"insert into user_roles (user_id, role_id) select '{userId}', id from roles where name = '{role}'");
+        (await client.PostJson("/api/v1/account/sign-in", new { email, password = AuthTestSupport.Password }, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+        return (client, Guid.Parse(userId));
+    }
+
+    private async Task<JsonNode> Manifest()
+    {
+        var web = Client();
+        web.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        return await Ok(await web.GetAsync("/api/v1/marketplace", Ct));
+    }
+
+    private static IEnumerable<(string, string)> LayoutForm(string name, string pages, params string[] targeted) =>
+        [("Name", name), ("Priority", "5"), ("Enabled", "true"), ("PagesJson", pages), .. targeted.Select(t => ("Targeted", t))];
+
+    private async Task<HttpResponseMessage> Post(HttpClient client, string page, string url, IEnumerable<(string, string)> fields)
+    {
+        var (_, token) = await client.GetPage(page, Ct);
+        var form = fields.Select(f => new KeyValuePair<string, string>(f.Item1, f.Item2)).Append(new("__RequestVerificationToken", token));
+        return await client.PostAsync(url, new FormUrlEncodedContent(form), Ct);
+    }
+
+    private Task<List<string>> Actions() => F.Db(db => db.ModerationActions.AsNoTracking()
+        .Where(a => a.Action.StartsWith("marketplace.")).OrderBy(a => a.Id).Select(a => a.Action).ToListAsync(Ct));
+
+    [Fact]
+    public async Task Moderator_IsRefused()
+    {
+        var (mod, _) = await Staff("moderator");
+        foreach (var url in new[] { "/admin/marketplace", "/admin/marketplacelayout", "/admin/marketplaceflag" })
+            (await mod.GetAsync(url, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden, url);
+    }
+
+    [Fact]
+    public async Task Layout_CreateShowsInManifestAndAuditsThenDeletes()
+    {
+        var (admin, _) = await Staff("admin");
+        var (form, _) = await admin.GetPage("/admin/marketplacelayout", Ct);
+        WebUtility.HtmlDecode(form).ShouldContain("\"id\": \"home\"");
+
+        var saved = await admin.PostForm("/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", LayoutForm("Spring", Page, "web"), Ct);
+        saved.ShouldContain("Saved Spring.");
+        saved.ShouldContain("/admin/marketplacelayout/");
+
+        (await Manifest())["pages"]!.AsArray().Select(p => p!["id"]!.GetValue<string>()).ShouldBe(["admin-made"]);
+        (await Actions()).ShouldBe(["marketplace.layout.save"]);
+
+        var id = (await F.Db(db => db.MarketplaceLayouts.AsNoTracking().SingleAsync(Ct))).Id;
+        var edit = await admin.PostForm($"/admin/marketplacelayout/{id}", $"/admin/marketplacelayout/{id}?handler=Save", LayoutForm("Spring", Page, "web"), Ct);
+        edit.ShouldContain("Saved Spring.");
+        (await F.Db(db => db.MarketplaceLayouts.CountAsync(Ct))).ShouldBe(1);
+
+        var refused = await admin.PostForm($"/admin/marketplacelayout/{id}", $"/admin/marketplacelayout/{id}?handler=Delete", [], Ct);
+        refused.ShouldContain("Tick the confirmation box");
+        var deleted = await admin.PostForm($"/admin/marketplacelayout/{id}", $"/admin/marketplacelayout/{id}?handler=Delete", [("Confirm", "true")], Ct);
+        deleted.ShouldContain("Layout deleted.");
+        (await Manifest())["pages"]!.AsArray().Select(p => p!["id"]!.GetValue<string>()).ShouldNotContain("admin-made");
+        (await Actions()).ShouldBe(["marketplace.layout.save", "marketplace.layout.save", "marketplace.layout.delete"]);
+    }
+
+    [Fact]
+    public async Task Layout_InvalidJsonShowsErrorsAndDoesNotSave()
+    {
+        var (admin, _) = await Staff("admin");
+        var broken = """[{"id":"x","title":"X","sections":[{"id":"n","type":"nope"}]}]""";
+
+        var response = await Post(admin, "/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", LayoutForm("Bad", broken));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var body = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync(Ct));
+        body.ShouldContain("pages[0].sections[0].type");
+        body.ShouldContain("Unknown section type");
+        body.ShouldContain("nope");
+        (await F.Db(db => db.MarketplaceLayouts.CountAsync(Ct))).ShouldBe(0);
+        (await Actions()).ShouldBeEmpty();
+
+        var bad = await Post(admin, "/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", LayoutForm("Bad", "{", "appimage"));
+        WebUtility.HtmlDecode(await bad.Content.ReadAsStringAsync(Ct)).ShouldContain("not valid JSON");
+    }
+
+    [Fact]
+    public async Task Layout_RejectsBadVersionAndDuplicateName()
+    {
+        var (admin, _) = await Staff("admin");
+        var form = LayoutForm("Dup", Page).Append(("MinAppVersion", "banana"));
+        var response = await Post(admin, "/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", form);
+        WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync(Ct)).ShouldContain("Minimum version is not a valid version.");
+
+        await admin.PostForm("/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", LayoutForm("Dup", Page), Ct);
+        var again = await Post(admin, "/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", LayoutForm("Dup", Page));
+        WebUtility.HtmlDecode(await again.Content.ReadAsStringAsync(Ct)).ShouldContain("Another layout already has this name.");
+    }
+
+    [Fact]
+    public async Task Flag_SaveTogglesFeatureAndValidates()
+    {
+        var (admin, _) = await Staff("admin");
+
+        var badKey = await Post(admin, "/admin/marketplaceflag", "/admin/marketplaceflag?handler=Save", [("Key", "Bad Key"), ("Enabled", "true")]);
+        WebUtility.HtmlDecode(await badKey.Content.ReadAsStringAsync(Ct)).ShouldContain("Key uses lowercase");
+        var badJson = await Post(admin, "/admin/marketplaceflag", "/admin/marketplaceflag?handler=Save", [("Key", "ok.key"), ("ValueJson", "{nope")]);
+        WebUtility.HtmlDecode(await badJson.Content.ReadAsStringAsync(Ct)).ShouldContain("Value is not valid JSON.");
+        (await F.Db(db => db.FeatureFlags.CountAsync(Ct))).ShouldBe(0);
+
+        (await admin.PostForm("/admin/marketplaceflag", "/admin/marketplaceflag?handler=Save", [("Key", "edit.tools"), ("Enabled", "true")], Ct))
+            .ShouldContain("Saved edit.tools.");
+        (await Manifest())["features"]!["edit.tools"]!.GetValue<bool>().ShouldBeTrue();
+
+        var id = (await F.Db(db => db.FeatureFlags.AsNoTracking().SingleAsync(Ct))).Id;
+        await admin.PostForm($"/admin/marketplaceflag/{id}", $"/admin/marketplaceflag/{id}?handler=Save", [("Key", "edit.tools")], Ct);
+        (await Manifest())["features"]!["edit.tools"]!.GetValue<bool>().ShouldBeFalse();
+
+        await admin.PostForm($"/admin/marketplaceflag/{id}", $"/admin/marketplaceflag/{id}?handler=Delete", [("Confirm", "true")], Ct);
+        ((JsonObject)(await Manifest())["features"]!).ContainsKey("edit.tools").ShouldBeFalse();
+        (await Actions()).ShouldBe(["marketplace.flag.save", "marketplace.flag.save", "marketplace.flag.delete"]);
+    }
+
+    [Fact]
+    public async Task Preview_RendersResolvedManifestAndChosenLayout()
+    {
+        var (admin, _) = await Staff("admin");
+        await admin.PostForm("/admin/marketplacelayout", "/admin/marketplacelayout?handler=Save", LayoutForm("Spring", Page, "web"), Ct);
+
+        var (hit, _) = await admin.GetPage("/admin/marketplace?distribution=web&version=1.2.3", Ct);
+        hit.ShouldContain("Layout: <strong>Spring</strong>");
+        WebUtility.HtmlDecode(hit).ShouldContain("\"id\": \"admin-made\"");
+
+        var (miss, _) = await admin.GetPage("/admin/marketplace?distribution=windows", Ct);
+        miss.ShouldContain("Layout: <strong>built-in default</strong>");
+
+        var (bad, _) = await admin.GetPage("/admin/marketplace?distribution=windows&version=x", Ct);
+        bad.ShouldContain("The version is not a valid version.");
     }
 }

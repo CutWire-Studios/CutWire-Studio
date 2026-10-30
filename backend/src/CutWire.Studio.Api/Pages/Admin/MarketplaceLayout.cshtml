@@ -1,0 +1,45 @@
+@page "{id:guid?}"
+@model MarketplaceLayoutModel
+@{
+    ViewData["Title"] = Model.Id is null ? "New layout" : "Edit layout";
+}
+<h1>@ViewData["Title"]</h1>
+<p><a href="/admin/marketplace">Back to marketplace</a></p>
+
+@if (Model.Violations.Count > 0)
+{
+    <div class="flash error" role="alert">
+        The layout was not saved:
+        <ul class="errors">
+            @foreach (var v in Model.Violations)
+            {
+                <li><code>@v.Field</code> @v.Message</li>
+            }
+        </ul>
+    </div>
+}
+
+<form method="post" asp-page-handler="Save" class="stack wide-form">
+    <label>Name <input type="text" name="Name" value="@Model.Name" maxlength="100" required></label>
+    <label>Priority <input type="number" name="Priority" value="@Model.Priority" class="narrow"></label>
+    <label class="check"><input type="checkbox" name="Enabled" value="true" checked="@Model.Enabled"> Enabled</label>
+    <fieldset>
+        <legend>Distributions (none ticked targets all)</legend>
+        @foreach (var d in MarketplaceLayoutModel.Columns)
+        {
+            <label class="check"><input type="checkbox" name="Targeted" value="@d" checked="@Model.Targeted.Contains(d)"> @d</label>
+        }
+    </fieldset>
+    <label>Minimum app version <input type="text" name="MinAppVersion" value="@Model.MinAppVersion" placeholder="inclusive, e.g. 1.2.0" maxlength="64"></label>
+    <label>Maximum app version <input type="text" name="MaxAppVersion" value="@Model.MaxAppVersion" placeholder="exclusive, e.g. 2.0.0" maxlength="64"></label>
+    <label>Pages JSON <textarea name="PagesJson" class="code" rows="28" spellcheck="false" required>@Model.PagesJson</textarea></label>
+    <p><button type="submit" class="primary">Save layout</button></p>
+</form>
+
+@if (Model.Id is not null)
+{
+    <form method="post" asp-page-handler="Delete" class="inline">
+        <label class="check"><input type="checkbox" name="Confirm" value="true" required> Confirm deletion</label>
+        <button type="submit" class="danger">Delete layout</button>
+    </form>
+}

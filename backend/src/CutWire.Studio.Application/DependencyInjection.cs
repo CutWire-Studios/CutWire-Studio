@@ -27,6 +27,7 @@ public static class DependencyInjection
 
         services.AddScoped<Admin.AdminRoles>();
         services.AddScoped<Admin.StockAdmin>();
+        services.AddScoped<Admin.MarketplaceAdmin>();
 
         services.AddScoped<Forge.ForgeDocuments>();
         services.AddScoped<Forge.ForgeAssets>();
