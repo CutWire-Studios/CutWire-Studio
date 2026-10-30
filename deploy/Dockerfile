@@ -46,6 +46,10 @@ ARG BGUTIL_POT_SHA256=bce874dfa25896c2798e0f4f8147b7b22e785479eb1e459ab232bf2506
 
 RUN set -eux; \
     apt-get update; \
+    # The digest-pinned base lags Ubuntu security updates. Upgrade those
+    # packages, and rebuild this layer so curl/ffmpeg dependencies such as
+    # libbrotli1 resolve to the current security version instead of a cached one.
+    apt-get upgrade -y --no-install-recommends; \
     apt-get install -y --no-install-recommends ffmpeg ca-certificates curl tini; \
     curl -fsSL -o /usr/local/bin/yt-dlp \
       "https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/yt-dlp_linux"; \
