@@ -25,6 +25,9 @@ public static class DependencyInjection
         services.AddScoped<Moderation.ModerationQueries>();
         services.AddScoped<Moderation.ModerationMaintenance>();
 
+        services.AddScoped<Admin.AdminRoles>();
+        services.AddScoped<Admin.StockAdmin>();
+
         services.AddScoped<Forge.ForgeDocuments>();
         services.AddScoped<Forge.ForgeAssets>();
         services.AddScoped<Forge.ForgeEditor>();

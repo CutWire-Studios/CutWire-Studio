@@ -5,7 +5,6 @@ import { EditItemPage } from "./edit"
 import { CommunityHome } from "./home"
 import { CommunityLayout } from "./layout"
 import { MyItemsPage } from "./me"
-import { ModPage } from "./mod"
 import { ProfilePage } from "./profile"
 import { UploadPage } from "./upload/wizard"
 
@@ -16,7 +15,6 @@ export const communityRoutes = (
     <Route path="browse" element={<BrowsePage />} />
     <Route path="upload" element={<UploadPage />} />
     <Route path="me" element={<MyItemsPage />} />
-    <Route path="mod" element={<ModPage />} />
     <Route path="edit/:id" element={<EditItemPage />} />
     <Route path="u/:handle" element={<ProfilePage />} />
     <Route path=":kind/:slug" element={<ItemDetailPage />} />

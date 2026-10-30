@@ -16,6 +16,7 @@ internal sealed class ProviderSettingConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(s => s.Label).HasMaxLength(128);
         builder.Property(s => s.QuotaWindow).HasMaxLength(8).IsRequired();
         builder.Property(s => s.QuotaScope).HasMaxLength(8).IsRequired();
+        builder.Property(s => s.HiddenFor).HasColumnName("hidden_for").HasDefaultValueSql("'{}'");
     }
 }
 

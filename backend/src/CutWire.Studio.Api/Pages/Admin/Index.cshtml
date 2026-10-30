@@ -1,0 +1,18 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Overview";
+}
+<h1>Overview</h1>
+<div class="tiles">
+    <div class="tile"><div class="label">Open reports</div><div class="value">@Model.OpenReports</div></div>
+    <div class="tile"><div class="label">Unresolved flags</div><div class="value">@Model.OpenFlags</div></div>
+    <div class="tile"><div class="label">Hidden items</div><div class="value">@Model.HiddenItems</div>
+        <div class="hint">@(Model.HiddenByReason.Count == 0 ? "none" : string.Join(", ", Model.HiddenByReason.Select(h => $"{h.Reason}: {h.Count}")))</div></div>
+    <div class="tile"><div class="label">Scheduled for purge</div><div class="value">@Model.ScheduledPurges</div></div>
+    <div class="tile"><div class="label">Banned users</div><div class="value">@Model.BannedUsers</div></div>
+    <div class="tile"><div class="label">Stock jobs queued</div><div class="value">@Model.JobsQueued</div></div>
+    <div class="tile"><div class="label">Stock jobs processing</div><div class="value">@Model.JobsProcessing</div></div>
+    <div class="tile"><div class="label">Item downloads, 24h</div><div class="value">@Model.ItemDownloads</div></div>
+    <div class="tile"><div class="label">Stock downloads, 24h</div><div class="value">@Model.StockDownloads</div></div>
+</div>

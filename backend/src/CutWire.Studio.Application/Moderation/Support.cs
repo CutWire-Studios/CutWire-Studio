@@ -12,12 +12,26 @@ namespace CutWire.Studio.Application.Moderation;
 
 public sealed record AccountInfo(Guid UserId, bool EmailVerified, IReadOnlyList<string> Roles);
 
+public sealed record StaffAccount(Guid UserId, string? Email, IReadOnlyList<string> Roles);
+
 /// <summary>Identity data (email verification, roles) that lives outside the profile tables.</summary>
 public interface IUserDirectory
 {
     Task<IReadOnlyDictionary<Guid, AccountInfo>> GetAsync(IReadOnlyCollection<Guid> userIds, CancellationToken ct);
 
     Task<Result> SetModeratorAsync(Guid userId, bool moderator, CancellationToken ct);
+
+    Task<Result> SetRoleAsync(Guid userId, string role, bool granted, CancellationToken ct);
+
+    /// <summary>Accounts holding any staff role, with their email.</summary>
+    Task<IReadOnlyList<StaffAccount>> ListStaffAsync(CancellationToken ct);
+
+    /// <summary>Ids of accounts whose email equals or starts with <paramref name="email"/>, at most <paramref name="limit"/>.</summary>
+    Task<IReadOnlyList<Guid>> FindByEmailAsync(string email, int limit, CancellationToken ct);
+
+    Task<int> CountInRoleAsync(string role, CancellationToken ct);
+
+    Task<bool> IsBootstrapAdminAsync(Guid userId, CancellationToken ct);
 }
 
 /// <summary>Finds the existing item whose thumbnail is visually closest to an item's own thumbnail.</summary>

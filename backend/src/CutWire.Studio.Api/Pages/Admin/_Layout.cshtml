@@ -1,0 +1,58 @@
+@using CutWire.Studio.Api.Auth
+@using CutWire.Studio.Application.Abstractions
+@using Microsoft.EntityFrameworkCore
+@inject IAppDbContext Db
+@{
+    var page = (string?)ViewContext.RouteData.Values["page"] ?? "";
+    var isAdmin = User.IsInRole("admin");
+    var handle = await Db.UserProfiles.AsNoTracking().Where(p => p.Id == User.GetUserId()).Select(p => p.Handle).FirstOrDefaultAsync();
+    string Active(string name) => string.Equals(page, "/Admin/" + name, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>@ViewData["Title"] - CutWire Studio admin</title>
+    <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="shell">
+    <aside class="side">
+        <a class="brand" href="/admin">CutWire Studio</a>
+        <nav>
+            <a class="@Active("Index")" href="/admin">Overview</a>
+            <a class="@Active("Queue")" href="/admin/queue">Moderation queue</a>
+            <a class="@Active("Users")" href="/admin/users">Users</a>
+            <a class="@Active("Audit")" href="/admin/audit">Audit log</a>
+            @if (isAdmin)
+            {
+                <div class="group">Administration</div>
+                <a class="@Active("Admins")" href="/admin/admins">Admins</a>
+                <a class="@Active("Stock")" href="/admin/stock">Stock providers</a>
+                <a class="@Active("Distributions")" href="/admin/distributions">Distributions</a>
+                <a class="@Active("Categories")" href="/admin/categories">Categories</a>
+            }
+        </nav>
+    </aside>
+    <div class="main">
+        <header class="top">
+            <span>@handle</span>
+            <span class="badge">@(isAdmin ? "admin" : "moderator")</span>
+        </header>
+        <div class="content">
+            @if (TempData[AdminPageModel.OkKey] is string ok)
+            {
+                <div class="flash ok" role="status">@ok</div>
+            }
+            @if (TempData[AdminPageModel.ErrorKey] is string error)
+            {
+                <div class="flash error" role="alert">@error</div>
+            }
+            @RenderBody()
+        </div>
+    </div>
+</div>
+</body>
+</html>

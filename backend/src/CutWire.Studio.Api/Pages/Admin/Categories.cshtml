@@ -1,0 +1,41 @@
+@page
+@model CategoriesModel
+@{
+    ViewData["Title"] = "Categories";
+    var groups = new[]
+    {
+        (Kind: CutWire.Studio.Application.Admin.CategoryKinds.Asset, Title: "Drift assets", Rows: Model.Assets),
+        (Kind: CutWire.Studio.Application.Admin.CategoryKinds.Sfx, Title: "Sound effects", Rows: Model.Sfx),
+    };
+}
+<h1>Categories</h1>
+@foreach (var group in groups)
+{
+    var kind = group.Kind;
+    <h2>@group.Title</h2>
+    <div class="scroll"><table>
+        <thead><tr><th>Category</th><th>Settings</th></tr></thead>
+        <tbody>
+        @foreach (var row in group.Rows)
+        {
+            <tr>
+                <td>@row.Category</td>
+                <td>
+                    <form method="post" asp-page-handler="Save" class="inline">
+                        <input type="hidden" name="kind" value="@kind">
+                        <input type="hidden" name="category" value="@row.Category">
+                        <label class="check"><input type="checkbox" name="enabled" value="true" checked="@row.Enabled"> Enabled</label>
+                        <input type="text" name="label" value="@row.Label" placeholder="Label override" maxlength="80">
+                        <label class="check">Sort <input type="number" name="sort" value="@row.Sort" min="0" class="narrow"></label>
+                        <button type="submit" class="primary">Save</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table></div>
+    @if (group.Rows.Count == 0)
+    {
+        <p class="note">No categories yet. They appear after the first catalog request.</p>
+    }
+}

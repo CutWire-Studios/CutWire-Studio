@@ -27,6 +27,26 @@ public sealed class ProviderSetting
     public int QuotaLimit { get; set; }
     public string QuotaWindow { get; set; } = "day";
     public string QuotaScope { get; set; } = "client";
+
+    /// <summary>Distributions (<see cref="Distributions.All"/>) that must not see this source, e.g. android-play for store moderation.</summary>
+    public List<string> HiddenFor { get; set; } = [];
+
+    public bool VisibleTo(string? distribution) => distribution is null || !HiddenFor.Contains(distribution);
+}
+
+/// <summary>
+/// The package types Drift reports in X-Cutwire-Distribution. "source" is a local or third-party build; "unknown" is any client that sends no
+/// header, which includes builds from before it existed. Hiding is for store moderation, not access control: the header is unsigned.
+/// </summary>
+public static class Distributions
+{
+    public const string Header = "X-Cutwire-Distribution";
+    public const string Unknown = "unknown";
+
+    public static readonly string[] All =
+    [
+        "windows", "windows-store", "macos", "appimage", "flatpak", "flathub", "arch", "android-github", "android-play", "source", Unknown,
+    ];
 }
 
 public sealed class DownloadJob

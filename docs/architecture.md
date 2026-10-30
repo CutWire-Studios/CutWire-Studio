@@ -159,8 +159,14 @@ Port to .NET from `CutWire-Marketplace/backend/internal`:
   - Catalog types are `video`, `photo`, `audio`, `music`, `greenscreen`. Item ids are `base64url("provider:type:native")` (unsigned: HMAC client signing is dropped).
   - Download results are blobs referenced by `download_jobs` until the `stock-expiry` job releases them to the blob GC; the result URL is an AES-GCM sealed, expiring `/api/v1/stock/files/{token}`. Previews and thumbnails go through a sealed relay (`/stock/media/{token}`) and optionally imgproxy, so origins never reach a client.
   - The Drift Assets pack is mirrored into blobs (new tables `drift_asset_packs`, `provider_cache`) and served through `/files/{sha256}`; the SFX library is read from `Stock:Sfx:Path` and served by `/stock/sfx/files/...`.
-  - `provider_settings` has no `hidden_for` (distributions no longer exist); `asset_categories` and `sfx_categories` carry enabled/label/sort only.
+  - `provider_settings.hidden_for` lists the Drift distributions (`windows`, `windows-store`, `macos`, `appimage`, `flatpak`, `flathub`, `arch`, `android-github`, `android-play`, `source`, `unknown`) that must not see a source, for store moderation. Drift sends `X-Cutwire-Distribution`; a missing header counts as `unknown`, and background jobs skip the check. The header is unsigned, so this is not access control. `asset_categories` and `sfx_categories` carry enabled/label/sort only.
 - **Web UI**: `/stock` in the shell, with card grids and carousels, re-implemented in React and based on the Marketplace views.
+
+### Admin dashboard (`/admin`)
+- Server-rendered Razor Pages in the backend (no JavaScript, one embedded stylesheet at `/admin/admin.css`), replacing the React moderation UI. `/admin` is a reserved prefix, so the shell SPA does not serve it.
+- Authenticates with the Identity cookie only (never bearer or PAT). Anonymous requests redirect to `/account/sign-in?return=<path>`; forbidden ones get a plain 403 page. Forms use Razor Pages antiforgery and post-redirect-get with a flash message.
+- Moderators and admins: Overview, Moderation queue, Users (ban, unban, trust), Audit log. Admins only: Admins (grant or revoke `moderator`/`admin`), Stock providers, Distributions (provider by distribution visibility matrix) and Categories. Role changes happen only on the Admins page; an admin cannot change their own roles, the last admin and the `Auth:BootstrapAdminEmail` account keep `admin`, and only confirmed, non-banned users can be granted a role.
+- Every change is written to `moderation_actions` (`grant_admin`/`revoke_admin`, `update_provider`, `update_distributions`, `update_category`).
 
 ### Theme Maker (`/themes`)
 - **Inputs**: `VideoEd/resources/themes/theme.schema.json`, `docs/theming-tokens.md` (generated into a JSON token catalog at build time from `dark.json` / `light.json`), and `extends` + `variants` semantics.

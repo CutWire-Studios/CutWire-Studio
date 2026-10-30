@@ -28,7 +28,7 @@ public sealed class DownloadJobs(
     public async Task<Result<DownloadJobDto>> CreateAsync(CreateDownloadCommand command, CancellationToken ct)
     {
         if (!ItemIds.TryDecode(command.ItemId, out var r)) return StockErrors.ItemGone;
-        var entry = await settings.EntryAsync(r.Provider, r.Type, ct);
+        var entry = await settings.EntryAsync(r.Provider, r.Type, command.Caller.Distribution, ct);
         if (entry is null || !entry.Provider.Descriptor.Capabilities.HasFlag(ProviderCapabilities.Fulfill)) return StockErrors.ItemGone;
 
         var active = await db.DownloadJobs.CountAsync(j => j.ClientId == command.Caller.ClientId
@@ -132,7 +132,7 @@ public sealed class DownloadRunner(
         var job = await db.DownloadJobs.FirstOrDefaultAsync(j => j.Id == jobId, CancellationToken.None);
         if (job is null || job.Status is JobStatus.Ready or JobStatus.Failed) return;
 
-        var entry = await settings.EntryAsync(job.Provider, job.Type, CancellationToken.None);
+        var entry = await settings.EntryAsync(job.Provider, job.Type, null, CancellationToken.None);
         if (entry is null || !entry.Provider.Descriptor.Capabilities.HasFlag(ProviderCapabilities.Fulfill))
         {
             await FailAsync(job, StockReason.ItemMissing);

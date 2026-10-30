@@ -29,6 +29,13 @@ builder.Services.AddSingleton(new FixedWindowLimiter(TimeSpan.FromMinutes(1)));
 
 builder.Services.AddStudioMcp();
 
+builder.Services.AddRazorPages(o =>
+{
+    o.Conventions.AuthorizeFolder("/Admin", AuthPolicies.AdminArea);
+    foreach (var page in new[] { "Admins", "Stock", "Distributions", "Categories" })
+        o.Conventions.AuthorizePage("/Admin/" + page, AuthPolicies.AdminOnly);
+});
+
 var app = builder.Build();
 
 if (app.Configuration.GetValue("Database:AutoMigrate", true))
@@ -51,6 +58,8 @@ app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
 
+app.MapAdminAssets();
+app.MapRazorPages();
 app.MapOpenApi("/api/v1/openapi.json");
 var api = app.MapGroup("/api/v1").RequireRateLimiting(RateLimitingSettings.DefaultPolicy);
 api.MapHealth();

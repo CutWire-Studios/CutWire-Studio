@@ -26,9 +26,9 @@ export function CommunityLayout() {
           </NavLink>
         )}
         {isModerator(me) && (
-          <NavLink to="/community/mod" className={link}>
-            Mod
-          </NavLink>
+          <a href="/admin" className={link({ isActive: false })}>
+            Admin
+          </a>
         )}
       </nav>
       <Outlet />

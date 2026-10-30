@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CutWire.Studio.Api.Http;
 using CutWire.Studio.Application.Stock;
+using CutWire.Studio.Domain.Stock;
 using CutWire.Studio.Infrastructure.Stock;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -26,7 +27,8 @@ public static class StockEndpoints
             ? "i:" + install
             : "ip:" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(http.Connection.RemoteIpAddress?.ToString() ?? "unknown")))[..24];
         Guid? user = http.User.Identity?.IsAuthenticated == true && Guid.TryParse(http.User.FindFirstValue(Claims.Subject), out var id) ? id : null;
-        return new StockCaller(client, user);
+        var distribution = http.Request.Headers[Distributions.Header].ToString().Trim().ToLowerInvariant();
+        return new StockCaller(client, user, distribution.Length == 0 ? Distributions.Unknown : distribution);
     }
 
     public static void MapStock(this RouteGroupBuilder api)

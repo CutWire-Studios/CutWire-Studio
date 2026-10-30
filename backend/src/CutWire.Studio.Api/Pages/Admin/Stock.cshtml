@@ -1,0 +1,43 @@
+@page
+@model StockModel
+@{
+    ViewData["Title"] = "Stock providers";
+}
+<h1>Stock providers</h1>
+<p class="note">One row per provider and media type. A quota limit of 0 means no limit.</p>
+
+<div class="scroll"><table>
+    <thead><tr><th>Provider</th><th>Type</th><th>Settings</th></tr></thead>
+    <tbody>
+    @foreach (var row in Model.Rows)
+    {
+        <tr>
+            <td>@row.ProviderLabel<div class="meta">@row.Provider</div></td>
+            <td><span class="badge">@row.Type</span></td>
+            <td>
+                <form method="post" asp-page-handler="Save" class="inline">
+                    <input type="hidden" name="provider" value="@row.Provider">
+                    <input type="hidden" name="type" value="@row.Type">
+                    <label class="check"><input type="checkbox" name="enabled" value="true" checked="@row.Enabled"> Enabled</label>
+                    <input type="text" name="label" value="@row.Label" placeholder="Label override" maxlength="80">
+                    <label class="check">Sort <input type="number" name="sort" value="@row.Sort" min="0" class="narrow"></label>
+                    <label class="check">Quota <input type="number" name="quotaLimit" value="@row.QuotaLimit" min="0" class="narrow"></label>
+                    <select name="quotaWindow" aria-label="Quota window">
+                        @foreach (var w in new[] { "day", "hour" })
+                        {
+                            <option value="@w" selected="@(w == row.QuotaWindow)">per @w</option>
+                        }
+                    </select>
+                    <select name="quotaScope" aria-label="Quota scope">
+                        @foreach (var s in new[] { "client", "account" })
+                        {
+                            <option value="@s" selected="@(s == row.QuotaScope)">per @s</option>
+                        }
+                    </select>
+                    <button type="submit" class="primary">Save</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table></div>

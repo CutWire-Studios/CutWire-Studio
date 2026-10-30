@@ -18,6 +18,9 @@
     <EmbeddedResource Include="$(SpaDist)**" Exclude="$(SpaDist)**/*.map" LinkBase="spa" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\admin.css" LogicalName="admin.css" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CutWire.Studio.Infrastructure\CutWire.Studio.Infrastructure.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" />

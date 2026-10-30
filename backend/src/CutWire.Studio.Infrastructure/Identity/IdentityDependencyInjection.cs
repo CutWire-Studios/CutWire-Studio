@@ -88,13 +88,25 @@ public static class IdentityDependencyInjection
             o.SlidingExpiration = true;
             o.Events.OnRedirectToLogin = ctx =>
             {
+                if (ctx.Request.Path.StartsWithSegments("/admin"))
+                {
+                    var back = Uri.EscapeDataString(ctx.Request.Path + ctx.Request.QueryString.Value);
+                    ctx.Response.Redirect("/account/sign-in?return=" + back);
+                    return Task.CompletedTask;
+                }
+
                 ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return Task.CompletedTask;
             };
             o.Events.OnRedirectToAccessDenied = ctx =>
             {
                 ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-                return Task.CompletedTask;
+                if (!ctx.Request.Path.StartsWithSegments("/admin")) return Task.CompletedTask;
+                ctx.Response.ContentType = "text/html; charset=utf-8";
+                return ctx.Response.WriteAsync(
+                    "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Forbidden</title>" +
+                    "<link rel=\"stylesheet\" href=\"/admin/admin.css\"></head><body class=\"denied\"><main>" +
+                    "<h1>403</h1><p>You do not have access to this page.</p><p><a href=\"/admin\">Back to the dashboard</a></p></main></body></html>");
             };
         });
         services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.FromMinutes(1));

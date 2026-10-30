@@ -1,0 +1,149 @@
+@page
+@model QueueModel
+@{
+    ViewData["Title"] = "Moderation queue";
+    void Keep()
+    {
+        <input type="hidden" name="type" value="@Model.Type">
+        <input type="hidden" name="cursor" value="@Model.Cursor">
+    }
+}
+<h1>Moderation queue</h1>
+
+<div class="toolbar">
+    @foreach (var t in QueueModel.Types)
+    {
+        <a class="badge @(t == Model.Type ? "ok" : "")" href="/admin/queue?type=@t">@t</a>
+    }
+</div>
+
+@if (Model.Data.Entries.Count > 0)
+{
+    <form id="bulk" method="post" asp-page-handler="Bulk" class="card">
+        @{ Keep(); }
+        <h3>Bulk action on selected items</h3>
+        <div class="toolbar">
+            <select name="action">
+                <option value="restore">Restore</option>
+                <option value="remove">Remove</option>
+                <option value="schedule_purge">Schedule purge</option>
+            </select>
+            <input type="text" name="reason" placeholder="Reason (required for remove)" class="wide">
+            <input type="number" name="days" min="1" max="365" placeholder="Days" class="narrow">
+            <label class="check"><input type="checkbox" name="dismissReports" value="true" checked> Dismiss reports on restore</label>
+            <button type="submit" class="primary">Apply to selected</button>
+        </div>
+    </form>
+}
+
+@foreach (var entry in Model.Data.Entries)
+{
+    var item = entry.Item;
+    <div class="card">
+        <h3>
+            <input type="checkbox" name="ids" value="@item.Id" form="bulk" aria-label="Select @item.Title">
+            @item.Title
+        </h3>
+        <div class="meta">
+            <span class="badge">@item.Kind</span>
+            <span class="badge">@item.Status</span>
+            @if (entry.VisibilityReason is not null) { <span class="badge danger">@entry.VisibilityReason</span> }
+            by @item.Owner.Handle
+            @if (entry.PurgeAt is { } purge) { <span>- purge at @purge.UtcDateTime.ToString("u")</span> }
+            <span>- @item.Id</span>
+        </div>
+
+        @if (entry.Reports.Count > 0)
+        {
+            <h2>Open reports</h2>
+            <div class="scroll"><table>
+                <thead><tr><th>Reporter</th><th>Reason</th><th>Note</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var report in entry.Reports)
+                {
+                    <tr>
+                        <td>@report.Reporter <span class="badge">@report.ReporterTrust</span></td>
+                        <td>@report.Reason</td>
+                        <td>@report.Note</td>
+                        <td>
+                            <form method="post" asp-page-handler="DismissReport" class="inline">
+                                @{ Keep(); }
+                                <input type="hidden" name="id" value="@report.Id">
+                                <input type="text" name="note" placeholder="Note">
+                                <button type="submit">Dismiss</button>
+                            </form>
+                            <form method="post" asp-page-handler="UpholdReport" class="inline">
+                                @{ Keep(); }
+                                <input type="hidden" name="id" value="@report.Id">
+                                <button type="submit" class="danger">Uphold</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+
+        @if (entry.Flags.Count > 0)
+        {
+            <h2>Flags</h2>
+            <div class="scroll"><table>
+                <thead><tr><th>Code</th><th>Detail</th><th>Matched item</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var flag in entry.Flags)
+                {
+                    <tr>
+                        <td><span class="badge">@flag.Code</span></td>
+                        <td>@flag.Detail</td>
+                        <td>@flag.MatchedItem?.Title</td>
+                        <td>
+                            <form method="post" asp-page-handler="ResolveFlag" class="inline">
+                                @{ Keep(); }
+                                <input type="hidden" name="id" value="@flag.Id">
+                                <input type="text" name="note" placeholder="Note">
+                                <button type="submit">Resolve</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+
+        <details>
+            <summary>Actions</summary>
+            <form method="post" asp-page-handler="Restore" class="inline">
+                @{ Keep(); }
+                <input type="hidden" name="id" value="@item.Id">
+                <input type="text" name="reason" placeholder="Reason" class="wide">
+                <label class="check"><input type="checkbox" name="dismissReports" value="true" checked> Dismiss reports</label>
+                <button type="submit">Restore</button>
+            </form>
+            <br>
+            <form method="post" asp-page-handler="Remove" class="inline">
+                @{ Keep(); }
+                <input type="hidden" name="id" value="@item.Id">
+                <input type="text" name="reason" placeholder="Reason (required)" class="wide" required>
+                <button type="submit" class="danger">Remove</button>
+            </form>
+            <br>
+            <form method="post" asp-page-handler="Purge" class="inline">
+                @{ Keep(); }
+                <input type="hidden" name="id" value="@item.Id">
+                <input type="number" name="days" min="1" max="365" value="14" class="narrow">
+                <input type="text" name="reason" placeholder="Reason" class="wide">
+                <button type="submit">Schedule purge</button>
+            </form>
+        </details>
+    </div>
+}
+
+@if (Model.Data.Entries.Count == 0)
+{
+    <p class="note">Nothing in this queue.</p>
+}
+
+@if (Model.Data.NextCursor is { } next)
+{
+    <div class="pager"><a href="/admin/queue?type=@Model.Type&cursor=@next">Next page</a></div>
+}

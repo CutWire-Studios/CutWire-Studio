@@ -52,8 +52,11 @@ public sealed class StockSettings(IAppDbContext db, StockRegistry registry)
         }
     }
 
-    /// <summary>Providers enabled for a type, in configured order. Settings are seeded lazily so a freshly registered provider shows up immediately.</summary>
-    public async Task<IReadOnlyList<StockEntry>> EntriesForAsync(string type, CancellationToken ct)
+    /// <summary>
+    /// Providers enabled for a type and visible to the distribution (null skips that check), in configured order. Settings are seeded lazily so a
+    /// freshly registered provider shows up immediately.
+    /// </summary>
+    public async Task<IReadOnlyList<StockEntry>> EntriesForAsync(string type, string? distribution, CancellationToken ct)
     {
         var serving = registry.All.Where(p => p.Descriptor.Serving(type) is not null).ToList();
         if (serving.Count == 0) return [];
@@ -62,15 +65,15 @@ public sealed class StockSettings(IAppDbContext db, StockRegistry registry)
         foreach (var provider in serving)
         {
             var d = provider.Descriptor;
-            if (!settings.TryGetValue((d.Id, type), out var setting) || !setting.Enabled) continue;
+            if (!settings.TryGetValue((d.Id, type), out var setting) || !setting.Enabled || !setting.VisibleTo(distribution)) continue;
             entries.Add(new StockEntry(provider, d.Serving(type)!, setting));
         }
 
         return entries.OrderBy(e => e.Setting.Sort).ToList();
     }
 
-    public async Task<StockEntry?> EntryAsync(string providerId, string type, CancellationToken ct) =>
-        (await EntriesForAsync(type, ct)).FirstOrDefault(e => e.Provider.Descriptor.Id == providerId);
+    public async Task<StockEntry?> EntryAsync(string providerId, string type, string? distribution, CancellationToken ct) =>
+        (await EntriesForAsync(type, distribution, ct)).FirstOrDefault(e => e.Provider.Descriptor.Id == providerId);
 
     private async Task<Dictionary<(string, string), ProviderSetting>> LoadAsync(CancellationToken ct)
     {

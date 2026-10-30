@@ -74,7 +74,7 @@ Endpoints: `/connect/authorize`, `/connect/token`, `/connect/device`, `/connect/
 
 ## Authorization policies (for endpoint authors)
 
-`AuthPolicies.Scope("forge:read")` (`scope:forge:read`), `AuthPolicies.Role("moderator")` (`role:moderator`, cookie sessions only: bearer tokens carry no roles), `AuthPolicies.NotBanned` (`not-banned`), `AuthPolicies.Session`. Cookie sessions satisfy every `scope:` policy. Test code can add endpoints through `IApiContributor`.
+`AuthPolicies.Scope("forge:read")` (`scope:forge:read`), `AuthPolicies.Role("moderator")` (`role:moderator`, cookie sessions only: bearer tokens carry no roles), `AuthPolicies.NotBanned` (`not-banned`), `AuthPolicies.Session`, `AuthPolicies.AdminArea` / `AuthPolicies.AdminOnly` (the `/admin` Razor Pages: Identity cookie scheme only, moderator or admin / admin, plus not-banned; unauthenticated requests redirect to `/account/sign-in?return=`). Cookie sessions satisfy every `scope:` policy. Test code can add endpoints through `IApiContributor`.
 
 ## Configuration
 
