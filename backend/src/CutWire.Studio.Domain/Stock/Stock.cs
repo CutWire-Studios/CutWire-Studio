@@ -45,7 +45,7 @@ public static class Distributions
 
     public static readonly string[] All =
     [
-        "windows", "windows-store", "macos", "appimage", "flatpak", "flathub", "arch", "android-github", "android-play", "source", Unknown,
+        "windows", "windows-store", "macos", "appimage", "flatpak", "flathub", "arch", "android-github", "android-play", "source", "web", Unknown,
     ];
 }
 

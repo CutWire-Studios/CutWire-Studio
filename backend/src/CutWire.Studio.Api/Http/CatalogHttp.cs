@@ -23,6 +23,7 @@ public static class CatalogHttp
 
     public static string? InstallIdOf(this HttpContext http)
     {
+        if (http.DriftClientOf() is { } drift) return "c:" + drift.ClientId;
         var value = http.Request.Headers[InstallHeader].ToString().Trim();
         return value.Length is > 0 and <= 64 && value.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.') ? value : null;
     }

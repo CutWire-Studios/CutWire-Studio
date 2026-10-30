@@ -23,11 +23,14 @@ public static class StockEndpoints
     /// <summary>Anonymous callers are identified by the install id (falling back to a hash of the IP); signed-in users also carry their account for per-account quota.</summary>
     public static StockCaller StockCallerOf(this HttpContext http)
     {
-        var client = http.InstallIdOf() is { } install
+        var drift = http.DriftClientOf();
+        var client = drift is not null
+            ? "c:" + drift.ClientId
+            : http.InstallIdOf() is { } install
             ? "i:" + install
             : "ip:" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(http.Connection.RemoteIpAddress?.ToString() ?? "unknown")))[..24];
         Guid? user = http.User.Identity?.IsAuthenticated == true && Guid.TryParse(http.User.FindFirstValue(Claims.Subject), out var id) ? id : null;
-        var distribution = http.Request.Headers[Distributions.Header].ToString().Trim().ToLowerInvariant();
+        var distribution = drift?.Distribution ?? http.Request.Headers[Distributions.Header].ToString().Trim().ToLowerInvariant();
         return new StockCaller(client, user, distribution.Length == 0 ? Distributions.Unknown : distribution);
     }
 

@@ -25,6 +25,7 @@ builder.Services
     .AddStudioHttp(builder.Configuration)
     .AddStudioApiAuth();
 
+builder.Services.AddDriftClientAuth(builder.Configuration);
 builder.Services.AddSingleton(new FixedWindowLimiter(TimeSpan.FromMinutes(1)));
 
 builder.Services.AddStudioMcp();
@@ -47,6 +48,7 @@ if (app.Configuration.GetValue("Database:AutoMigrate", true))
 }
 
 app.UseForwardedHeaders();
+app.UseDriftClientSignature();
 app.UseStudioSecurityHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
