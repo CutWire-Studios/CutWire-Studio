@@ -1044,6 +1044,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/marketplace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceManifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/sources/{source}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMarketplaceItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/sources/{source}/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateMarketplaceResolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/resolve/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceResolve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/installs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateMarketplaceInstall"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/installs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceInstall"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/account/profile": {
         parameters: {
             query?: never;
@@ -1669,6 +1781,26 @@ export interface components {
         HealthResponse: {
             status: string;
         };
+        InstallFileDto: {
+            role: string;
+            name: string;
+            url: string;
+            /** Format: int64 */
+            size: number | string;
+            sha256: null | string;
+            mime: null | string;
+        };
+        InstallJobDto: {
+            id: string;
+            source: string;
+            status: string;
+            /** Format: double */
+            progress: number | string;
+            files: null | components["schemas"]["InstallFileDto"][];
+            license: null | components["schemas"]["StockLicenseDto"];
+            error: null | components["schemas"]["StockJobErrorDto"];
+            minAppVersion: null | string;
+        };
         ItemCardDto: {
             /** Format: uuid */
             id: string;
@@ -1775,6 +1907,83 @@ export interface components {
             min: number | string;
             /** Format: int32 */
             max: number | string;
+        };
+        MarketCategoryDto: {
+            id: string;
+            label: string;
+            mediaKind: null | string;
+            children: null | components["schemas"]["MarketCategoryDto"][];
+        };
+        MarketInstallRequest: {
+            source?: null | string;
+            itemId?: null | string;
+            variantId?: null | string;
+        };
+        MarketItemDto: {
+            id: string;
+            source: string;
+            title: string;
+            subtitle: null | string;
+            thumbUrl: string;
+            previewUrl: null | string;
+            mediaKind: string;
+            /** Format: int32 */
+            durationMs: null | number | string;
+            /** Format: int32 */
+            width: null | number | string;
+            /** Format: int32 */
+            height: null | number | string;
+            tags: string[];
+            license: components["schemas"]["StockLicenseDto"];
+            variants: components["schemas"]["MarketVariantDto"][];
+            webUrl: null | string;
+            category: null | string;
+            extra: null | components["schemas"]["JsonElement"];
+        };
+        MarketItemPageDto: {
+            items: components["schemas"]["MarketItemDto"][];
+            nextCursor: null | string;
+            quota: null | components["schemas"]["StockQuotaDto"];
+            warnings?: null | string[];
+        };
+        MarketplaceManifestDto: {
+            /** Format: int32 */
+            schema: number | string;
+            features: Record<string, never>;
+            sources: {
+                [key: string]: components["schemas"]["MarketSourceDto"];
+            };
+            pages: components["schemas"]["JsonElement"];
+        };
+        MarketResolveJobDto: {
+            id: string;
+            status: string;
+            item: null | components["schemas"]["MarketItemDto"];
+            error: null | components["schemas"]["StockJobErrorDto"];
+        };
+        MarketResolveRequest: {
+            url?: null | string;
+        };
+        MarketSourceDto: {
+            kind: string;
+            label: string;
+            mediaKind: null | string;
+            searchable: boolean;
+            categories: null | components["schemas"]["MarketCategoryDto"][];
+            providers: null | components["schemas"]["StockProviderDto"][];
+            sorts: null | string[];
+            canResolve: boolean;
+        };
+        MarketVariantDto: {
+            id: string;
+            label: string;
+            /** Format: int32 */
+            width: null | number | string;
+            /** Format: int32 */
+            height: null | number | string;
+            mime: null | string;
+            /** Format: int64 */
+            size: null | number | string;
         };
         MediaRuleDto: {
             role: string;
@@ -5892,6 +6101,324 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    GetMarketplaceManifest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketplaceManifestDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListMarketplaceItems: {
+        parameters: {
+            query?: {
+                category?: string;
+                q?: string;
+                cursor?: string;
+                limit?: number | string;
+                sort?: string;
+                period?: string;
+                provider?: string;
+            };
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketItemPageDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMarketplaceItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketItemDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateMarketplaceResolve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarketResolveRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketResolveJobDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMarketplaceResolve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketResolveJobDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateMarketplaceInstall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarketInstallRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstallJobDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMarketplaceInstall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstallJobDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
