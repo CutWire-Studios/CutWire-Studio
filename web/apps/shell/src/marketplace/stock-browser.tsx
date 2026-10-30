@@ -1,11 +1,13 @@
-import { stock, type StockFilter, type StockProvider, type StockQuota } from "@cutwire/api-client"
+import type { MarketItemPage, StockFilter } from "@cutwire/api-client"
 import { Button, EmptyState, Input, Select, Spinner, Switch, cn } from "@cutwire/ui"
 import { PackageOpen, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { useAsync, useInfinite } from "../community/data"
-import { QuotaBadge, StockGrid } from "./cards"
-import { loadCatalog } from "./hooks"
+import { useInfinite } from "../community/data"
+import { ItemGrid, QuotaBadge } from "./cards"
+import { useMarketplace } from "./manifest"
+import { feedFetcher, feedKey, feedParams } from "./lib/items"
+import type { StockBrowserSection } from "./lib/layout"
 import { parseSearch, patchSearch, toSearchParams, type SearchState } from "./lib/url-state"
 import { ResolveDialog } from "./resolve-dialog"
 
@@ -39,38 +41,37 @@ function FilterField({ filter, value, onChange }: { filter: StockFilter; value: 
   )
 }
 
-export function SearchPage() {
+export const ALL_SOURCES = "*"
+
+export function StockBrowser({ section }: { section: StockBrowserSection }) {
+  const { source: lookup, feature } = useMarketplace()
+  const sourceId = section.source.id
+  const source = lookup(sourceId)
+  const providers = source?.providers ?? []
   const [params, setParams] = useSearchParams()
   const state = useMemo(() => parseSearch(params), [params])
-  const { data: catalog } = useAsync(loadCatalog, [])
-  const types = catalog?.types ?? []
-  const type = types.find((t) => t.id === state.type) ?? types[0]
-  const provider: StockProvider | undefined = type?.providers.find((p) => p.id === state.provider) ?? type?.providers[0]
+  const fanOut = providers.length > 1
+  const selected = state.provider || section.source.provider || (fanOut ? ALL_SOURCES : (providers[0]?.id ?? ""))
+  const provider = providers.find((p) => p.id === selected)
   const [q, setQ] = useState(state.q)
   useEffect(() => setQ(state.q), [state.q])
 
-  const [pageQuota, setPageQuota] = useState<StockQuota | null>(null)
-  const update = (patch: Partial<SearchState>) => setParams(toSearchParams(patchSearch({ ...state, type: type?.id ?? state.type }, patch)))
+  const [page, setPage] = useState<Pick<MarketItemPage, "quota" | "warnings">>({ quota: null })
+  const update = (patch: Partial<SearchState>) => setParams(toSearchParams(patchSearch({ ...state, provider: selected }, patch)))
 
-  const key = `${type?.id}|${params.toString()}`
+  const filters = Object.fromEntries(Object.entries(state.filters).filter(([k]) => provider?.filters.some((f) => f.id === k)))
+  const query = feedParams(section.source, { provider: selected, q: state.q, filters })
   const feed = useInfinite(
     (cursor) =>
-      stock
-        .search({
-        type: type!.id,
-        provider: state.provider || undefined,
-        q: state.q,
-        cursor,
-        filters: Object.fromEntries(Object.entries(state.filters).filter(([k]) => provider?.filters.some((f) => f.id === k))),
-        })
-        .then((p) => {
-          setPageQuota(p.quota)
-          return p
-        }),
-    type ? key : "pending",
+      feedFetcher(sourceId, query)(cursor).then((p) => {
+        setPage(p)
+        return p
+      }),
+    feedKey(sourceId, query),
   )
-  const quota = provider?.quota
   const filtered = !!(state.q || Object.keys(state.filters).length)
+  const canResolve = !!source?.canResolve && feature("resolve")
+  const skipped = page.warnings?.map((w) => w.split(":")[0]).join(", ")
 
   return (
     <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
@@ -82,12 +83,8 @@ export function SearchPage() {
             update({ q })
           }}
         >
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" aria-label="Search" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" aria-label={`Search ${source?.label ?? ""}`} />
         </form>
-        <div className="space-y-1.5">
-          <h2 className="text-label-md">Type</h2>
-          <Select value={type?.id ?? ""} onValueChange={(v) => update({ type: v })} options={types.map((t) => ({ value: t.id, label: t.label }))} />
-        </div>
         {provider?.filters.map((f) => (
           <FilterField key={f.id} filter={f} value={state.filters[f.id] ?? ""} onChange={(v) => update({ filters: { ...state.filters, [f.id]: v } })} />
         ))}
@@ -96,44 +93,40 @@ export function SearchPage() {
             <X className="size-4" aria-hidden /> Clear filters
           </Button>
         )}
-        <ResolveDialog />
+        {canResolve && <ResolveDialog />}
       </aside>
 
       <section aria-live="polite" className="min-w-0 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-headline-md">{state.q ? `Results for "${state.q}"` : (type?.label ?? "Search")}</h1>
-          <QuotaBadge quota={pageQuota ?? quota} />
+          <h2 className="text-headline-md">{state.q ? `Results for "${state.q}"` : (source?.label ?? "Search")}</h2>
+          <QuotaBadge quota={provider ? (page.quota ?? provider.quota) : null} />
         </div>
-        {type && type.providers.length > 1 && (
-          <div role="tablist" aria-label="Providers" className="flex flex-wrap gap-1.5">
-            {type.providers.map((p) => {
-              const on = p.id === provider?.id
-              return (
-                <button
-                  key={p.id}
-                  role="tab"
-                  type="button"
-                  aria-selected={on}
-                  onClick={() => update({ provider: p.id })}
-                  className={cn("text-label-md cursor-pointer rounded-full border px-4 py-1.5 transition-colors", on ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted")}
-                >
-                  {p.label}
-                </button>
-              )
-            })}
+        {fanOut && (
+          <div role="group" aria-label="Sources" className="flex flex-wrap gap-1.5">
+            {[{ id: ALL_SOURCES, label: "All sources" }, ...providers].map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-pressed={p.id === selected}
+                onClick={() => update({ provider: p.id })}
+                className={cn(
+                  "text-label-md cursor-pointer rounded-full border px-4 py-1.5 transition-colors",
+                  p.id === selected ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted",
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
         )}
+        {skipped && <p className="text-sm text-muted-foreground">Some sources did not respond: {skipped}.</p>}
         {feed.error && (
           <EmptyState title="Could not load results" description={feed.error.message} action={<Button onClick={feed.reload}>Try again</Button>} />
         )}
         {!feed.error && !feed.loading && feed.items.length === 0 && (
-          <EmptyState
-            icon={<PackageOpen className="size-6" aria-hidden />}
-            title="Nothing found"
-            description="Try a broader search or remove some filters."
-          />
+          <EmptyState icon={<PackageOpen className="size-6" aria-hidden />} title="Nothing found" description="Try a broader search or remove some filters." />
         )}
-        {(feed.items.length > 0 || feed.loading) && !feed.error && <StockGrid items={feed.items} loading={feed.loading} />}
+        {(feed.items.length > 0 || feed.loading) && !feed.error && <ItemGrid items={feed.items} loading={feed.loading} />}
         <div ref={feed.sentinel} className="flex h-10 justify-center">
           {feed.loading && feed.items.length > 0 && <Spinner />}
         </div>

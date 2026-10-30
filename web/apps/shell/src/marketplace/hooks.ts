@@ -1,14 +1,7 @@
-import { ApiError, stock, type DownloadJob, type ResolveJob } from "@cutwire/api-client"
+import { ApiError, marketplace, type MarketResolveJob } from "@cutwire/api-client"
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { audioReducer, idleAudio, type AudioAction, type AudioState } from "./lib/audio"
 import { isTerminal, pollJob } from "./lib/job"
-
-let catalog: ReturnType<typeof stock.catalog> | null = null
-export const loadCatalog = () => {
-  catalog ??= stock.catalog()
-  catalog.catch(() => (catalog = null))
-  return catalog
-}
 
 /* Shared audio: one element for the whole app, so starting a sound stops the previous one. */
 let audio: HTMLAudioElement | null = null
@@ -113,8 +106,8 @@ function useJob<T extends { id: string; status: string }>(fetch: (id: string) =>
 }
 
 export function useResolveJob() {
-  const j = useJob<ResolveJob>(stock.resolveJob)
-  return { ...j, resolve: (url: string) => j.start(() => stock.resolve(url)) }
+  const j = useJob<MarketResolveJob>(marketplace.pollResolve)
+  return { ...j, resolve: (url: string) => j.start(() => marketplace.resolve(url)) }
 }
 
 export function triggerDownload(url: string, filename?: string) {
@@ -125,18 +118,6 @@ export function triggerDownload(url: string, filename?: string) {
   document.body.appendChild(a)
   a.click()
   a.remove()
-}
-
-export function useDownloadJob() {
-  const j = useJob<DownloadJob>(stock.downloadJob)
-  const fired = useRef<string | null>(null)
-  useEffect(() => {
-    if (j.job?.status === "ready" && j.job.file && fired.current !== j.job.id) {
-      fired.current = j.job.id
-      triggerDownload(j.job.file.url, j.job.file.filename)
-    }
-  }, [j.job])
-  return { ...j, download: (itemId: string, variantId?: string) => j.start(() => stock.download(itemId, variantId)) }
 }
 
 export function quotaRetry(e: Error | null): { exceeded: boolean; retryAfter?: number } {

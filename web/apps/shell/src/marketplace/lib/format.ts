@@ -12,7 +12,7 @@ export function retryText(seconds: number | undefined): string {
   return `in ${Math.ceil(seconds / 3600)} hours`
 }
 
-export function attributionText(i: { title: string; creator: { name: string } | null; license: { name: string; attribution: string | null } }): string {
+export function attributionText(i: { title: string; creator?: string | null; license: { name: string; attribution: string | null } }): string {
   if (i.license.attribution) return i.license.attribution
-  return `${i.title}${i.creator ? ` by ${i.creator.name}` : ""} (${i.license.name})`
+  return `${i.title}${i.creator ? ` by ${i.creator}` : ""} (${i.license.name})`
 }

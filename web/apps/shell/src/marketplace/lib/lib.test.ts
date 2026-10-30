@@ -2,19 +2,17 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { audioReducer, idleAudio } from "./audio"
 import { retryText } from "./format"
 import { isTerminal, pollJob } from "./job"
-import { parseSearch, patchSearch, searchHref, toSearchParams } from "./url-state"
+import { parseSearch, patchSearch, toSearchParams } from "./url-state"
 
 describe("search url state", () => {
   it("round-trips filters and omits empties", () => {
-    const s = parseSearch(new URLSearchParams("type=video&provider=pexels&q=sea&orientation=landscape&hd=1&empty="))
-    expect(s).toEqual({ type: "video", provider: "pexels", q: "sea", filters: { orientation: "landscape", hd: "1" } })
+    const s = parseSearch(new URLSearchParams("provider=pexels&q=sea&orientation=landscape&hd=1&empty="))
+    expect(s).toEqual({ provider: "pexels", q: "sea", filters: { orientation: "landscape", hd: "1" } })
     expect(parseSearch(toSearchParams(s))).toEqual(s)
-    expect(searchHref({})).toBe("/stock/search")
-    expect(searchHref({ type: "video", q: " a b " })).toBe("/stock/search?type=video&q=a+b")
+    expect(toSearchParams({ q: " a b " }).toString()).toBe("q=a+b")
   })
-  it("drops filters when type or provider changes", () => {
-    const s = parseSearch(new URLSearchParams("type=video&provider=pexels&hd=1"))
-    expect(patchSearch(s, { type: "image" })).toMatchObject({ type: "image", provider: "", filters: {} })
+  it("drops filters when the provider changes", () => {
+    const s = parseSearch(new URLSearchParams("provider=pexels&hd=1"))
     expect(patchSearch(s, { provider: "pixabay" }).filters).toEqual({})
     expect(patchSearch(s, { q: "x" }).filters).toEqual({ hd: "1" })
   })

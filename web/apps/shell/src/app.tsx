@@ -4,7 +4,7 @@ import { Route, Routes, useLocation } from "react-router-dom"
 import { AccountMenu } from "./account/account-menu"
 import { accountRoutes } from "./account/routes"
 import { communityRoutes } from "./community/routes"
-import { stockRoutes } from "./stock/routes"
+import { marketplaceRoutes } from "./marketplace/routes"
 import { Launcher } from "./launcher"
 
 function ComingSoon({ title }: { title: string }) {
@@ -28,12 +28,12 @@ export function App() {
   const section = pathname.split("/")[1]
   return (
     <>
-      <AppHeader appId={section === "community" || section === "stock" ? section : undefined} account={() => <AccountMenu />} />
+      <AppHeader appId={section === "community" || section === "marketplace" ? section : undefined} account={() => <AccountMenu />} />
       <main className="container-cutwire pt-24 pb-section">
         <Routes>
           <Route path="/" element={<Launcher />} />
           {communityRoutes}
-          {stockRoutes}
+          {marketplaceRoutes}
           {accountRoutes}
           <Route path="*" element={<ComingSoon title="Page not found" />} />
         </Routes>

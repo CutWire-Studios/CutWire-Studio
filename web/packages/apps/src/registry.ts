@@ -86,10 +86,10 @@ export const apps: readonly AppEntry[] = [
     category: "community",
   },
   {
-    id: "stock",
-    name: "Stock Library",
-    tagline: "Free stock footage, music and sound effects.",
-    path: "/stock",
+    id: "marketplace",
+    name: "Marketplace",
+    tagline: "Stock media, sound effects, Drift assets and community add-ons.",
+    path: "/marketplace",
     icon: "library",
     accent: "stock",
     status: "live",
@@ -102,7 +102,7 @@ type TileSpec = Omit<TileEntry, "accent" | "status" | "category"> & { category?:
 const tileSpecs: readonly TileSpec[] = [
   { id: "edit", appId: "edit", name: "Edit Videos", tagline: "Drift Web, the Drift editor in your browser.", icon: "clapperboard", href: "/edit" },
   { id: "community", appId: "community", name: "Community", tagline: "Browse and share effects, transitions and themes.", icon: "users", href: "/community" },
-  { id: "stock", appId: "stock", name: "Stock Library", tagline: "Free footage, music and sound effects.", icon: "library", href: "/stock" },
+  { id: "marketplace", appId: "marketplace", name: "Marketplace", tagline: "Stock footage, music, sound effects and Drift assets.", icon: "library", href: "/marketplace" },
   { id: "forge-effect", appId: "forge", name: "Effect Maker", tagline: "Build video effects without writing code.", icon: "sparkles", href: "/forge/new?kind=effect" },
   { id: "forge-transition", appId: "forge", name: "Transition Maker", tagline: "Craft transitions between clips.", icon: "shuffle", href: "/forge/new?kind=transition" },
   { id: "forge-audio", appId: "forge", name: "Sound Effect Maker", tagline: "Design sound effects for your edits.", icon: "audio-lines", href: "/forge/new?kind=audio" },

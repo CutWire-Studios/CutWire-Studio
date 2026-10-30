@@ -2,7 +2,7 @@ import { Button, Dialog, DialogContent, DialogTrigger, Input, Spinner } from "@c
 import { Link2 } from "lucide-react"
 import { useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
-import { itemHref, StockCard } from "./cards"
+import { ItemCard, itemHref } from "./cards"
 import { useResolveJob } from "./hooks"
 
 export function ResolveDialog() {
@@ -42,10 +42,10 @@ export function ResolveDialog() {
           {job?.status === "ready" && job.item && (
             <div className="space-y-3">
               <div className="max-w-xs">
-                <StockCard item={job.item} />
+                <ItemCard item={job.item} />
               </div>
               <Button asChild onClick={() => setOpen(false)}>
-                <Link to={itemHref(job.item.id)}>Open item</Link>
+                <Link to={itemHref(job.item)}>Open item</Link>
               </Button>
             </div>
           )}
