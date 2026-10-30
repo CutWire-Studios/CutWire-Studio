@@ -54,14 +54,19 @@ export function installId(): string {
   }
 }
 
-export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function apiResponse(path: string, init: RequestInit = {}, accept: number[] = []): Promise<Response> {
   const headers = new Headers(init.headers)
   headers.set("X-Requested-With", "cutwire")
   headers.set("Accept", "application/json")
   headers.set("X-Studio-Install", installId())
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json")
   const res = await fetch(`/api/v1${path}`, { ...init, headers, credentials: "include" })
-  if (!res.ok) throw await parseProblem(res)
+  if (!res.ok && !accept.includes(res.status)) throw await parseProblem(res)
+  return res
+}
+
+export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await apiResponse(path, init)
   if (res.status === 204) return undefined as T
   return (await res.json()) as T
 }

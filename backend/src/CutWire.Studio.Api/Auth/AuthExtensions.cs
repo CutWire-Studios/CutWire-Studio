@@ -1,3 +1,4 @@
+using CutWire.Studio.Domain.Accounts;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +35,16 @@ public static class AuthExtensions
                 .RequireAuthenticatedUser());
             o.AddPolicy(AuthPolicies.NotBanned, p => p
                 .RequireAuthenticatedUser()
+                .AddRequirements(new NotBannedRequirement()));
+            o.AddPolicy(AuthPolicies.AdminArea, p => p
+                .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme)
+                .RequireAuthenticatedUser()
+                .RequireRole(Roles.Moderator, Roles.Admin)
+                .AddRequirements(new NotBannedRequirement()));
+            o.AddPolicy(AuthPolicies.AdminOnly, p => p
+                .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme)
+                .RequireAuthenticatedUser()
+                .RequireRole(Roles.Admin)
                 .AddRequirements(new NotBannedRequirement()));
         });
         services.AddSingleton<IAuthorizationPolicyProvider, StudioPolicyProvider>();

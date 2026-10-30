@@ -128,6 +128,10 @@ public sealed class DriftIndexAsset
     public string Kind { get; set; } = "";
     public string Category { get; set; } = "";
     public string Path { get; set; } = "";
+
+    /// <summary>SPDX id of the asset's licence, as published in the index.</summary>
+    public string? License { get; set; }
+
     public Dictionary<string, DriftIndexFile> Files { get; set; } = [];
     public List<DriftIndexVariant> Variants { get; set; } = [];
 
@@ -140,6 +144,25 @@ public sealed class DriftIndexVariant
     public string Name { get; set; } = "";
     public Dictionary<string, DriftIndexFile> Files { get; set; } = [];
 }
+
+public static class DriftLicenses
+{
+    public static readonly StockLicenseDto Fallback = new("Drift Assets", null, null);
+
+    private static readonly Dictionary<string, StockLicenseDto> Known = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["CC0-1.0"] = new("CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/", null),
+        ["CC-BY-4.0"] = new("CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/", null),
+        ["CC-BY-SA-4.0"] = new("CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/", null),
+        ["CC-BY-NC-SA-4.0"] = new("CC BY-NC-SA 4.0", "https://creativecommons.org/licenses/by-nc-sa/4.0/", null),
+    };
+
+    /// <summary>Known SPDX ids map to a named licence with its URL; an unknown id is reported as-is; no id keeps the pack name.</summary>
+    public static StockLicenseDto For(string? spdx) =>
+        string.IsNullOrWhiteSpace(spdx) ? Fallback : Known.TryGetValue(spdx.Trim(), out var known) ? known : new(spdx.Trim(), null, null);
+}
+
+public sealed record DriftRawCategory(string Id, string Label, IReadOnlyList<DriftIndexAsset> Assets);
 
 /// <summary>The mirrored Drift Assets pack, shaped for the Stock UI. Files are content-addressed blobs served by <c>/files/{sha256}</c>.</summary>
 public sealed class DriftAssetsCatalog(IAppDbContext db)
@@ -171,6 +194,27 @@ public sealed class DriftAssetsCatalog(IAppDbContext db)
         }
 
         return new DriftAssetLibraryDto(index.Version, categories.OrderBy(c => c.Sort).Select(c => c.Category).ToList());
+    }
+
+    /// <summary>The enabled categories in display order with their raw index assets, so callers can read every file and sha256.</summary>
+    public async Task<IReadOnlyList<DriftRawCategory>> GetRawAsync(CancellationToken ct)
+    {
+        var pack = await db.DriftAssetPacks.AsNoTracking().FirstOrDefaultAsync(p => p.IsCurrent, ct);
+        if (pack is null) return [];
+        var index = DriftIndex.Parse(pack.IndexJson);
+        var overrides = (await db.AssetCategories.AsNoTracking().ToListAsync(ct)).ToDictionary(c => c.Category);
+
+        var categories = new List<(int Sort, DriftRawCategory Category)>();
+        foreach (var c in index.Categories)
+        {
+            overrides.TryGetValue(c.Id, out var setting);
+            if (setting is { Enabled: false }) continue;
+            var assets = index.Assets.Where(a => a.Category == c.Id).ToList();
+            if (assets.Count == 0) continue;
+            categories.Add((setting?.Sort ?? c.Sort, new DriftRawCategory(c.Id, string.IsNullOrWhiteSpace(setting?.Label) ? c.Label : setting.Label, assets)));
+        }
+
+        return categories.OrderBy(c => c.Sort).Select(c => c.Category).ToList();
     }
 
     private static DriftAssetDto ToDto(DriftIndexAsset a)

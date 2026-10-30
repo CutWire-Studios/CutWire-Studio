@@ -1,0 +1,79 @@
+@page
+@model MarketplaceModel
+@{
+    ViewData["Title"] = "Marketplace";
+    string Targets(IReadOnlyList<string> distributions, string? min, string? max) =>
+        (distributions.Count == 0 ? "all" : string.Join(", ", distributions))
+        + (min is null && max is null ? "" : $" ({min ?? "any"} to {max ?? "any"})");
+}
+<h1>Marketplace</h1>
+<p class="note">
+    The highest-priority enabled layout that targets a client is served to it; with none, the built-in default applies.
+    The version range includes the minimum and excludes the maximum. Clients without a parseable version match any range.
+</p>
+
+<h2>Layouts</h2>
+<p><a href="/admin/marketplacelayout">New layout</a></p>
+<div class="scroll"><table>
+    <thead><tr><th>Name</th><th>Priority</th><th>Enabled</th><th>Targets</th><th>Updated</th></tr></thead>
+    <tbody>
+    @foreach (var row in Model.Layouts)
+    {
+        <tr>
+            <td><a href="/admin/marketplacelayout/@row.Id">@row.Name</a></td>
+            <td>@row.Priority</td>
+            <td><span class="badge @(row.Enabled ? "ok" : "")">@(row.Enabled ? "on" : "off")</span></td>
+            <td>@Targets(row.Distributions, row.MinAppVersion, row.MaxAppVersion)</td>
+            <td>@row.UpdatedAt.ToString("u")</td>
+        </tr>
+    }
+    </tbody>
+</table></div>
+@if (Model.Layouts.Count == 0)
+{
+    <p class="note">No layouts yet. Clients get the built-in default.</p>
+}
+
+<h2>Feature flags</h2>
+<p><a href="/admin/marketplaceflag">New flag</a></p>
+<div class="scroll"><table>
+    <thead><tr><th>Key</th><th>Enabled</th><th>Value</th><th>Targets</th><th>Note</th><th>Updated</th></tr></thead>
+    <tbody>
+    @foreach (var row in Model.Flags)
+    {
+        <tr>
+            <td><a href="/admin/marketplaceflag/@row.Id">@row.Key</a></td>
+            <td><span class="badge @(row.Enabled ? "ok" : "")">@(row.Enabled ? "on" : "off")</span></td>
+            <td><code class="json">@row.ValueJson</code></td>
+            <td>@Targets(row.Distributions, row.MinAppVersion, row.MaxAppVersion)</td>
+            <td>@row.Note</td>
+            <td>@row.UpdatedAt.ToString("u")</td>
+        </tr>
+    }
+    </tbody>
+</table></div>
+@if (Model.Flags.Count == 0)
+{
+    <p class="note">No flags yet.</p>
+}
+
+<h2>Preview as</h2>
+<form method="get" class="inline">
+    <select name="distribution" aria-label="Distribution">
+        @foreach (var d in MarketplaceModel.Columns)
+        {
+            <option value="@d" selected="@(d == Model.PreviewDistribution)">@d</option>
+        }
+    </select>
+    <input type="text" name="version" value="@Model.PreviewVersion" placeholder="App version, e.g. 1.2.3" aria-label="App version">
+    <button type="submit" class="primary">Preview</button>
+</form>
+@if (Model.PreviewError is not null)
+{
+    <div class="flash error" role="alert">@Model.PreviewError</div>
+}
+@if (Model.Preview is { } preview)
+{
+    <p class="note">Layout: <strong>@preview.Layout</strong></p>
+    <pre class="json-view">@preview.Json</pre>
+}

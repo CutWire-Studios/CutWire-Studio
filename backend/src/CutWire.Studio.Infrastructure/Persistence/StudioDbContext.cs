@@ -3,6 +3,7 @@ using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
 using CutWire.Studio.Domain.Forge;
+using CutWire.Studio.Domain.Marketplace;
 using CutWire.Studio.Domain.Moderation;
 using CutWire.Studio.Domain.Stock;
 using CutWire.Studio.Infrastructure.Identity;
@@ -44,6 +45,8 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     public DbSet<SfxCategory> SfxCategories => Set<SfxCategory>();
     public DbSet<ProviderCacheEntry> ProviderCache => Set<ProviderCacheEntry>();
     public DbSet<DriftAssetPack> DriftAssetPacks => Set<DriftAssetPack>();
+    public DbSet<MarketplaceLayout> MarketplaceLayouts => Set<MarketplaceLayout>();
+    public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct) => Database.BeginTransactionAsync(ct);
 

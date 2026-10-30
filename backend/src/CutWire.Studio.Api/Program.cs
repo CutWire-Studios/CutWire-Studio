@@ -25,9 +25,17 @@ builder.Services
     .AddStudioHttp(builder.Configuration)
     .AddStudioApiAuth();
 
+builder.Services.AddDriftClientAuth(builder.Configuration);
 builder.Services.AddSingleton(new FixedWindowLimiter(TimeSpan.FromMinutes(1)));
 
 builder.Services.AddStudioMcp();
+
+builder.Services.AddRazorPages(o =>
+{
+    o.Conventions.AuthorizeFolder("/Admin", AuthPolicies.AdminArea);
+    foreach (var page in new[] { "Admins", "Stock", "Distributions", "Categories", "Marketplace", "MarketplaceLayout", "MarketplaceFlag" })
+        o.Conventions.AuthorizePage("/Admin/" + page, AuthPolicies.AdminOnly);
+});
 
 var app = builder.Build();
 
@@ -40,6 +48,7 @@ if (app.Configuration.GetValue("Database:AutoMigrate", true))
 }
 
 app.UseForwardedHeaders();
+app.UseDriftClientSignature();
 app.UseStudioSecurityHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
@@ -51,6 +60,8 @@ app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
 
+app.MapAdminAssets();
+app.MapRazorPages();
 app.MapOpenApi("/api/v1/openapi.json");
 var api = app.MapGroup("/api/v1").RequireRateLimiting(RateLimitingSettings.DefaultPolicy);
 api.MapHealth();
@@ -64,8 +75,8 @@ api.MapMeta();
 api.MapForge();
 api.MapForgeAi();
 api.MapThemeDrafts();
-api.MapStock();
 api.MapStockMedia();
+api.MapMarketplace();
 var account = api.MapGroup("/account");
 account.MapProfile();
 account.MapTwoFactor();

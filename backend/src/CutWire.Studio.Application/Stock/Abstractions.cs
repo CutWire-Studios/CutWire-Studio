@@ -20,7 +20,8 @@ public sealed class StockJobOptions
 }
 
 /// <summary>Who is calling: an install id (or IP fallback) for anonymous quota, plus the signed-in account when there is one.</summary>
-public sealed record StockCaller(string ClientId, Guid? UserId);
+/// <summary><see cref="Distribution"/> is null outside a client request (background jobs), which skips distribution hiding.</summary>
+public sealed record StockCaller(string ClientId, Guid? UserId, string? Distribution = null);
 
 /// <summary>What a sealed media token carries. Exactly one of <see cref="Source"/> (preview relay) or <see cref="BlobSha256"/> (download result) is set.</summary>
 public sealed record MediaClaims(string? Source, string? BlobSha256, string? Filename, string? Mime, long Expires);

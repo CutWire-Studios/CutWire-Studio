@@ -61,7 +61,7 @@ public sealed class StudioAuthorizationResultHandler : IAuthorizationMiddlewareR
     public async Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy,
         PolicyAuthorizationResult authorizeResult)
     {
-        if (authorizeResult.Forbidden && authorizeResult.AuthorizationFailure is { } failure)
+        if (authorizeResult.Forbidden && authorizeResult.AuthorizationFailure is { } failure && !context.Request.Path.StartsWithSegments("/admin"))
         {
             var failed = failure.FailedRequirements.ToList();
             if (failed.OfType<NotBannedRequirement>().Any())

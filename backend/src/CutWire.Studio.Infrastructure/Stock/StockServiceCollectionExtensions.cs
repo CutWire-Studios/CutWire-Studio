@@ -28,6 +28,10 @@ public static class StockServiceCollectionExtensions
         services.AddSingleton<IDownloadQueue>(sp => sp.GetRequiredService<DownloadQueue>());
         services.AddSingleton<FileSfxSource>();
         services.AddSingleton<ISfxSource>(sp => sp.GetRequiredService<FileSfxSource>());
+        services.AddSingleton<ISfxPcmDecoder, FfmpegPcmDecoder>();
+        services.AddSingleton<SfxAudioCache>();
+        services.AddSingleton<ISfxAudio>(sp => sp.GetRequiredService<SfxAudioCache>());
+        services.AddHostedService(sp => sp.GetRequiredService<SfxAudioCache>());
         services.AddSingleton<DriftAssetsMirror>();
         services.AddSingleton<IRecurringJob, StockExpiryJob>();
         services.AddSingleton<IRecurringJob, DriftAssetsSyncJob>();

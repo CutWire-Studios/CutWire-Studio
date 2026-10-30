@@ -13,7 +13,7 @@ public sealed class StockBrowse(StockSettings settings, StockQuota quota, StockA
         foreach (var type in StockTypes.All)
         {
             var providers = new List<StockProviderDto>();
-            foreach (var entry in await settings.EntriesForAsync(type.Id, ct))
+            foreach (var entry in await settings.EntriesForAsync(type.Id, caller.Distribution, ct))
                 providers.Add(new StockProviderDto(
                     entry.Provider.Descriptor.Id, entry.Label, Capabilities(entry.Provider.Descriptor),
                     entry.Service.FilterList.Select(f => new StockFilterDto(f.Id, f.Label, f.Kind, f.Options?.Select(o => new StockFilterOptionDto(o.Id, o.Label)).ToList())).ToList(),
@@ -38,7 +38,7 @@ public sealed class StockBrowse(StockSettings settings, StockQuota quota, StockA
         if (string.IsNullOrEmpty(type) || StockTypes.Find(type) is null)
             return Error.Validation("stock.invalid_type", "A known media type is required.", new Dictionary<string, string[]> { ["type"] = ["Unknown type."] });
 
-        var entries = await settings.EntriesForAsync(type, ct);
+        var entries = await settings.EntriesForAsync(type, caller.Distribution, ct);
         var entry = string.IsNullOrEmpty(providerId)
             ? entries.FirstOrDefault(e => e.Provider.Descriptor.Capabilities.HasFlag(ProviderCapabilities.Search))
             : entries.FirstOrDefault(e => e.Provider.Descriptor.Id == providerId);
@@ -65,7 +65,7 @@ public sealed class StockBrowse(StockSettings settings, StockQuota quota, StockA
     public async Task<Result<StockItemDto>> GetItemAsync(StockCaller caller, string id, CancellationToken ct)
     {
         if (!ItemIds.TryDecode(id, out var r)) return StockErrors.ItemGone;
-        var entry = await settings.EntryAsync(r.Provider, r.Type, ct);
+        var entry = await settings.EntryAsync(r.Provider, r.Type, caller.Distribution, ct);
         if (entry is null) return StockErrors.ItemGone;
         ProviderItem? item;
         try

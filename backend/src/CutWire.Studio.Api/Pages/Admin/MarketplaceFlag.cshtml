@@ -1,0 +1,49 @@
+@page "{id:guid?}"
+@model MarketplaceFlagModel
+@{
+    ViewData["Title"] = Model.Id is null ? "New flag" : "Edit flag";
+}
+<h1>@ViewData["Title"]</h1>
+<p><a href="/admin/marketplace">Back to marketplace</a></p>
+<p class="note">
+    The client sees the JSON value when one is set, otherwise the enabled switch. Of several flags with the same key, the most
+    specific target wins, then the newest. Built-in switches: <code>community</code> and <code>source.&lt;id&gt;</code>, set off to hide a source.
+</p>
+
+@if (Model.Violations.Count > 0)
+{
+    <div class="flash error" role="alert">
+        The flag was not saved:
+        <ul class="errors">
+            @foreach (var v in Model.Violations)
+            {
+                <li><code>@v.Field</code> @v.Message</li>
+            }
+        </ul>
+    </div>
+}
+
+<form method="post" asp-page-handler="Save" class="stack wide-form">
+    <label>Key <input type="text" name="Key" value="@Model.Key" maxlength="64" required></label>
+    <label class="check"><input type="checkbox" name="Enabled" value="true" checked="@Model.Enabled"> Enabled</label>
+    <label>Value JSON (optional) <textarea name="ValueJson" class="code" rows="5" spellcheck="false">@Model.ValueJson</textarea></label>
+    <fieldset>
+        <legend>Distributions (none ticked targets all)</legend>
+        @foreach (var d in MarketplaceFlagModel.Columns)
+        {
+            <label class="check"><input type="checkbox" name="Targeted" value="@d" checked="@Model.Targeted.Contains(d)"> @d</label>
+        }
+    </fieldset>
+    <label>Minimum app version <input type="text" name="MinAppVersion" value="@Model.MinAppVersion" placeholder="inclusive, e.g. 1.2.0" maxlength="64"></label>
+    <label>Maximum app version <input type="text" name="MaxAppVersion" value="@Model.MaxAppVersion" placeholder="exclusive, e.g. 2.0.0" maxlength="64"></label>
+    <label>Note <input type="text" name="Note" value="@Model.Note" maxlength="500"></label>
+    <p><button type="submit" class="primary">Save flag</button></p>
+</form>
+
+@if (Model.Id is not null)
+{
+    <form method="post" asp-page-handler="Delete" class="inline">
+        <label class="check"><input type="checkbox" name="Confirm" value="true" required> Confirm deletion</label>
+        <button type="submit" class="danger">Delete flag</button>
+    </form>
+}

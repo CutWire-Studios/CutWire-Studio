@@ -31,7 +31,7 @@ List and detail responses carry weak ETags. `Downloads:IpHashKey` is the HMAC ke
 
 - `PUT|DELETE /items/{id}/vote {value: 1|-1}`, `POST /items/{id}/reports {reason, note?}` (reasons: spam, low_quality, broken, offensive, copyright, malware, other), `GET /me/items?status=`. Vote weight is 0.5 for T0 accounts younger than 3 days, else 1; unverified emails cannot vote. Votes and reports are rate limited per user (`RateLimiting:VotePermitLimit/VoteWindow`, `ReportPermitLimit/ReportWindow`).
 - Auto-hide (`Moderation` section): weighted downvotes >= 8 and share >= 0.7, or >= 3 open reports from distinct T1+ users; hidden items get a `cleanup_schedule` row 14 days out.
-- `/mod/*` (moderator or admin): `GET queue?type=reported|hidden|flagged`, `GET audit?actor=&target=`, `GET users?q=`, `POST items/{id}/restore|remove|schedule-purge`, `POST items/bulk {ids, action, reason, days?}`, `POST reports/{id}/dismiss|uphold`, `POST flags/{id}/resolve`, `POST users/{id}/ban|unban|trust`, `POST users/{id}/roles {moderator}` (admin only). Every action writes `moderation_actions`.
+- `/mod/*` (moderator or admin): `GET queue?type=reported|hidden|flagged`, `GET audit?actor=&target=`, `GET users?q=`, `POST items/{id}/restore|remove|schedule-purge`, `POST items/bulk {ids, action, reason, days?}`, `POST reports/{id}/dismiss|uphold`, `POST flags/{id}/resolve`, `POST users/{id}/ban|unban|trust`, `POST users/{id}/roles {moderator}` (admin only). Every action writes `moderation_actions`. The same actions are available in the server-rendered admin dashboard at `/admin` (cookie session only; see `docs/architecture.md`), which also manages roles (admins only: grant/revoke `moderator` and `admin`), stock provider settings, distribution visibility and categories.
 - Jobs: `cleanup-purge` (15 min; also restores `owner_banned` items after a temporary ban ends), `trust-levels` (24 h), `hot-score-decay` (1 h), `download-events-prune` (24 h, 90 days), configured under `ModerationJobs`.
 
 ## Stock (ex-marketplace)
@@ -40,12 +40,7 @@ Anonymous-friendly (`X-Studio-Install` id plus per-IP limits; signed-in users ge
 
 | endpoint | notes |
 | --- | --- |
-| `GET /stock/catalog` | types and providers that are configured and enabled, with filters and quota (`remaining` for this caller) |
-| `GET /stock/search?type=&provider=&q=&cursor=&limit=&<filterId>=` | `provider` optional (first searchable one); empty `q` is the provider's featured list; only declared filters are forwarded (selects must match an option, toggles become `1`, ranges are free text such as `10-60`) |
-| `GET /stock/items/{id}` | ids are `base64url("provider:type:native")`, so any id resolves without a prior search |
-| `POST /stock/resolve {url}`, `GET /stock/resolve/{id}` | pasted-link lookup job (in memory, 15 min) |
-| `POST /stock/downloads {itemId, variantId?}`, `GET /stock/downloads/{id}` | image types finish inline; others run on the worker queue. `429 stock.quota_exceeded` carries `retryAfter` (+ `Retry-After`). A failed job refunds its slot |
-| `GET /stock/sfx`, `GET /stock/drift-assets` | SFX library and the mirrored Drift Assets pack (ETag) |
+| `GET /marketplace`, `GET /marketplace/sources/{source}/items[/{id}]`, `POST /marketplace/resolve`, `POST /marketplace/installs` | browse, link lookup and install for stock, SFX, Drift Assets and community items (see `docs/marketplace.md`). Stock ids are `base64url("provider:type:native")`; image installs finish inline, others run on the worker queue. `429 stock.quota_exceeded` carries `retryAfter` (+ `Retry-After`). A failed job refunds its slot |
 | `GET /stock/files/{token}`, `/stock/media/{token}`, `/stock/sfx/files/{previews\|library}/{path}` | sealed download result, sealed preview relay, SFX audio (all Range-capable, no per-IP limiter) |
 
 Catalog types: `video`, `photo`, `audio`, `music`, `greenscreen`. Providers appear only when configured:
@@ -59,7 +54,7 @@ Catalog types: `video`, `photo`, `audio`, `music`, `greenscreen`. Providers appe
 | `freetouse` | on unless `Stock:Providers:Freetouse:Enabled=false` | music |
 | `youtube`, `youtube_music`, `instagram`, `facebook`, `tiktok`, `vimeo`, `x`, `soundcloud` | on when yt-dlp is found: `Stock:Providers:Ytdlp:{Enabled,Path,CookiesFile,ExtractorArgs,PluginDirs,PotBaseUrl,ForceIPv6}` | video / audio (resolve links; YouTube also searches) |
 
-Other settings (all under `Stock:`): `SearchCacheTtl` (7 days; provider responses are cached in memory and in the `provider_cache` table), `Jobs:{Workers,QueueCapacity,PerClientJobs,JobTimeout,FileTtl,MaxDownloadBytes,ResolveWorkers,ResolveTimeout}`, `Ffmpeg:{Path,ProbePath,AudioFormat}`, `Media:{SealKey,PreviewTtl,InternalUrl,Imgproxy:{Prefix,Key,Salt,Ttl}}` (set `SealKey`, otherwise sealed URLs die with the process; imgproxy is optional and receives only sealed relay links), `Sfx:Path` (directory with `sfx.json`, `library/`, `previews/`; reloaded when the file changes), `DriftAssets:{Repo,Release,BaseUrl,Interval}` (GitHub release `index.json` + `drift-assets.tar.gz`, verified against the index and mirrored into blobs; empty `Repo` disables it), `Expiry:Interval`. Quota defaults, enablement and order live in `provider_settings` (seeded once, edit the rows to retune); `asset_categories` and `sfx_categories` hide, relabel or reorder categories. Jobs: `stock-expiry` (releases expired result blobs for the blob GC, prunes the quota ledger and cache) and `drift-assets-sync`. `RateLimiting:StockWritePermitLimit/StockWriteWindow` limit `POST /stock/resolve|downloads`.
+Other settings (all under `Stock:`): `SearchCacheTtl` (7 days; provider responses are cached in memory and in the `provider_cache` table), `Jobs:{Workers,QueueCapacity,PerClientJobs,JobTimeout,FileTtl,MaxDownloadBytes,ResolveWorkers,ResolveTimeout}`, `Ffmpeg:{Path,ProbePath,AudioFormat}`, `Media:{SealKey,PreviewTtl,InternalUrl,Imgproxy:{Prefix,Key,Salt,Ttl}}` (set `SealKey`, otherwise sealed URLs die with the process; imgproxy is optional and receives only sealed relay links), `Sfx:Path` (directory with `sfx.json`, `library/`, `previews/`; reloaded when the file changes), `DriftAssets:{Repo,Release,BaseUrl,Interval}` (GitHub release `index.json` + `drift-assets.tar.gz`, verified against the index and mirrored into blobs; empty `Repo` disables it), `Expiry:Interval`. Quota defaults, enablement and order live in `provider_settings` (seeded once, edit the rows to retune); `asset_categories` and `sfx_categories` hide, relabel or reorder categories. Jobs: `stock-expiry` (releases expired result blobs for the blob GC, prunes the quota ledger and cache) and `drift-assets-sync`. `RateLimiting:StockWritePermitLimit/StockWriteWindow` limit `POST /marketplace/resolve|installs`.
 
 ## Security headers
 
@@ -75,7 +70,7 @@ dotnet run --project src/CutWire.Studio.Api   # http://localhost:8087, migration
 podman stop studio-pg
 ```
 
-Configuration is standard ASP.NET (appsettings + env vars, `__` as separator): `ConnectionStrings__Default`, `Storage__BlobRoot`, `PublicUrl`, `Database__AutoMigrate`, `Jobs__Enabled`, `BlobGc__Retention`, `RateLimiting__PermitLimit`, `Spa__Root`, `ASPNETCORE_URLS`. Auth, email and OAuth settings (`Auth__*`, `Email__Smtp__*`) are described in `docs/auth.md`.
+Configuration is standard ASP.NET (appsettings + env vars, `__` as separator): `ConnectionStrings__Default`, `Storage__BlobRoot`, `PublicUrl`, `Database__AutoMigrate`, `Jobs__Enabled`, `BlobGc__Retention`, `RateLimiting__PermitLimit`, `Spa__Root`, `ASPNETCORE_URLS`, `DriftClient__Keys__0` (HMAC key for signed Drift requests, see `../docs/marketplace.md`), `Stock__Sfx__CachePath` (SFX peaks and hashes cache file; empty keeps them in memory). Auth, email and OAuth settings (`Auth__*`, `Email__Smtp__*`) are described in `docs/auth.md`.
 
 Outside Development the app refuses to start without `Stock__Media__SealKey` (32+ chars), a non-default DB password, a real `AllowedHosts` and OpenIddict certificates; `Security__AllowInsecureDefaults=true` opts out for local runs. Trusted reverse proxies: `ForwardedHeaders__KnownProxies__0`, `ForwardedHeaders__KnownNetworks__0` (CIDR). See `../docs/security.md`.
 

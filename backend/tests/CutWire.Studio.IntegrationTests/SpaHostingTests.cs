@@ -89,6 +89,7 @@ public sealed class SpaHostingTests : IDisposable
     [InlineData("/connect/unknown")]
     [InlineData("/.well-known/unknown")]
     [InlineData("/files/unknown")]
+    [InlineData("/admin/unknown")]
     public async Task ReservedPrefixes_NeverFallBackToSpa(string path)
     {
         var (response, body) = await Get(path);

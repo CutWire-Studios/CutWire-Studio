@@ -25,6 +25,10 @@ public static class DependencyInjection
         services.AddScoped<Moderation.ModerationQueries>();
         services.AddScoped<Moderation.ModerationMaintenance>();
 
+        services.AddScoped<Admin.AdminRoles>();
+        services.AddScoped<Admin.StockAdmin>();
+        services.AddScoped<Admin.MarketplaceAdmin>();
+
         services.AddScoped<Forge.ForgeDocuments>();
         services.AddScoped<Forge.ForgeAssets>();
         services.AddScoped<Forge.ForgeEditor>();
@@ -45,6 +49,11 @@ public static class DependencyInjection
         services.AddScoped<Stock.StockExpiry>();
         services.AddScoped<Stock.SfxCatalog>();
         services.AddScoped<Stock.DriftAssetsCatalog>();
+
+        services.AddSingleton<Marketplace.ManifestCache>();
+        services.AddScoped<Marketplace.MarketplaceManifest>();
+        services.AddScoped<Marketplace.MarketplaceBrowse>();
+        services.AddScoped<Marketplace.MarketplaceInstalls>();
 
         return services;
     }

@@ -852,150 +852,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/stock/catalog": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetStockCatalog"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["SearchStock"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/items/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetStockItem"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["CreateStockResolve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/resolve/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetStockResolve"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/downloads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["CreateStockDownload"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/downloads/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetStockDownload"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/sfx": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetStockSfx"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/stock/drift-assets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetStockDriftAssets"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/stock/files/{token}": {
         parameters: {
             query?: never;
@@ -1041,6 +897,118 @@ export interface paths {
         delete?: never;
         options?: never;
         head: operations["GetStockSfxFile"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceManifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/sources/{source}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMarketplaceItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/sources/{source}/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateMarketplaceResolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/resolve/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceResolve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/installs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateMarketplaceInstall"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/marketplace/installs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMarketplaceInstall"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -1541,49 +1509,6 @@ export interface components {
             /** Format: date-time */
             expiresAt?: null | string;
         };
-        DownloadFileDto: {
-            filename: string;
-            mime: string;
-            /** Format: int64 */
-            size: number | string;
-            url: string;
-            /** Format: date-time */
-            expiresAt: string;
-            sha256: string;
-        };
-        DownloadJobDto: {
-            id: string;
-            status: string;
-            /** Format: double */
-            progress: number | string;
-            file: null | components["schemas"]["DownloadFileDto"];
-            error: null | components["schemas"]["StockJobErrorDto"];
-            license: components["schemas"]["StockLicenseDto"];
-        };
-        DriftAssetCategoryDto: {
-            id: string;
-            label: string;
-            assets: components["schemas"]["DriftAssetDto"][];
-        };
-        DriftAssetDto: {
-            id: string;
-            title: string;
-            kind: string;
-            thumbnailUrl: string;
-            previewUrl: null | string;
-            variants: components["schemas"]["DriftAssetVariantDto"][];
-        };
-        DriftAssetLibraryDto: {
-            version: string;
-            categories: components["schemas"]["DriftAssetCategoryDto"][];
-        };
-        DriftAssetVariantDto: {
-            id: string;
-            label: string;
-            downloadUrl: string;
-            /** Format: int64 */
-            size: number | string;
-        };
         EmailRequest: {
             email?: null | string;
         };
@@ -1668,6 +1593,26 @@ export interface components {
         };
         HealthResponse: {
             status: string;
+        };
+        InstallFileDto: {
+            role: string;
+            name: string;
+            url: string;
+            /** Format: int64 */
+            size: number | string;
+            sha256: null | string;
+            mime: null | string;
+        };
+        InstallJobDto: {
+            id: string;
+            source: string;
+            status: string;
+            /** Format: double */
+            progress: number | string;
+            files: null | components["schemas"]["InstallFileDto"][];
+            license: null | components["schemas"]["StockLicenseDto"];
+            error: null | components["schemas"]["StockJobErrorDto"];
+            minAppVersion: null | string;
         };
         ItemCardDto: {
             /** Format: uuid */
@@ -1775,6 +1720,83 @@ export interface components {
             min: number | string;
             /** Format: int32 */
             max: number | string;
+        };
+        MarketCategoryDto: {
+            id: string;
+            label: string;
+            mediaKind: null | string;
+            children: null | components["schemas"]["MarketCategoryDto"][];
+        };
+        MarketInstallRequest: {
+            source?: null | string;
+            itemId?: null | string;
+            variantId?: null | string;
+        };
+        MarketItemDto: {
+            id: string;
+            source: string;
+            title: string;
+            subtitle: null | string;
+            thumbUrl: string;
+            previewUrl: null | string;
+            mediaKind: string;
+            /** Format: int32 */
+            durationMs: null | number | string;
+            /** Format: int32 */
+            width: null | number | string;
+            /** Format: int32 */
+            height: null | number | string;
+            tags: string[];
+            license: components["schemas"]["StockLicenseDto"];
+            variants: components["schemas"]["MarketVariantDto"][];
+            webUrl: null | string;
+            category: null | string;
+            extra: null | components["schemas"]["JsonElement"];
+        };
+        MarketItemPageDto: {
+            items: components["schemas"]["MarketItemDto"][];
+            nextCursor: null | string;
+            quota: null | components["schemas"]["StockQuotaDto"];
+            warnings?: null | string[];
+        };
+        MarketplaceManifestDto: {
+            /** Format: int32 */
+            schema: number | string;
+            features: Record<string, never>;
+            sources: {
+                [key: string]: components["schemas"]["MarketSourceDto"];
+            };
+            pages: components["schemas"]["JsonElement"];
+        };
+        MarketResolveJobDto: {
+            id: string;
+            status: string;
+            item: null | components["schemas"]["MarketItemDto"];
+            error: null | components["schemas"]["StockJobErrorDto"];
+        };
+        MarketResolveRequest: {
+            url?: null | string;
+        };
+        MarketSourceDto: {
+            kind: string;
+            label: string;
+            mediaKind: null | string;
+            searchable: boolean;
+            categories: null | components["schemas"]["MarketCategoryDto"][];
+            providers: null | components["schemas"]["StockProviderDto"][];
+            sorts: null | string[];
+            canResolve: boolean;
+        };
+        MarketVariantDto: {
+            id: string;
+            label: string;
+            /** Format: int32 */
+            width: null | number | string;
+            /** Format: int32 */
+            height: null | number | string;
+            mime: null | string;
+            /** Format: int64 */
+            size: null | number | string;
         };
         MediaRuleDto: {
             role: string;
@@ -2045,12 +2067,6 @@ export interface components {
             token?: null | string;
             newPassword?: null | string;
         };
-        ResolveJobDto: {
-            id: string;
-            status: string;
-            item: null | components["schemas"]["StockItemDto"];
-            error: null | components["schemas"]["StockJobErrorDto"];
-        };
         RestoreRequest: {
             dismissReports?: null | boolean;
             reason?: null | string;
@@ -2069,26 +2085,6 @@ export interface components {
             name: string;
             displayName: string;
             description: string;
-        };
-        SfxCategoryDto: {
-            id: string;
-            label: string;
-            sounds: components["schemas"]["SfxSoundDto"][];
-        };
-        SfxLibraryDto: {
-            version: string;
-            categories: components["schemas"]["SfxCategoryDto"][];
-        };
-        SfxSoundDto: {
-            id: string;
-            title: string;
-            /** Format: int32 */
-            durationMs: number | string;
-            tags: string[];
-            previewUrl: string;
-            downloadUrl: string;
-            /** Format: int64 */
-            size: number | string;
         };
         SignInRequest: {
             email?: null | string;
@@ -2110,17 +2106,6 @@ export interface components {
         StatusResponse: {
             status: string;
         };
-        StockCatalogDto: {
-            types: components["schemas"]["StockTypeDto"][];
-        };
-        StockCreatorDto: {
-            name: string;
-            url: null | string;
-        };
-        StockDownloadRequest: {
-            itemId?: null | string;
-            variantId?: null | string;
-        };
         StockFilterDto: {
             id: string;
             label: string;
@@ -2131,24 +2116,6 @@ export interface components {
             id: string;
             label: string;
         };
-        StockItemDto: {
-            id: string;
-            type: string;
-            provider: string;
-            title: string;
-            creator: null | components["schemas"]["StockCreatorDto"];
-            /** Format: int32 */
-            durationMs: null | number | string;
-            /** Format: int32 */
-            width: null | number | string;
-            /** Format: int32 */
-            height: null | number | string;
-            thumbUrl: string;
-            previewUrl: null | string;
-            license: components["schemas"]["StockLicenseDto"];
-            downloadable: boolean;
-            variants: null | components["schemas"]["StockVariantDto"][];
-        };
         StockJobErrorDto: {
             code: string;
             detail: string;
@@ -2157,11 +2124,6 @@ export interface components {
             name: string;
             url: null | string;
             attribution: null | string;
-        };
-        StockPageDto: {
-            items: components["schemas"]["StockItemDto"][];
-            nextCursor: null | string;
-            quota: null | components["schemas"]["StockQuotaDto"];
         };
         StockProviderDto: {
             id: string;
@@ -2176,27 +2138,6 @@ export interface components {
             window: string;
             /** Format: int32 */
             remaining: null | number | string;
-        };
-        StockResolveRequest: {
-            url?: null | string;
-        };
-        StockTypeDto: {
-            id: string;
-            label: string;
-            mediaKind: string;
-            delivery: string;
-            providers: components["schemas"]["StockProviderDto"][];
-        };
-        StockVariantDto: {
-            id: string;
-            label: string;
-            /** Format: int32 */
-            width: null | number | string;
-            /** Format: int32 */
-            height: null | number | string;
-            mime: string;
-            /** Format: int64 */
-            size: null | number | string;
         };
         TextRulesDto: {
             /** Format: int32 */
@@ -5345,7 +5286,231 @@ export interface operations {
             };
         };
     };
-    GetStockCatalog: {
+    GetStockFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Partial Content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetStockFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Partial Content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetStockMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Partial Content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetStockMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Partial Content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetStockSfxFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                area: string;
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Partial Content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetStockSfxFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                area: string;
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Partial Content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetMarketplaceManifest: {
         parameters: {
             query?: never;
             header?: never;
@@ -5360,22 +5525,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StockCatalogDto"];
+                    "application/json": components["schemas"]["MarketplaceManifestDto"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
         };
     };
-    SearchStock: {
+    ListMarketplaceItems: {
         parameters: {
             query?: {
-                type?: string;
-                provider?: string;
+                category?: string;
                 q?: string;
                 cursor?: string;
                 limit?: number | string;
+                sort?: string;
+                period?: string;
+                provider?: string;
             };
             header?: never;
-            path?: never;
+            path: {
+                source: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -5386,7 +5564,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StockPageDto"];
+                    "application/json": components["schemas"]["MarketItemPageDto"];
                 };
             };
             /** @description Bad Request */
@@ -5418,11 +5596,12 @@ export interface operations {
             };
         };
     };
-    GetStockItem: {
+    GetMarketplaceItem: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                source: string;
                 id: string;
             };
             cookie?: never;
@@ -5435,7 +5614,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StockItemDto"];
+                    "application/json": components["schemas"]["MarketItemDto"];
                 };
             };
             /** @description Not Found */
@@ -5458,7 +5637,7 @@ export interface operations {
             };
         };
     };
-    CreateStockResolve: {
+    CreateMarketplaceResolve: {
         parameters: {
             query?: never;
             header?: never;
@@ -5467,7 +5646,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StockResolveRequest"];
+                "application/json": components["schemas"]["MarketResolveRequest"];
             };
         };
         responses: {
@@ -5477,7 +5656,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ResolveJobDto"];
+                    "application/json": components["schemas"]["MarketResolveJobDto"];
                 };
             };
             /** @description Bad Request */
@@ -5518,7 +5697,7 @@ export interface operations {
             };
         };
     };
-    GetStockResolve: {
+    GetMarketplaceResolve: {
         parameters: {
             query?: never;
             header?: never;
@@ -5535,7 +5714,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ResolveJobDto"];
+                    "application/json": components["schemas"]["MarketResolveJobDto"];
                 };
             };
             /** @description Not Found */
@@ -5549,7 +5728,7 @@ export interface operations {
             };
         };
     };
-    CreateStockDownload: {
+    CreateMarketplaceInstall: {
         parameters: {
             query?: never;
             header?: never;
@@ -5558,7 +5737,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StockDownloadRequest"];
+                "application/json": components["schemas"]["MarketInstallRequest"];
             };
         };
         responses: {
@@ -5568,11 +5747,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DownloadJobDto"];
+                    "application/json": components["schemas"]["InstallJobDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5600,7 +5797,7 @@ export interface operations {
             };
         };
     };
-    GetStockDownload: {
+    GetMarketplaceInstall: {
         parameters: {
             query?: never;
             header?: never;
@@ -5617,7 +5814,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DownloadJobDto"];
+                    "application/json": components["schemas"]["InstallJobDto"];
                 };
             };
             /** @description Not Found */
@@ -5628,270 +5825,6 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
-            };
-        };
-    };
-    GetStockSfx: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SfxLibraryDto"];
-                };
-            };
-        };
-    };
-    GetStockDriftAssets: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DriftAssetLibraryDto"];
-                };
-            };
-        };
-    };
-    GetStockFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Partial Content */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
-    GetStockFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Partial Content */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
-    GetStockMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Partial Content */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad Gateway */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GetStockMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Partial Content */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad Gateway */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GetStockSfxFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                area: string;
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Partial Content */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GetStockSfxFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                area: string;
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Partial Content */
-            206: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };

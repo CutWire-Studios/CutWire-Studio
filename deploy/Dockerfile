@@ -70,6 +70,7 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_BUNDLE_EXTRACT_BASE_DIR=/tmp/dotnet-bundle \
     Storage__BlobRoot=/data/blobs \
+    Stock__Sfx__CachePath=/data/sfx-cache.json \
     Auth__DataProtectionKeysPath=/data/keys \
     Email__DevDirectory=/data/mail \
     YTDLP_PLUGIN_DIRS=/usr/local/share/yt-dlp-plugins

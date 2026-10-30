@@ -1,0 +1,39 @@
+@page
+@model AuditModel
+@{
+    ViewData["Title"] = "Audit log";
+}
+<h1>Audit log</h1>
+
+<form method="get" class="toolbar">
+    <input type="text" name="actor" value="@Model.Actor" placeholder="Actor handle or id" class="wide">
+    <input type="text" name="target" value="@Model.Target" placeholder="Target or item id" class="wide">
+    <button type="submit">Filter</button>
+</form>
+
+<div class="scroll"><table>
+    <thead><tr><th>When (UTC)</th><th>Actor</th><th>Action</th><th>Target</th><th>Reason</th><th>Details</th></tr></thead>
+    <tbody>
+    @foreach (var entry in Model.Data.Entries)
+    {
+        <tr>
+            <td>@entry.At.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            <td>@(entry.Actor ?? (entry.Auto ? "system" : "unknown"))</td>
+            <td><span class="badge">@entry.Action</span></td>
+            <td>@entry.TargetType<div class="meta">@entry.Target</div></td>
+            <td>@entry.Reason</td>
+            <td><code class="json">@entry.Details.GetRawText()</code></td>
+        </tr>
+    }
+    </tbody>
+</table></div>
+
+@if (Model.Data.Entries.Count == 0)
+{
+    <p class="note">No entries.</p>
+}
+
+@if (Model.Data.NextCursor is { } next)
+{
+    <div class="pager"><a href="/admin/audit?actor=@Uri.EscapeDataString(Model.Actor ?? "")&target=@Uri.EscapeDataString(Model.Target ?? "")&cursor=@next">Next page</a></div>
+}

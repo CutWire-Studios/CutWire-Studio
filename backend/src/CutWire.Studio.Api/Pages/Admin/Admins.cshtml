@@ -1,0 +1,52 @@
+@page
+@model AdminsModel
+@{
+    ViewData["Title"] = "Admins";
+}
+<h1>Admins and moderators</h1>
+
+<div class="card">
+    <h3>Add</h3>
+    <form method="post" asp-page-handler="Add" class="inline">
+        <input type="text" name="query" placeholder="Handle or email (exact or prefix)" class="wide" required>
+        <select name="role">
+            <option value="moderator">moderator</option>
+            <option value="admin">admin</option>
+        </select>
+        <button type="submit" class="primary">Grant</button>
+    </form>
+    <p class="meta">Only users with a confirmed email who are not banned can be granted a role.</p>
+</div>
+
+<div class="scroll"><table>
+    <thead><tr><th>Handle</th><th>Email</th><th>Roles</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var member in Model.Staff)
+    {
+        <tr>
+            <td>@member.Handle</td>
+            <td>@member.Email</td>
+            <td>@foreach (var role in member.Roles) { <span class="badge">@role</span> }</td>
+            <td>
+                @if (member.Id == Model.Me)
+                {
+                    <span class="meta">This is you</span>
+                }
+                else
+                {
+                    foreach (var role in new[] { "moderator", "admin" })
+                    {
+                        var held = member.Roles.Contains(role);
+                        <form method="post" asp-page-handler="Set" class="inline">
+                            <input type="hidden" name="id" value="@member.Id">
+                            <input type="hidden" name="role" value="@role">
+                            <input type="hidden" name="granted" value="@(held ? "false" : "true")">
+                            <button type="submit" class="@(held ? "danger" : "")">@(held ? "Remove " : "Make ")@role</button>
+                        </form>
+                    }
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table></div>

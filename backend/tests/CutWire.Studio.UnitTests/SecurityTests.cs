@@ -58,7 +58,7 @@ public class SecurityHeaderRulesTests
     [InlineData("/api/v1/stock/files/token", RouteClass.Bytes)]
     [InlineData("/api/v1/stock/media/token", RouteClass.Bytes)]
     [InlineData("/api/v1/stock/sfx/files/previews/a.opus", RouteClass.Bytes)]
-    [InlineData("/api/v1/stock/search", RouteClass.Api)]
+    [InlineData("/api/v1/marketplace", RouteClass.Api)]
     [InlineData("/api/v1/csp-report", RouteClass.Api)]
     [InlineData("/connect/token", RouteClass.Api)]
     [InlineData("/mcp", RouteClass.Api)]

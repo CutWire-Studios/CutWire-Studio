@@ -1,0 +1,38 @@
+@page
+@model DistributionsModel
+@{
+    ViewData["Title"] = "Distributions";
+}
+<h1>Distributions</h1>
+<p class="note">
+    A ticked cell means the source is visible to that Drift distribution. Hiding is for store moderation, not access control:
+    the X-Cutwire-Distribution header is unsigned, and clients that send no header count as "unknown".
+</p>
+
+<form method="post">
+    <div class="scroll"><table>
+        <thead>
+        <tr>
+            <th>Provider</th><th>Type</th>
+            @foreach (var d in DistributionsModel.Columns) { <th class="center">@d</th> }
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td>@row.ProviderLabel<div class="meta">@row.Provider</div></td>
+                <td><span class="badge">@row.Type</span></td>
+                @foreach (var d in DistributionsModel.Columns)
+                {
+                    <td class="center">
+                        <input type="checkbox" name="visible" value="@(row.Provider + DistributionsModel.Separator + row.Type + DistributionsModel.Separator + d)"
+                               checked="@(!row.HiddenFor.Contains(d))" aria-label="@row.Provider @row.Type visible on @d">
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table></div>
+    <p><button type="submit" class="primary">Save matrix</button></p>
+</form>

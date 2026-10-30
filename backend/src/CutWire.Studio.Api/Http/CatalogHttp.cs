@@ -21,8 +21,10 @@ public static class CatalogHttp
         return new Viewer(id, http.User.IsInRole("moderator") || http.User.IsInRole("admin"));
     }
 
+    /// <summary>download_events.install_id holds 64 characters, so a 64-hex client id is cut to fit with its prefix.</summary>
     public static string? InstallIdOf(this HttpContext http)
     {
+        if (http.DriftClientOf() is { } drift) return "c:" + drift.ClientId[..62];
         var value = http.Request.Headers[InstallHeader].ToString().Trim();
         return value.Length is > 0 and <= 64 && value.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.') ? value : null;
     }
@@ -35,7 +37,9 @@ public static class CatalogHttp
     }
 
     /// <summary>Returns the payload with a weak content ETag, or 304 when the client already has it.</summary>
-    public static IResult JsonWithEtag<T>(this HttpContext http, T value)
+    public static IResult JsonWithEtag<T>(this HttpContext http, T value) => http.JsonWithEtag(value, "Cookie, Authorization", null);
+
+    public static IResult JsonWithEtag<T>(this HttpContext http, T value, string vary, string? cacheControl)
     {
         var options = http.RequestServices.GetRequiredService<IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.SerializerOptions;
         var bytes = JsonSerializer.SerializeToUtf8Bytes(value, options);
@@ -43,8 +47,8 @@ public static class CatalogHttp
         var personalised = http.User.Identity?.IsAuthenticated == true || http.Request.Headers.ContainsKey(HeaderNames.Authorization);
 
         http.Response.Headers.ETag = etag;
-        http.Response.Headers.Vary = "Cookie, Authorization";
-        http.Response.Headers.CacheControl = personalised ? "private, no-cache" : "public, max-age=30, must-revalidate";
+        http.Response.Headers.Vary = vary;
+        http.Response.Headers.CacheControl = cacheControl ?? (personalised ? "private, no-cache" : "public, max-age=30, must-revalidate");
         var match = http.Request.Headers.IfNoneMatch;
         if (match.Count > 0 && (match.ToString() == "*" || match.Any(m => m!.Split(',').Select(t => t.Trim()).Contains(etag))))
             return Results.StatusCode(StatusCodes.Status304NotModified);

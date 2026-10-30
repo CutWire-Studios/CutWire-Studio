@@ -120,7 +120,7 @@ public sealed class StockResolve(StockRegistry registry, StockSettings settings,
         var d = provider.Descriptor;
         StockEntry? entry = null;
         foreach (var service in d.Serves)
-            if (await settings.EntryAsync(d.Id, service.Type, ct) is { } e)
+            if (await settings.EntryAsync(d.Id, service.Type, command.Caller.Distribution, ct) is { } e)
             {
                 entry = e;
                 break;

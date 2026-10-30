@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cutwire.studio/schemas/marketplace-layout.schema.json",
+  "title": "Marketplace layout",
+  "description": "The pages array of a marketplace layout. Rules JSON Schema cannot express, enforced by the server: page ids are unique across the layout and are not `item` or `downloads`, which the web and Drift clients use as fixed routes and tabs; section ids are unique per page; chips.target names a grid section on the same page; page references (seeAll.page, open-page.page) name a page in the layout; a stock-browser needs a stock.<type> source and an sfx-browser the sfx source.",
+  "type": "array",
+  "minItems": 1,
+  "maxItems": 12,
+  "items": { "$ref": "#/$defs/page" },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]{1,40}$" },
+    "text": { "type": "string", "maxLength": 200 },
+    "url": { "type": "string", "maxLength": 500, "pattern": "^https://" },
+    "sourceId": { "type": "string", "pattern": "^(drift-assets|sfx|stock\\.[a-z0-9-]+|community\\.[a-z0-9-]+)$" },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "sections"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id", "not": { "enum": ["item", "downloads"] } },
+        "title": { "$ref": "#/$defs/text" },
+        "titles": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8})*$" },
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        },
+        "icon": { "$ref": "#/$defs/text" },
+        "sections": { "type": "array", "minItems": 1, "maxItems": 30, "items": { "$ref": "#/$defs/section" } }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/sourceId" },
+        "category": { "$ref": "#/$defs/text", "description": "A category id from the manifest. For the sfx source a subcategory is <category>/<subcategory>, which the manifest lists as the children of each category." },
+        "q": { "$ref": "#/$defs/text" },
+        "sort": { "$ref": "#/$defs/text" },
+        "period": { "$ref": "#/$defs/text" },
+        "provider": { "$ref": "#/$defs/text" },
+        "filters": { "type": "object", "additionalProperties": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "page"],
+          "properties": { "type": { "const": "open-page" }, "page": { "$ref": "#/$defs/text" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "source", "id"],
+          "properties": { "type": { "const": "open-item" }, "source": { "$ref": "#/$defs/sourceId" }, "id": { "$ref": "#/$defs/text" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": { "type": { "const": "open-url" }, "url": { "$ref": "#/$defs/url" } }
+        }
+      ]
+    },
+    "section": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "title"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "hero" },
+            "title": { "$ref": "#/$defs/text" },
+            "subtitle": { "$ref": "#/$defs/text" },
+            "image": { "$ref": "#/$defs/url" },
+            "action": { "$ref": "#/$defs/action" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "text"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "notice" },
+            "text": { "type": "string", "maxLength": 500 },
+            "tone": { "enum": ["info", "warning"] }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "title", "source"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "shelf" },
+            "title": { "$ref": "#/$defs/text" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 48, "default": 12 },
+            "seeAll": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["page"],
+              "properties": { "page": { "$ref": "#/$defs/text" } }
+            },
+            "source": { "$ref": "#/$defs/source" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "source"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "grid" },
+            "title": { "$ref": "#/$defs/text" },
+            "searchable": { "type": "boolean" },
+            "source": { "$ref": "#/$defs/source" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "source", "target"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "chips" },
+            "target": { "$ref": "#/$defs/text" },
+            "source": { "$ref": "#/$defs/source" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "source"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "stock-browser" },
+            "source": { "$ref": "#/$defs/source" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "source"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "sfx-browser" },
+            "source": { "$ref": "#/$defs/source" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "downloads" }
+          }
+        }
+      ]
+    }
+  }
+}
