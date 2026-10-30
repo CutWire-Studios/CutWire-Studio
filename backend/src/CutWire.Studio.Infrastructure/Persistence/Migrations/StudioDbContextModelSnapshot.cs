@@ -825,6 +825,121 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                     b.ToTable("theme_drafts", (string)null);
                 });
 
+            modelBuilder.Entity("CutWire.Studio.Domain.Marketplace.FeatureFlag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.PrimitiveCollection<List<string>>("Distributions")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text[]")
+                        .HasColumnName("distributions")
+                        .HasDefaultValueSql("'{}'");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("MaxAppVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("max_app_version");
+
+                    b.Property<string>("MinAppVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("min_app_version");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("ValueJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("value_json");
+
+                    b.HasKey("Id")
+                        .HasName("pk_feature_flags");
+
+                    b.HasIndex("Key")
+                        .HasDatabaseName("ix_feature_flags_key");
+
+                    b.ToTable("feature_flags", (string)null);
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Marketplace.MarketplaceLayout", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.PrimitiveCollection<List<string>>("Distributions")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text[]")
+                        .HasColumnName("distributions")
+                        .HasDefaultValueSql("'{}'");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("MaxAppVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("max_app_version");
+
+                    b.Property<string>("MinAppVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("min_app_version");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PagesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("pages_json");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_marketplace_layouts");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_marketplace_layouts_name");
+
+                    b.ToTable("marketplace_layouts", (string)null);
+                });
+
             modelBuilder.Entity("CutWire.Studio.Domain.Moderation.CleanupSchedule", b =>
                 {
                     b.Property<Guid>("ItemId")

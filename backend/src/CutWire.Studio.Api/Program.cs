@@ -77,6 +77,7 @@ api.MapForgeAi();
 api.MapThemeDrafts();
 api.MapStock();
 api.MapStockMedia();
+api.MapMarketplace();
 var account = api.MapGroup("/account");
 account.MapProfile();
 account.MapTwoFactor();

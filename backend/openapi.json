@@ -4505,6 +4505,36 @@
         }
       }
     },
+    "/api/v1/marketplace": {
+      "get": {
+        "tags": [
+          "Marketplace"
+        ],
+        "operationId": "GetMarketplaceManifest",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceManifestDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/account/profile": {
       "get": {
         "tags": [
@@ -7191,6 +7221,129 @@
           }
         }
       },
+      "MarketCategoryDto": {
+        "required": [
+          "id",
+          "label",
+          "mediaKind",
+          "children"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "mediaKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "children": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/MarketCategoryDto"
+            }
+          }
+        }
+      },
+      "MarketplaceManifestDto": {
+        "required": [
+          "schema",
+          "features",
+          "sources",
+          "pages"
+        ],
+        "type": "object",
+        "properties": {
+          "schema": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "features": {
+            "type": "object"
+          },
+          "sources": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MarketSourceDto"
+            }
+          },
+          "pages": {
+            "$ref": "#/components/schemas/JsonElement"
+          }
+        }
+      },
+      "MarketSourceDto": {
+        "required": [
+          "kind",
+          "label",
+          "mediaKind",
+          "searchable",
+          "categories",
+          "providers",
+          "sorts",
+          "canResolve"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "mediaKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "searchable": {
+            "type": "boolean"
+          },
+          "categories": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/MarketCategoryDto"
+            }
+          },
+          "providers": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/StockProviderDto"
+            }
+          },
+          "sorts": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "canResolve": {
+            "type": "boolean"
+          }
+        }
+      },
       "MediaRuleDto": {
         "required": [
           "role",
@@ -9416,6 +9569,9 @@
     },
     {
       "name": "Stock"
+    },
+    {
+      "name": "Marketplace"
     },
     {
       "name": "Profile"

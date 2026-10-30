@@ -49,6 +49,9 @@ public static class DependencyInjection
         services.AddScoped<Stock.SfxCatalog>();
         services.AddScoped<Stock.DriftAssetsCatalog>();
 
+        services.AddSingleton<Marketplace.ManifestCache>();
+        services.AddScoped<Marketplace.MarketplaceManifest>();
+
         return services;
     }
 }

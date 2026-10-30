@@ -1,4 +1,5 @@
 using CutWire.Studio.Domain.Blobs;
+using CutWire.Studio.Domain.Marketplace;
 using CutWire.Studio.Domain.Stock;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -111,5 +112,38 @@ internal sealed class DriftAssetPackConfiguration : IEntityTypeConfiguration<Dri
         builder.Property(p => p.Version).HasMaxLength(64);
         builder.Property(p => p.IndexJson).HasColumnType("jsonb").IsRequired();
         builder.Property(p => p.FilesJson).HasColumnType("jsonb").IsRequired();
+    }
+}
+
+internal sealed class MarketplaceLayoutConfiguration : IEntityTypeConfiguration<MarketplaceLayout>
+{
+    public void Configure(EntityTypeBuilder<MarketplaceLayout> builder)
+    {
+        builder.ToTable("marketplace_layouts");
+        builder.HasKey(l => l.Id);
+        builder.Property(l => l.Id).ValueGeneratedNever();
+        builder.Property(l => l.Name).HasMaxLength(100).IsRequired();
+        builder.Property(l => l.Distributions).HasColumnName("distributions").HasDefaultValueSql("'{}'");
+        builder.Property(l => l.MinAppVersion).HasMaxLength(64);
+        builder.Property(l => l.MaxAppVersion).HasMaxLength(64);
+        builder.Property(l => l.PagesJson).HasColumnType("jsonb").IsRequired();
+        builder.HasIndex(l => l.Name).IsUnique();
+    }
+}
+
+internal sealed class FeatureFlagConfiguration : IEntityTypeConfiguration<FeatureFlag>
+{
+    public void Configure(EntityTypeBuilder<FeatureFlag> builder)
+    {
+        builder.ToTable("feature_flags");
+        builder.HasKey(f => f.Id);
+        builder.Property(f => f.Id).ValueGeneratedNever();
+        builder.Property(f => f.Key).HasMaxLength(64).IsRequired();
+        builder.Property(f => f.ValueJson).HasColumnType("jsonb");
+        builder.Property(f => f.Distributions).HasColumnName("distributions").HasDefaultValueSql("'{}'");
+        builder.Property(f => f.MinAppVersion).HasMaxLength(64);
+        builder.Property(f => f.MaxAppVersion).HasMaxLength(64);
+        builder.Property(f => f.Note).HasMaxLength(500);
+        builder.HasIndex(f => f.Key);
     }
 }

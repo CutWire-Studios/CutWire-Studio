@@ -2,6 +2,7 @@ using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
 using CutWire.Studio.Domain.Forge;
+using CutWire.Studio.Domain.Marketplace;
 using CutWire.Studio.Domain.Moderation;
 using CutWire.Studio.Domain.Stock;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +38,8 @@ public interface IAppDbContext
     DbSet<SfxCategory> SfxCategories { get; }
     DbSet<ProviderCacheEntry> ProviderCache { get; }
     DbSet<DriftAssetPack> DriftAssetPacks { get; }
+    DbSet<MarketplaceLayout> MarketplaceLayouts { get; }
+    DbSet<FeatureFlag> FeatureFlags { get; }
     Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
 
     Task<bool> CanConnectAsync(CancellationToken ct);
