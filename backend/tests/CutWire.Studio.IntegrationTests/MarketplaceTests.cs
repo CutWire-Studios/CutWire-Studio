@@ -8,6 +8,7 @@ using CutWire.Studio.Application.Marketplace;
 using CutWire.Studio.Application.Stock;
 using CutWire.Studio.Domain.Marketplace;
 using CutWire.Studio.Domain.Stock;
+using CutWire.Studio.Infrastructure.Stock;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -663,6 +664,8 @@ public sealed class MarketplaceTests(PostgresFixture postgres) : StockTestBase(p
     [Fact]
     public async Task Stock_InstallAudioIsAJobThatPollingCompletes()
     {
+        if (ExecutableLocator.Find("ffmpeg") is null) Assert.Skip("ffmpeg is not installed; the audio normalisation path needs it.");
+
         var created = await Ok(await Send(HttpMethod.Post, Target + "/installs", new { source = "stock.audio", itemId = ItemId("fakeaudio", "audio", "p1") }));
         var id = created["id"]!.GetValue<string>();
 
