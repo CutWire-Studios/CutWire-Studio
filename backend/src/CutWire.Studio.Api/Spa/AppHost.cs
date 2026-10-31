@@ -21,7 +21,8 @@ public static class AppHostRegistry
         new("/", "shell"),
     ];
 
-    public static readonly string[] ReservedPrefixes = ["/api", "/connect", "/mcp", "/files", "/.well-known", "/admin"];
+    public static readonly string[] ReservedPrefixes = ["/api", "/connect", "/mcp", "/files", "/.well-known", "/admin",
+        "/signin-github", "/signin-google", "/signin-discord"];
 }
 
 public sealed class SpaOptions
