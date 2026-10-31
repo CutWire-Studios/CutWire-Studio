@@ -10,6 +10,7 @@ import { liveCheck } from "./lib/live-check"
 import { formatBytes } from "./lib/text"
 import { violationsOf } from "./lib/violations"
 import { DetailsStep, type Details } from "./upload/details-step"
+import { MediaStep } from "./upload/media-step"
 import { checkPackageFile } from "./upload/package-step"
 import { FieldErrors } from "./upload/shared"
 
@@ -114,6 +115,11 @@ function EditBody({ item, kind, rawRules, rules, onItem }: { item: ItemDetail; k
             {saving && <Spinner className="size-4" />} Save changes
           </Button>
         </div>
+      </section>
+
+      <section className="panel space-y-4 p-5 sm:p-6">
+        <h2 className="text-headline-md">Images</h2>
+        <MediaStep item={item} kind={kind} handoffMedia={{}} server={[]} onItem={onItem} />
       </section>
 
       <section className="panel space-y-4 p-5 sm:p-6">

@@ -129,7 +129,8 @@ public sealed record UploadMediaCommand(Guid ItemId, Guid UserId, string Role, S
 
 public sealed class UploadMediaHandler(
     IAppDbContext db, IAssetKindRegistry kinds, IImageAnalyzer images, ContentGatePipeline pipeline,
-    ICommandHandler<StoreBlobCommand, StoreBlobResult> storeBlob, BlobReferences refs)
+    ICommandHandler<StoreBlobCommand, StoreBlobResult> storeBlob, BlobReferences refs,
+    IDuplicateLookup duplicates, ContentRulesOptions rules, IClock clock)
     : ICommandHandler<UploadMediaCommand, ItemDetailDto>
 {
     public async Task<Result<ItemDetailDto>> Handle(UploadMediaCommand c, CancellationToken ct)
@@ -137,8 +138,8 @@ public sealed class UploadMediaHandler(
         var loaded = await ItemLoader.LoadOwnedAsync(db, c.ItemId, c.UserId, ct);
         if (loaded.IsFailure) return loaded.Error;
         var item = loaded.Value;
-        if (item.Status != ItemStatus.Draft)
-            return Error.Conflict("item.not_draft", "Media can only be replaced while the item is a draft.");
+        if (item.Status is not (ItemStatus.Draft or ItemStatus.Published))
+            return Error.Conflict("item.not_editable", "Media can only be replaced on drafts and published items.");
         if (!MediaRoleExtensions.TryParse(c.Role, out var role))
             return ItemLoader.Reject($"media.{c.Role}", "media_role_not_allowed", $"Unknown media role '{c.Role}'.");
         if (kinds.Get(item.Kind) is not { Enabled: true } kind) return LoadReject.Unknown();
@@ -158,6 +159,15 @@ public sealed class UploadMediaHandler(
         {
             await refs.ReleaseAsync(old.BlobSha256, ct);
             item.RemoveMedia(old);
+        }
+
+        // Publish runs the similarity flag for drafts; a published item swapping its thumbnail would otherwise skip it.
+        if (item.Status == ItemStatus.Published && role == MediaRole.Thumbnail
+            && await duplicates.SimilarThumbnailExistsAsync(probe.DHash, rules.SimilarThumbnailMaxDistance, item.Id, ct))
+        {
+            var parameters = System.Text.Json.JsonSerializer.SerializeToElement(new Dictionary<string, object> { ["maxDistance"] = rules.SimilarThumbnailMaxDistance });
+            item.AddFlag(new ItemFlag(Guid.CreateVersion7(), item.Id, "media.thumbnail", "similar_thumbnail",
+                "The thumbnail looks very similar to an existing item.", parameters, clock.UtcNow));
         }
 
         await refs.AddAsync(stored.Value.Hash, ct);
