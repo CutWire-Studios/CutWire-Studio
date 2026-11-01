@@ -3,7 +3,7 @@
 
 # Base images are pinned by digest (tag in the comment); Dependabot's docker ecosystem bumps both.
 # node:26-slim
-FROM docker.io/library/node:26-slim@sha256:36793bcbb160a6a16cede1e62b93f84e26b78a972a8a4c0b879c1c12f22761ec AS web
+FROM docker.io/library/node:26-slim@sha256:e4db4c914bf8ad241bd24804fc25d272d89bad97e68cdc8a1414862790a02c39 AS web
 # Node 25+ images no longer ship Corepack.
 RUN npm install -g pnpm@12.15.0
 WORKDIR /src/web
@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 RUN pnpm -r build
 
 # dotnet/sdk:10.0
-FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:747cbade5bfd918a175ac32f8f1d931edec2c7d0d5397a3de72eaef1ac1f66d2 AS backend
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b AS backend
 WORKDIR /src/backend
 COPY backend/global.json backend/Directory.Build.props backend/Directory.Packages.props backend/CutWire.Studio.slnx ./
 COPY backend/src/CutWire.Studio.Domain/*.csproj backend/src/CutWire.Studio.Domain/packages.lock.json src/CutWire.Studio.Domain/
@@ -31,7 +31,7 @@ COPY --from=web /src/web/dist /src/web/dist
 RUN dotnet publish src/CutWire.Studio.Api -c Release -r linux-x64 --no-restore -o /out
 
 # dotnet/runtime-deps:10.0
-FROM mcr.microsoft.com/dotnet/runtime-deps:10.0@sha256:1c20bc9ebda297198be069d82b6c5d1716faeeec8b8dca53ef963f9c92d3e2e3 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0@sha256:62028293921f5bd6db3d9f9119cd29cd926dfd3c2336da23b09f425e40c3c832 AS runtime
 
 # Pinned deliberately: an extractor update can change behaviour, and that should
 # be a decision rather than a surprise on the next rebuild.
