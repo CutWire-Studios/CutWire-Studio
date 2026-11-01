@@ -29,7 +29,7 @@ export function App() {
   return (
     <>
       <AppHeader appId={section === "community" || section === "marketplace" ? section : undefined} account={() => <AccountMenu />} />
-      <main className="container-cutwire pt-24 pb-section">
+      <main className={pathname === "/" ? undefined : "container-cutwire pt-24 pb-section"}>
         <Routes>
           <Route path="/" element={<Launcher />} />
           {communityRoutes}

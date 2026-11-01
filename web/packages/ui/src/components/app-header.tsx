@@ -48,6 +48,12 @@ export function AppSwitcher() {
               )
             })}
           </ul>
+          <a
+            href="https://cutwire.org"
+            className="mt-2 flex min-h-11 items-center justify-center rounded-xl border-t border-border text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:hidden"
+          >
+            Visit CutWire.org
+          </a>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
@@ -73,6 +79,12 @@ export function AppHeader({ appId, account }: { appId?: string; account?: () => 
           )}
         </div>
         <div className="glass flex shrink-0 items-center gap-0.5 rounded-full px-1 py-0.5">
+          <a
+            href="https://cutwire.org"
+            className="text-label-md hidden min-h-11 items-center rounded-full px-3.5 opacity-70 transition-opacity hover:opacity-100 sm:inline-flex"
+          >
+            CutWire.org
+          </a>
           <AppSwitcher />
           <ThemeToggle />
           {account && <div className="flex items-center pr-1 pl-0.5">{account()}</div>}

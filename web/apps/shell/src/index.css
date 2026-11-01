@@ -1,1 +1,139 @@
 @import "@cutwire/ui/ui.css";
+
+/* The hero photo is dark in both themes, so hero text stays white. */
+.launcher-heading {
+  color: #ffffff;
+  background-color: rgb(255 255 255 / 0.92);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter:
+    blur(0)
+    drop-shadow(0 1px 0 rgb(255 255 255 / 0.18))
+    drop-shadow(0 8px 18px rgb(0 0 0 / 0.32));
+}
+
+.launcher-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.25rem, 10.5vw, 9rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+
+/* background-clip: text only paints inside the box, so give descenders room
+   under the tight line-height. */
+.launcher-title .launcher-heading {
+  padding-bottom: 0.08em;
+}
+
+/* Weight contrast instead of a faux italic: Outfit has no italic cut. */
+.launcher-heading-light {
+  font-weight: 250;
+  letter-spacing: -0.05em;
+  background-color: rgb(255 255 255 / 0.8);
+}
+
+/* One-time load sequence: each element rises out of a soft blur, 90ms apart. */
+@keyframes launcher-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(10px);
+  }
+}
+
+.launcher-in {
+  animation: launcher-in 900ms var(--ease-out) both;
+  animation-delay: calc(var(--in, 0) * 90ms + 100ms);
+}
+
+.launcher-heading.launcher-in {
+  animation-name: launcher-heading-in;
+}
+
+/* The heading already uses filter for its drop shadows, so animate those too
+   instead of clobbering them. */
+@keyframes launcher-heading-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(10px) drop-shadow(0 1px 0 rgb(255 255 255 / 0)) drop-shadow(0 8px 18px rgb(0 0 0 / 0));
+  }
+}
+
+.launcher-lede {
+  color: rgb(255 255 255 / 0.92);
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.5);
+}
+
+.launcher-continue-photo {
+  background-image: url("/images/hero-layers.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.launcher-continue-wash {
+  background: rgb(0 0 0 / 0.16);
+  backdrop-filter: blur(32px) saturate(130%);
+}
+
+.launcher-frost {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  border: 1px solid rgb(255 255 255 / 0.18);
+}
+
+.launcher-frost::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(255 255 255 / 0.14);
+  backdrop-filter: blur(22px) saturate(150%);
+  pointer-events: none;
+}
+
+.launcher-frost-hover {
+  transition: transform 160ms var(--ease-out);
+}
+
+.launcher-frost-hover:active {
+  transform: scale(0.98);
+}
+
+a.launcher-frost:hover::before {
+  background: rgb(255 255 255 / 0.2);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .launcher-heading {
+    background: none;
+    -webkit-text-fill-color: #ffffff;
+    filter: drop-shadow(0 1px 10px rgb(0 0 0 / 0.55));
+  }
+  .launcher-continue-photo {
+    display: none;
+  }
+  .launcher-continue-wash {
+    background: var(--background);
+    backdrop-filter: none;
+  }
+  .launcher-frost {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .launcher-frost::before {
+    display: none;
+  }
+  .launcher-continue .text-white {
+    color: var(--on-surface);
+  }
+  .launcher-continue .text-white\/70 {
+    color: var(--on-surface-variant);
+  }
+}
