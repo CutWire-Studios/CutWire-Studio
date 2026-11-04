@@ -7,8 +7,8 @@ describe("registry", () => {
     expect(new Set(apps.map((a) => a.path)).size).toBe(apps.length)
   })
 
-  it("uses root-relative paths without trailing slash", () => {
-    for (const a of apps) expect(a.path).toMatch(/^\/[a-z]+$/)
+  it("uses root-relative paths without trailing slash, or an https origin for external apps", () => {
+    for (const a of apps) expect(a.path).toMatch(/^(\/[a-z]+|https:\/\/[a-z.]+)$/)
   })
 
   it("has unique tile ids and every tile belongs to its app's path", () => {

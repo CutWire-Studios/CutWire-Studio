@@ -49,6 +49,7 @@ public static class AuthExtensions
         });
         services.AddSingleton<IAuthorizationPolicyProvider, StudioPolicyProvider>();
         services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
+        services.AddSingleton<IAuthorizationHandler, AudienceHandler>();
         services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
         services.AddSingleton<IAuthorizationMiddlewareResultHandler, StudioAuthorizationResultHandler>();
 

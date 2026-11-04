@@ -74,6 +74,7 @@ api.MapModeration();
 api.MapMeta();
 api.MapForge();
 api.MapForgeAi();
+api.MapSynth();
 api.MapThemeDrafts();
 api.MapStockMedia();
 api.MapMarketplace();

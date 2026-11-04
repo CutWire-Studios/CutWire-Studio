@@ -66,6 +66,16 @@ export const apps: readonly AppEntry[] = [
     category: "create",
   },
   {
+    id: "synth",
+    name: "CutWire Synth",
+    tagline: "Make music by stacking loops of instruments.",
+    path: "https://synth.cutwire.studio",
+    icon: "music",
+    accent: "music",
+    status: "live",
+    category: "create",
+  },
+  {
     id: "music",
     name: "Music Maker",
     tagline: "Compose music for your videos.",
@@ -107,6 +117,7 @@ const tileSpecs: readonly TileSpec[] = [
   { id: "forge-transition", appId: "forge", name: "Transition Maker", tagline: "Craft transitions between clips.", icon: "shuffle", href: "/forge/new?kind=transition" },
   { id: "forge-audio", appId: "forge", name: "Sound Effect Maker", tagline: "Design sound effects for your edits.", icon: "audio-lines", href: "/forge/new?kind=audio" },
   { id: "themes", appId: "themes", name: "Drift Theme Maker", tagline: "Design themes for the Drift interface.", icon: "palette", href: "/themes" },
+  { id: "synth", appId: "synth", name: "Synth", tagline: "Make music by stacking loops of instruments.", icon: "music", href: "https://synth.cutwire.studio" },
   { id: "music", appId: "music", name: "Music Maker", tagline: "Compose music for your videos.", icon: "music", href: "/music" },
 ]
 

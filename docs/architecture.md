@@ -91,6 +91,7 @@ Initial handlers:
   - `tags` (curated vocabulary per kind), `item_tags`
 - **Social**: `votes` (item, user, ±1, unique), `reports` (item, reporter, reason enum, note, status), `download_events` (rolled up nightly into `item_download_daily`), `follows` (optional, later).
 - **Moderation**: `moderation_actions` (audit log: actor, target, action, reason, auto/manual), `cleanup_schedule` (item, purge_at).
+- **Synth**: `synth_songs` (owner, local id, name, opaque `doc` jsonb up to 512 KiB, `revision` int, timestamps); at most 200 per user. API under `/api/v1/synth/songs` with the same revision/SSE semantics as Forge documents.
 - **Forge**: `forge_documents` (owner, local id, kind, name, `doc` jsonb, `revision` int, `thumb` blob, `updated_at`), `forge_doc_assets` (doc assets moved out of base64 into blobs, deduped by sha256), `ai_usage` (day, user, neurons).
 - **Stock (ex-marketplace)**: `provider_settings`, `download_jobs`, `quota_events`, `asset_categories`, `sfx_categories`, with the same semantics as `CutWire-Marketplace/backend/internal/store/*.go`. Coins are dropped.
 - **Blobs**: `blobs` (sha256 PK, size, mime, `ref_count`). A GC job deletes files whose ref_count is 0 after 7 days.
@@ -134,8 +135,9 @@ Initial handlers:
 - **Website**: cookie auth (same origin; the SPAs call `/api/v1` with the cookie and an antiforgery header).
 - **Flows** (OpenIddict clients):
   - `drift-desktop`: authorization code + PKCE with a loopback or `cutwire://` redirect, plus the device authorization grant for headless use and Android TV. This gets the API ready for new Drift releases; the Drift changes themselves are out of scope.
+  - `synth`: confidential client for CutWire Synth (a separate app at `Synth:PublicUrl`), seeded when `Synth:PublicUrl` and `Auth:Clients:Synth:Secret` are set. Implicit consent, redirect `{Synth:PublicUrl}/auth/callback`, scopes `synth:read synth:write`. Synth's server calls `/api/v1/synth` with the user's access token and verifies tokens through the JWKS. Tokens carrying only the Synth MCP audience (`{Synth:PublicUrl}/mcp`) work on `/api/v1/synth` and nowhere else; every other API route needs the Studio API or Studio MCP audience (cookie sessions and PATs carry none).
   - `mcp`: OAuth 2.1 authorization code + PKCE with dynamic client registration and protected-resource metadata, as the MCP auth spec requires.
-- Personal access tokens (scoped: `forge:read`, `forge:write`, `community:publish`) for MCP clients that can't do OAuth.
+- Personal access tokens (scoped: `forge:read`, `forge:write`, `synth:read`, `synth:write`, `community:publish`) for MCP clients that can't do OAuth.
 - Anonymous Drift and stock usage is identified by an `X-Studio-Install` id and IP rate limits.
 - HMAC request signing is back for Drift clients (`X-Cutwire-Signature`, verified on every route). The key ships inside the client, so it is soft gating, not a secret; see `marketplace.md` and `security.md`.
 

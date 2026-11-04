@@ -6,6 +6,7 @@ using CutWire.Studio.Domain.Forge;
 using CutWire.Studio.Domain.Marketplace;
 using CutWire.Studio.Domain.Moderation;
 using CutWire.Studio.Domain.Stock;
+using CutWire.Studio.Domain.Synth;
 using CutWire.Studio.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -38,6 +39,7 @@ public sealed class StudioDbContext(DbContextOptions<StudioDbContext> options)
     public DbSet<ForgeDocAsset> ForgeDocAssets => Set<ForgeDocAsset>();
     public DbSet<AiUsage> AiUsage => Set<AiUsage>();
     public DbSet<ThemeDraft> ThemeDrafts => Set<ThemeDraft>();
+    public DbSet<SynthSong> SynthSongs => Set<SynthSong>();
     public DbSet<ProviderSetting> ProviderSettings => Set<ProviderSetting>();
     public DbSet<DownloadJob> DownloadJobs => Set<DownloadJob>();
     public DbSet<QuotaEvent> QuotaEvents => Set<QuotaEvent>();

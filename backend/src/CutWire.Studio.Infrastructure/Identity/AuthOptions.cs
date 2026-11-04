@@ -9,6 +9,17 @@ public sealed class AuthOptions
     public string? DataProtectionKeysPath { get; set; }
     public OpenIddictKeyOptions OpenIddict { get; set; } = new();
     public ExternalOptions External { get; set; } = new();
+    public ClientOptions Clients { get; set; } = new();
+}
+
+public sealed class ClientOptions
+{
+    public ClientSecretOptions Synth { get; set; } = new();
+}
+
+public sealed class ClientSecretOptions
+{
+    public string? Secret { get; set; }
 }
 
 public sealed class OpenIddictKeyOptions

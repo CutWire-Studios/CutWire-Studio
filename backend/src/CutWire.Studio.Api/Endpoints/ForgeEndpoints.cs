@@ -19,9 +19,12 @@ public static class ForgeEndpoints
 {
     public const string ClientHeader = "X-Forge-Client";
 
+    public const string SynthClientHeader = "X-Synth-Client";
+
     public static string? ClientIdOf(this HttpContext http)
     {
         var value = http.Request.Headers[ClientHeader].ToString().Trim();
+        if (value.Length == 0) value = http.Request.Headers[SynthClientHeader].ToString().Trim();
         return value.Length is > 0 and <= 64 && value.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_') ? value : null;
     }
 
@@ -153,9 +156,17 @@ internal sealed class ForgeEventStream(IAsyncEnumerable<ForgeDocEvent> events, T
 
     private static async Task Write(HttpResponse response, ForgeDocEvent e, CancellationToken ct)
     {
-        var data = e.Type == "updated"
-            ? JsonSerializer.Serialize(new { revision = e.Revision, updatedAt = e.UpdatedAt, source = e.Source, clientId = e.ClientId }, Json)
-            : "{}";
+        var data = "{}";
+        if (e.Type == "updated")
+        {
+            var payload = new Dictionary<string, object?>
+            {
+                ["revision"] = e.Revision, ["updatedAt"] = e.UpdatedAt, ["source"] = e.Source, ["clientId"] = e.ClientId,
+            };
+            if (e.Doc is { } doc) payload["doc"] = doc;
+            data = JsonSerializer.Serialize(payload, Json);
+        }
+
         await response.WriteAsync($"event: {e.Type}\ndata: {data}\n\n", ct);
         await response.Body.FlushAsync(ct);
     }

@@ -28,15 +28,19 @@ public sealed class AuthSeeder(
         foreach (var scope in OidcClients.ServerScopes)
         {
             var descriptor = new OpenIddictScopeDescriptor { Name = scope, DisplayName = scope };
-            foreach (var resource in publicUrl.Resources) descriptor.Resources.Add(resource);
+            var scopeResources = scope.StartsWith("synth:", StringComparison.Ordinal) ? publicUrl.Resources : publicUrl.StudioResources;
+            foreach (var resource in scopeResources) descriptor.Resources.Add(resource);
             if (await scopes.FindByNameAsync(scope, ct) is { } existing)
                 await scopes.UpdateAsync(existing, descriptor, ct);
             else
                 await scopes.CreateAsync(descriptor, ct);
         }
 
-        await UpsertAsync(OidcClients.Drift(publicUrl.Resources), ct);
+        await UpsertAsync(OidcClients.Drift(publicUrl.StudioResources), ct);
         await UpsertAsync(OidcClients.McpPlaceholder(publicUrl.Resources), ct);
+
+        if (publicUrl.SynthBase is { } synthBase && options.Value.Clients.Synth.Secret is { Length: > 0 } synthSecret)
+            await UpsertAsync(OidcClients.Synth(synthBase, synthSecret, publicUrl.Resources), ct);
     }
 
     private async Task UpsertAsync(OpenIddictApplicationDescriptor descriptor, CancellationToken ct)

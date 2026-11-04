@@ -8,7 +8,7 @@ public static class ForgeSources
 }
 
 /// <param name="Type"><c>updated</c> or <c>deleted</c>.</param>
-public sealed record ForgeDocEvent(string Type, int? Revision = null, DateTimeOffset? UpdatedAt = null, string? Source = null, string? ClientId = null);
+public sealed record ForgeDocEvent(string Type, int? Revision = null, DateTimeOffset? UpdatedAt = null, string? Source = null, string? ClientId = null, System.Text.Json.JsonElement? Doc = null);
 
 public interface IForgeEventHub
 {

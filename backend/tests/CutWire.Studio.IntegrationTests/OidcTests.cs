@@ -332,7 +332,7 @@ public sealed class OidcTests(PostgresFixture postgres) : IDisposable
             var json = await resource.Json(Ct);
             json["resource"]!.GetValue<string>().ShouldBe("http://localhost:8087/mcp");
             json["authorization_servers"]![0]!.GetValue<string>().ShouldBe(discovery["issuer"]!.GetValue<string>());
-            json["scopes_supported"]!.AsArray().Count.ShouldBe(3);
+            json["scopes_supported"]!.AsArray().Count.ShouldBe(5);
         }
     }
 }

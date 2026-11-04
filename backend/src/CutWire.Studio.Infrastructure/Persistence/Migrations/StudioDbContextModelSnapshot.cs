@@ -1442,6 +1442,58 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                     b.ToTable("sfx_categories", (string)null);
                 });
 
+            modelBuilder.Entity("CutWire.Studio.Domain.Synth.SynthSong", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DocJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("doc");
+
+                    b.Property<string>("LocalId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("local_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int>("Revision")
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_synth_songs");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_synth_songs_owner_id");
+
+                    b.HasIndex("OwnerId", "LocalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_synth_songs_owner_id_local_id");
+
+                    b.ToTable("synth_songs", (string)null);
+                });
+
             modelBuilder.Entity("CutWire.Studio.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2196,6 +2248,16 @@ namespace CutWire.Studio.Infrastructure.Persistence.Migrations
                         .HasForeignKey("BlobSha256")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_download_jobs_blobs_blob");
+                });
+
+            modelBuilder.Entity("CutWire.Studio.Domain.Synth.SynthSong", b =>
+                {
+                    b.HasOne("CutWire.Studio.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_synth_songs_asp_net_users_owner_id");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

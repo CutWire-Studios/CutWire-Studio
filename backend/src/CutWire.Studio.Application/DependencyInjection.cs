@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<Forge.ForgeAssets>();
         services.AddScoped<Forge.ForgeEditor>();
         services.AddScoped<Forge.ThemeDrafts>();
+        services.AddScoped<Synth.SynthSongs>();
         services.AddScoped<Forge.HostedAgent>();
         services.AddSingleton<Forge.KeyedLocks<Guid>>();
 

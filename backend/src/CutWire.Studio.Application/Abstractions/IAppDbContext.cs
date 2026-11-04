@@ -2,6 +2,7 @@ using CutWire.Studio.Domain.Accounts;
 using CutWire.Studio.Domain.Blobs;
 using CutWire.Studio.Domain.Catalog;
 using CutWire.Studio.Domain.Forge;
+using CutWire.Studio.Domain.Synth;
 using CutWire.Studio.Domain.Marketplace;
 using CutWire.Studio.Domain.Moderation;
 using CutWire.Studio.Domain.Stock;
@@ -31,6 +32,7 @@ public interface IAppDbContext
     DbSet<ForgeDocAsset> ForgeDocAssets { get; }
     DbSet<AiUsage> AiUsage { get; }
     DbSet<ThemeDraft> ThemeDrafts { get; }
+    DbSet<SynthSong> SynthSongs { get; }
     DbSet<ProviderSetting> ProviderSettings { get; }
     DbSet<DownloadJob> DownloadJobs { get; }
     DbSet<QuotaEvent> QuotaEvents { get; }

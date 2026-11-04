@@ -21,6 +21,8 @@ public sealed class ConsentService(IOpenIddictApplicationManager applications, I
         new ScopeInfo(Scopes.OfflineAccess, "Stay signed in", "Keep access until you revoke it."),
         new ScopeInfo("forge:read", "Read Forge documents", "Read your effects, transitions and sound effects."),
         new ScopeInfo("forge:write", "Edit Forge documents", "Create and change your effects, transitions and sound effects."),
+        new ScopeInfo("synth:read", "Read Synth songs", "Read your songs saved in CutWire Synth."),
+        new ScopeInfo("synth:write", "Edit Synth songs", "Create and change your songs saved in CutWire Synth."),
         new ScopeInfo("community:publish", "Publish to the community", "Publish and update items on your behalf."),
         new ScopeInfo("drift", "Drift app access", "Use CutWire Studio services from the Drift app."),
     }.ToDictionary(s => s.Name);
