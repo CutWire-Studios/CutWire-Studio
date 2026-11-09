@@ -159,6 +159,19 @@ public class SfxIndexTests
     }
 
     [Theory]
+    [InlineData("previews/ab12.webm", "ab12.webm")]
+    [InlineData("ab12.webm", "ab12.webm")]
+    [InlineData("sub/previews/ab12.webm", "sub/previews/ab12.webm")]
+    public void PreviewPathIsRelativeToThePreviewsArea(string preview, string expected)
+    {
+        var json = $$"""
+            {"categories": [{"id": "ui"}], "sounds": [{"id": "a", "category": "ui", "duration": 1, "size": 1, "path": "a.flac", "preview": "{{preview}}"}]}
+            """;
+
+        SfxIndex.Parse(json, "v1").Categories.ShouldHaveSingleItem().Sounds.ShouldHaveSingleItem().PreviewPath.ShouldBe(expected);
+    }
+
+    [Theory]
     [InlineData("a/b.flac", true)]
     [InlineData("", false)]
     [InlineData("../a", false)]

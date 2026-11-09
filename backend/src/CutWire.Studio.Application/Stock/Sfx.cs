@@ -70,12 +70,15 @@ public static class SfxIndex
             categories.Add(new SfxCategoryData(c.Id, c.Label ?? c.Id, sounds.Select(s => new SfxSoundData(
                 s.Id, s.Name ?? s.Id,
                 subLabels.GetValueOrDefault((c.Id, s.Subcategory ?? ""), s.Subcategory ?? ""),
-                (int)Math.Round(s.Duration * 1000), s.Size, s.Preview!, s.Path!,
+                (int)Math.Round(s.Duration * 1000), s.Size, PreviewRel(s.Preview!), s.Path!,
                 s.Subcategory ?? "", ValidPeaks(s.Peaks), ValidSha(s.Sha256))).ToList(), subs));
         }
 
         return new SfxData(version, categories);
     }
+
+    // build-sfx.py writes "previews/<sha>.webm", relative to the sfx root; files are served from inside previews/.
+    private static string PreviewRel(string preview) => preview.StartsWith("previews/", StringComparison.Ordinal) ? preview["previews/".Length..] : preview;
 
     private static string? ValidPeaks(string? peaks) =>
         !string.IsNullOrEmpty(peaks) && peaks.Length <= 512 && Convert.TryFromBase64String(peaks, new byte[384], out var n) && n > 0 ? peaks : null;
