@@ -1,0 +1,4 @@
+# Drift client signing key: compiled into every Drift client, so it is a public client identifier, not a secret.
+406a08431d1eb366459e3fcecf35ce0680262a45:backend/tests/CutWire.Studio.UnitTests/DriftClientAuthTests.cs:generic-api-key:14
+# Dummy imgproxy key in a unit test.
+593bab58ecf823c009e4deef2d9dfce42af0bbaa:backend/tests/CutWire.Studio.UnitTests/Stock/StockCoreTests.cs:generic-api-key:321
