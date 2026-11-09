@@ -25,7 +25,7 @@ interface EditorState extends RackActions {
   /** Swaps in a document that arrived from the cloud (MCP, AI, another tab); one undo step. */
   applyRemote(doc: ForgeDoc): void
   /** Runs `work` as a single undo step even though it may replace the document many times. */
-  withUndoGroup(work: (apply: (d: ForgeDoc) => void) => Promise<void>): Promise<void>
+  withUndoGroup<T>(work: (apply: (d: ForgeDoc) => void) => Promise<T>): Promise<T>
   select(ids: string[]): void
   setParamValue(id: string, v: ParamValue): void
   resetParamValues(): void
@@ -109,7 +109,7 @@ export const useEditor = create<EditorState>()(
           const temporal = useEditor.temporal.getState()
           temporal.pause()
           try {
-            await work((d) => get().replaceDoc(d))
+            return await work((d) => get().replaceDoc(d))
           } finally {
             temporal.resume()
             if (get().doc !== before) {

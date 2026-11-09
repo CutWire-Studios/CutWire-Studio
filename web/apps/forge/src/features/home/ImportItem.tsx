@@ -16,7 +16,7 @@ export function ImportItem() {
 
   useEffect(() => {
     if (!item) return
-    let live = true
+    const ac = new AbortController()
     ;(async () => {
       const detail = await community.getById(item)
       if (!EDITABLE.has(detail.kind)) throw new Error(`"${detail.title}" is a ${detail.kind}, which Drift Forge can't edit.`)
@@ -24,11 +24,9 @@ export function ImportItem() {
       if (!res.ok) throw new Error("Couldn't download this package.")
       const doc = await importFile("package.driftfx", new Uint8Array(await res.arrayBuffer()))
       const id = await createSyncedEntry(doc)
-      if (live) navigate(`/edit/${id}`, { replace: true })
-    })().catch((e) => live && setError(errorMessage(e)))
-    return () => {
-      live = false
-    }
+      if (!ac.signal.aborted) navigate(`/edit/${id}`, { replace: true })
+    })().catch((e) => !ac.signal.aborted && setError(errorMessage(e)))
+    return () => ac.abort()
   }, [item, navigate])
 
   return (

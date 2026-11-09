@@ -12,12 +12,12 @@ export function useMeters(draw: (m: Meters | null) => void): void {
     drawRef.current = draw
   })
   useEffect(() => {
-    let frame = 0
+    const raf = { id: 0 }
     const off = audioPreview.onMeters((m) => {
       latest.current = m
-      if (!frame) {
-        frame = requestAnimationFrame(() => {
-          frame = 0
+      if (!raf.id) {
+        raf.id = requestAnimationFrame(() => {
+          raf.id = 0
           drawRef.current(latest.current)
         })
       }
@@ -28,7 +28,7 @@ export function useMeters(draw: (m: Meters | null) => void): void {
     return () => {
       off()
       offState()
-      cancelAnimationFrame(frame)
+      cancelAnimationFrame(raf.id)
     }
   }, [])
 }

@@ -60,10 +60,9 @@ export function useAgentChat(localId: string) {
     setInput("")
     setBusy("Thinking…")
     try {
-      let result: RunResult = { reply: "" }
-      await useEditor.getState().withUndoGroup(async (apply) => {
-        result = await runModel(settings, currentDoc(), prompt, history, onEvent, apply)
-      })
+      const result = await useEditor.getState().withUndoGroup((apply) =>
+        runModel(settings, currentDoc(), prompt, history, onEvent, apply),
+      )
       setLines((ls) => finish(ls, result.reply, result.pending))
     } catch (e) {
       setLines((ls) => [...settle(ls), { role: "error", text: e instanceof Error ? e.message : "Something went wrong." }])
