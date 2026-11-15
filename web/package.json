@@ -10,7 +10,7 @@
     "lint": "pnpm -r --if-present run lint"
   },
   "devDependencies": {
-    "oxlint": "^1.91.0",
+    "oxlint": "^1.93.0",
     "typescript": "^7.0.2"
   }
 }
