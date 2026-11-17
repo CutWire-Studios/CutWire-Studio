@@ -6,6 +6,17 @@ import { nodeDef } from "@cutwire/forge-core/nodes/registry"
 import { sample, SAMPLES, type MediaItem } from "./media"
 import type { DriftRenderer, SourceSlot, UniformValue } from "./renderer"
 
+/** Everything about a document that changes the generated shader; literal values don't. */
+export function structureKey(doc: ForgeDoc): string {
+  return JSON.stringify([
+    doc.kind,
+    doc.nodes.map((n) => [n.id, n.type, n.data, Object.entries(n.inputs).filter(([, v]) => isParamRef(v))]),
+    doc.edges.map((e) => [e.from, e.fromSocket, e.to, e.toSocket]),
+    doc.params.map((p) => [p.identifier, p.type, !!p.alpha]),
+    doc.assets.map((a) => a.id),
+  ])
+}
+
 /** The preview source a sampler parameter reads: its own track, matte or audio window. */
 export const paramSlot = (id: string): SourceSlot => `param:${id}`
 

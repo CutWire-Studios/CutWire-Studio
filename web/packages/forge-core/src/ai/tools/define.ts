@@ -25,9 +25,9 @@ export interface Tool {
   call(doc: ForgeDoc, args: Record<string, unknown>): ToolOutcome
 }
 
-export const VIDEO_KINDS: readonly Kind[] = ["effect", "transition"]
+export const VIDEO_KINDS: readonly Kind[] = ["effect", "transition", "animation"]
 export const AUDIO_KINDS: readonly Kind[] = ["audio"]
-export const ALL_KINDS: readonly Kind[] = ["effect", "transition", "audio"]
+export const ALL_KINDS: readonly Kind[] = ["effect", "transition", "animation", "audio"]
 
 export const isShared = (t: Tool) => ALL_KINDS.every((k) => t.kinds.includes(k))
 

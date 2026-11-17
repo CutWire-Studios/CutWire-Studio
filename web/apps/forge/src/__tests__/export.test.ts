@@ -71,6 +71,21 @@ describe("zip", () => {
   })
 })
 
+describe("animations", () => {
+  const anim = STARTERS.find((s) => s.name === "Dissolve")!.doc
+
+  it("rides in a .driftfx under animations and re-opens", async () => {
+    const bytes = await exportDriftfx(anim, { png })
+    const { manifest } = await readDriftfx(bytes)
+    expect(manifest.provides).toEqual([{ kind: "animations", root: "animations", items: 1 }])
+    expect(manifest.files.map((f) => f.path)).toEqual(
+      [`animations/${anim.meta.id}/animation.json`, `animations/${anim.meta.id}/forge.json`, `animations/${anim.meta.id}/main.frag`, `animations/${anim.meta.id}/preview_strip.png`].sort(),
+    )
+    expect(manifest.minAppVersion).toBe("0.9.3")
+    expect(await importFile("a.driftfx", bytes)).toEqual(anim)
+  })
+})
+
 describe("link", () => {
   it("round-trips a document", async () => {
     const payload = await encodeLinkPayload(wipe)

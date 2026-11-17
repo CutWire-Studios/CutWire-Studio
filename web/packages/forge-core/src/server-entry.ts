@@ -78,7 +78,7 @@ export function agentCall(json: string, name: string, argsJson: string): string 
   return asJson({ doc: r.doc !== d ? asJson(r.doc) : undefined, result: r.result, error: r.error || undefined, created: r.created })
 }
 
-const DOC_NOUN: Record<Kind, string> = { effect: "graph", transition: "graph", audio: "board" }
+const DOC_NOUN: Record<Kind, string> = { effect: "graph", transition: "graph", animation: "graph", audio: "board" }
 
 /** What a hosted AI run starts a step with: system prompt, tool list (OpenAI format), the first user turn. */
 export function agentSetup(json: string, prompt: string): string {

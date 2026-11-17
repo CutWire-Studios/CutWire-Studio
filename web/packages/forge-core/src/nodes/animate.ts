@@ -86,7 +86,7 @@ export const animateNodes: NodeDef[] = [
     emit: (c) => {
       const raw = c.opt<CurvePoint[] | object>("points")
       const pts: CurvePoint[] = Array.isArray(raw) ? [...raw].sort((a, b) => a.x - b.x) : []
-      const timeIn = c.kind === "transition" ? c.in("t") : `${c.in("t")} / max(${c.in("length")}, 0.0001)`
+      const timeIn = c.kind !== "effect" ? c.in("t") : `${c.in("t")} / max(${c.in("length")}, 0.0001)`
       const t =
         c.kind === "effect" && c.opt<boolean>("loop") ? `fract(${timeIn})` : `clamp(${timeIn}, 0.0, 1.0)`
       const lines = [`float t = ${t};`, "float y;"]

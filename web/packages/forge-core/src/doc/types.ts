@@ -1,6 +1,6 @@
 export const FORGE_SCHEMA = 3
 
-export type Kind = "effect" | "transition" | "audio"
+export type Kind = "effect" | "transition" | "animation" | "audio"
 
 export type SocketType = "float" | "vec2" | "color"
 
@@ -208,6 +208,10 @@ export interface ForgeMeta {
   description: string
   author: string
   version: string
+  /** animations: which ends the animation can play at (default both) */
+  directions?: ("in" | "out")[]
+  /** animations: length Drift gives a new animation, in milliseconds (default 500) */
+  defaultDurationMs?: number
 }
 
 export interface ForgeDoc {

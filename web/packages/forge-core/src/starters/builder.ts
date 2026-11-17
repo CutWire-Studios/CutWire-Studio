@@ -58,6 +58,7 @@ function starter(kind: Kind) {
 
 export const effect = starter("effect")
 export const transition = starter("transition")
+export const animation = starter("animation")
 
 export const float = (identifier: string, displayName: string, def: number, min: number, max: number): ParamDef => ({
   identifier,

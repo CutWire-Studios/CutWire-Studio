@@ -96,7 +96,7 @@ export function Home() {
         }}
       >
         <section className="hero">
-          <h1>Make your own effects, transitions and audio effects for Drift</h1>
+          <h1>Make your own effects, transitions, animations and audio effects for Drift</h1>
           <p className="hero-sub">
             Connect building blocks, watch the result live, then drop it straight into Drift. No code needed, and
             everything stays in your browser.
@@ -120,6 +120,16 @@ export function Home() {
               </span>
               <strong>New transition</strong>
               <span className="meta">Moves from one clip to the next: wipes, dissolves, pushes…</span>
+            </button>
+            <button type="button" className="new-card" onClick={() => setPicker("animation")}>
+              <span className="new-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                  <rect x="3" y="7" width="12" height="10" rx="2" fill="currentColor" />
+                  <path d="M17 9l4 3-4 3z" fill="currentColor" opacity=".45" />
+                </svg>
+              </span>
+              <strong>New animation</strong>
+              <span className="meta">Brings a clip in or out: fades, slides, reveals, zooms…</span>
             </button>
             <button type="button" className="new-card" onClick={() => start(emptyDoc("audio"))}>
               <span className="new-icon" aria-hidden="true">

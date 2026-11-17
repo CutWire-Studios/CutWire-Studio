@@ -9574,6 +9574,500 @@ exports[`starter outputs are unchanged > Dip to black 2`] = `
 }"
 `;
 
+exports[`starter outputs are unchanged > Dissolve 1`] = `
+{
+  "doc": "{
+ "forge": 3,
+ "kind": "animation",
+ "meta": {
+  "id": "#0",
+  "displayName": "Dissolve",
+  "category": "reveal",
+  "description": "The clip emerges from, or melts into, drifting noise.",
+  "author": "",
+  "version": "1.0.0"
+ },
+ "params": [
+  {
+   "identifier": "scale",
+   "displayName": "Patch size",
+   "type": "float",
+   "min": 0.5,
+   "max": 40,
+   "default": 5
+  },
+  {
+   "identifier": "softness",
+   "displayName": "Softness",
+   "type": "float",
+   "min": 0,
+   "max": 0.5,
+   "default": 0.1
+  }
+ ],
+ "nodes": [
+  {
+   "id": "#1",
+   "type": "video",
+   "x": 0,
+   "y": 0,
+   "inputs": {},
+   "data": {}
+  },
+  {
+   "id": "#2",
+   "type": "noise",
+   "x": 0,
+   "y": 440,
+   "inputs": {
+    "scale": {
+     "param": "scale"
+    },
+    "speed": 0,
+    "t": 0,
+    "seed": 0
+   },
+   "data": {
+    "style": "cloud"
+   }
+  },
+  {
+   "id": "#3",
+   "type": "reveal",
+   "x": 280,
+   "y": 220,
+   "inputs": {
+    "pattern": 0.5,
+    "softness": {
+     "param": "softness"
+    },
+    "p": 0
+   },
+   "data": {
+    "invert": false
+   }
+  },
+  {
+   "id": "#4",
+   "type": "set_alpha",
+   "x": 560,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "mask": 1
+   },
+   "data": {}
+  },
+  {
+   "id": "#5",
+   "type": "animation_output",
+   "x": 840,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "data": {}
+  }
+ ],
+ "edges": [
+  {
+   "id": "#6",
+   "from": "#2",
+   "fromSocket": "value",
+   "to": "#3",
+   "toSocket": "pattern"
+  },
+  {
+   "id": "#7",
+   "from": "#1",
+   "fromSocket": "image",
+   "to": "#4",
+   "toSocket": "image"
+  },
+  {
+   "id": "#8",
+   "from": "#3",
+   "fromSocket": "mask",
+   "to": "#4",
+   "toSocket": "mask"
+  },
+  {
+   "id": "#9",
+   "from": "#4",
+   "fromSocket": "image",
+   "to": "#5",
+   "toSocket": "image"
+  }
+ ],
+ "assets": [],
+ "preview": {
+  "thumbTime": 0.5
+ }
+}",
+  "files": [
+    {
+      "path": "animation.json",
+      "text": "{
+  "id": "#0",
+  "displayName": "Dissolve",
+  "category": "reveal",
+  "order": 1000,
+  "description": "The clip emerges from, or melts into, drifting noise.",
+  "directions": [
+    "in",
+    "out"
+  ],
+  "defaultDurationMs": 500,
+  "parameters": [
+    {
+      "identifier": "scale",
+      "displayName": "Patch size",
+      "type": "float",
+      "minValue": 0.5,
+      "maxValue": 40,
+      "defaultValue": 5
+    },
+    {
+      "identifier": "softness",
+      "displayName": "Softness",
+      "type": "float",
+      "minValue": 0,
+      "maxValue": 0.5,
+      "defaultValue": 0.1
+    }
+  ],
+  "pipeline": {
+    "intermediateBuffers": [],
+    "passes": [
+      {
+        "passIndex": 0,
+        "fragmentShader": "main.frag",
+        "inputs": [
+          {
+            "type": "source_texture",
+            "index": 0
+          }
+        ],
+        "output": {
+          "type": "canvas"
+        }
+      }
+    ]
+  },
+  "nextFeatures": [
+    "kind:animation"
+  ]
+}
+",
+    },
+    {
+      "path": "main.frag",
+      "text": "#version 330 core
+in vec2 v_texCoord;
+out vec4 fragColor;
+
+uniform sampler2D u_currentTexture;
+uniform vec2 u_resolution;
+uniform float u_progress;
+uniform float u_direction;
+uniform float scale;
+uniform float softness;
+float pv_scale() { return scale; }
+float pv_softness() { return softness; }
+
+float hash21(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+float valueNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash21(i);
+    float b = hash21(i + vec2(1.0, 0.0));
+    float c = hash21(i + vec2(0.0, 1.0));
+    float d = hash21(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(vec2 p) {
+    float v = 0.0;
+    float amp = 0.5;
+    for (int i = 0; i < 5; ++i) {
+        v += amp * valueNoise(p);
+        p *= 2.02;
+        amp *= 0.5;
+    }
+    return v;
+}
+
+vec4 n_#1_image(vec2 uv) {
+    return texture(u_currentTexture, uv);
+}
+
+float n_#2_value(vec2 uv) {
+    return fbm(uv * vec2(u_resolution.x / max(u_resolution.y, 1.0), 1.0) * pv_scale() + vec2(mix(u_progress, 1.0 - u_progress, u_direction) * 0.0, mix(u_progress, 1.0 - u_progress, u_direction) * 0.0 * 0.7) + vec2(0.0 * 17.31, 0.0 * 7.77));
+}
+
+float n_#3_mask(vec2 uv) {
+    float x = clamp(n_#2_value(uv), 0.0, 1.0);
+    
+    float s = max(pv_softness(), 0.0001);
+    float front = mix(-s, 1.0 + s, mix(u_progress, 1.0 - u_progress, u_direction));
+    return 1.0 - smoothstep(front - s, front + s, x);
+}
+
+vec4 n_#4_image(vec2 uv) {
+    vec4 col = n_#1_image(uv);
+    return vec4(col.rgb, col.a * clamp(n_#3_mask(uv), 0.0, 1.0));
+}
+
+void main() {
+    fragColor = n_#4_image(v_texCoord);
+}
+",
+    },
+    {
+      "path": "forge.json",
+      "text": "{
+  "forge": 3,
+  "kind": "animation",
+  "meta": {
+    "id": "#0",
+    "displayName": "Dissolve",
+    "category": "reveal",
+    "description": "The clip emerges from, or melts into, drifting noise.",
+    "author": "",
+    "version": "1.0.0"
+  },
+  "params": [
+    {
+      "identifier": "scale",
+      "displayName": "Patch size",
+      "type": "float",
+      "min": 0.5,
+      "max": 40,
+      "default": 5
+    },
+    {
+      "identifier": "softness",
+      "displayName": "Softness",
+      "type": "float",
+      "min": 0,
+      "max": 0.5,
+      "default": 0.1
+    }
+  ],
+  "nodes": [
+    {
+      "id": "#1",
+      "type": "video",
+      "x": 0,
+      "y": 0,
+      "inputs": {},
+      "data": {}
+    },
+    {
+      "id": "#2",
+      "type": "noise",
+      "x": 0,
+      "y": 440,
+      "inputs": {
+        "scale": {
+          "param": "scale"
+        },
+        "speed": 0,
+        "t": 0,
+        "seed": 0
+      },
+      "data": {
+        "style": "cloud"
+      }
+    },
+    {
+      "id": "#3",
+      "type": "reveal",
+      "x": 280,
+      "y": 220,
+      "inputs": {
+        "pattern": 0.5,
+        "softness": {
+          "param": "softness"
+        },
+        "p": 0
+      },
+      "data": {
+        "invert": false
+      }
+    },
+    {
+      "id": "#4",
+      "type": "set_alpha",
+      "x": 560,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "mask": 1
+      },
+      "data": {}
+    },
+    {
+      "id": "#5",
+      "type": "animation_output",
+      "x": 840,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "data": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "#6",
+      "from": "#2",
+      "fromSocket": "value",
+      "to": "#3",
+      "toSocket": "pattern"
+    },
+    {
+      "id": "#7",
+      "from": "#1",
+      "fromSocket": "image",
+      "to": "#4",
+      "toSocket": "image"
+    },
+    {
+      "id": "#8",
+      "from": "#3",
+      "fromSocket": "mask",
+      "to": "#4",
+      "toSocket": "mask"
+    },
+    {
+      "id": "#9",
+      "from": "#4",
+      "fromSocket": "image",
+      "to": "#5",
+      "toSocket": "image"
+    }
+  ],
+  "assets": [],
+  "preview": {
+    "thumbTime": 0.5
+  }
+}",
+    },
+    {
+      "path": "preview_strip.png",
+      "text": "�PNG",
+    },
+  ],
+  "graph": null,
+  "preview": "{
+ "ok": true,
+ "errors": [],
+ "passes": [
+  {
+   "file": "main.frag",
+   "source": "#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\nuniform vec2 u_resolution;\\nuniform float u_progress;\\nuniform float u_direction;\\nuniform float scale;\\nuniform float softness;\\nfloat pv_scale() { return scale; }\\nfloat pv_softness() { return softness; }\\nuniform float k_#2_speed;\\nuniform float k_#2_seed;\\n\\nfloat hash21(vec2 p) {\\n    vec3 p3 = fract(vec3(p.xyx) * 0.1031);\\n    p3 += dot(p3, p3.yzx + 33.33);\\n    return fract((p3.x + p3.y) * p3.z);\\n}\\n\\nfloat valueNoise(vec2 p) {\\n    vec2 i = floor(p);\\n    vec2 f = fract(p);\\n    f = f * f * (3.0 - 2.0 * f);\\n    float a = hash21(i);\\n    float b = hash21(i + vec2(1.0, 0.0));\\n    float c = hash21(i + vec2(0.0, 1.0));\\n    float d = hash21(i + vec2(1.0, 1.0));\\n    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);\\n}\\n\\nfloat fbm(vec2 p) {\\n    float v = 0.0;\\n    float amp = 0.5;\\n    for (int i = 0; i < 5; ++i) {\\n        v += amp * valueNoise(p);\\n        p *= 2.02;\\n        amp *= 0.5;\\n    }\\n    return v;\\n}\\n\\nvec4 n_#1_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nfloat n_#2_value(vec2 uv) {\\n    return fbm(uv * vec2(u_resolution.x / max(u_resolution.y, 1.0), 1.0) * pv_scale() + vec2(mix(u_progress, 1.0 - u_progress, u_direction) * k_#2_speed, mix(u_progress, 1.0 - u_progress, u_direction) * k_#2_speed * 0.7) + vec2(k_#2_seed * 17.31, k_#2_seed * 7.77));\\n}\\n\\nfloat n_#3_mask(vec2 uv) {\\n    float x = clamp(n_#2_value(uv), 0.0, 1.0);\\n    \\n    float s = max(pv_softness(), 0.0001);\\n    float front = mix(-s, 1.0 + s, mix(u_progress, 1.0 - u_progress, u_direction));\\n    return 1.0 - smoothstep(front - s, front + s, x);\\n}\\n\\nvec4 n_#4_image(vec2 uv) {\\n    vec4 col = n_#1_image(uv);\\n    return vec4(col.rgb, col.a * clamp(n_#3_mask(uv), 0.0, 1.0));\\n}\\n\\nvoid main() {\\n    fragColor = n_#4_image(v_texCoord);\\n}\\n",
+   "inputs": [
+    {
+     "type": "source_texture",
+     "index": 0
+    }
+   ],
+   "output": {
+    "type": "canvas"
+   },
+   "paramSamplers": []
+  }
+ ],
+ "buffers": [],
+ "textures": [],
+ "literals": [
+  {
+   "name": "k_#2_speed",
+   "node": "#2",
+   "input": "speed",
+   "type": "float"
+  },
+  {
+   "name": "k_#2_seed",
+   "node": "#2",
+   "input": "seed",
+   "type": "float"
+  }
+ ],
+ "usesTime": false,
+ "usesMask": false
+}",
+}
+`;
+
+exports[`starter outputs are unchanged > Dissolve 2`] = `
+"{
+ "author": "",
+ "description": "The clip emerges from, or melts into, drifting noise.",
+ "details": "Made with Drift Forge. Animation id: #0.",
+ "files": [
+  {
+   "offset": 0,
+   "path": "animations/#0/animation.json",
+   "size": 983
+  },
+  {
+   "offset": 983,
+   "path": "animations/#0/forge.json",
+   "size": 2367
+  },
+  {
+   "offset": 3350,
+   "path": "animations/#0/main.frag",
+   "size": 1773
+  }
+ ],
+ "generator": "drift-forge/0.1.0",
+ "id": "user.#0",
+ "installedSize": 5123,
+ "license": "",
+ "minAppVersion": "0.9.3",
+ "name": "Dissolve",
+ "platform": "",
+ "provides": [
+  {
+   "items": 1,
+   "kind": "animations",
+   "root": "animations"
+  }
+ ],
+ "schema": 1,
+ "version": "1.0.0"
+}"
+`;
+
 exports[`starter outputs are unchanged > Doors 1`] = `
 {
   "doc": "{
@@ -11512,6 +12006,578 @@ exports[`starter outputs are unchanged > Duotone 2`] = `
    "items": 1,
    "kind": "effects",
    "root": "effects"
+  }
+ ],
+ "schema": 1,
+ "version": "1.0.0"
+}"
+`;
+
+exports[`starter outputs are unchanged > Fade & rise 1`] = `
+{
+  "doc": "{
+ "forge": 3,
+ "kind": "animation",
+ "meta": {
+  "id": "#0",
+  "displayName": "Fade & rise",
+  "category": "basic",
+  "description": "The clip fades in while drifting up into place, and back down on the way out.",
+  "author": "",
+  "version": "1.0.0"
+ },
+ "params": [
+  {
+   "identifier": "rise",
+   "displayName": "Rise",
+   "type": "float",
+   "min": 0,
+   "max": 0.5,
+   "default": 0.12
+  }
+ ],
+ "nodes": [
+  {
+   "id": "#1",
+   "type": "video",
+   "x": 0,
+   "y": 0,
+   "inputs": {},
+   "data": {}
+  },
+  {
+   "id": "#2",
+   "type": "direction",
+   "x": 0,
+   "y": 220,
+   "inputs": {},
+   "data": {}
+  },
+  {
+   "id": "#3",
+   "type": "mix_value",
+   "x": 280,
+   "y": 220,
+   "inputs": {
+    "a": {
+     "param": "rise"
+    },
+    "b": 0,
+    "t": 0.5
+   },
+   "data": {}
+  },
+  {
+   "id": "#4",
+   "type": "combine_point",
+   "x": 560,
+   "y": 220,
+   "inputs": {
+    "x": 0,
+    "y": 0.5
+   },
+   "data": {}
+  },
+  {
+   "id": "#5",
+   "type": "transform",
+   "x": 840,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "offset": [
+     0,
+     0
+    ],
+    "scale": 1,
+    "rotation": 0,
+    "pivot": [
+     0.5,
+     0.5
+    ]
+   },
+   "data": {
+    "edge": "transparent"
+   }
+  },
+  {
+   "id": "#6",
+   "type": "set_alpha",
+   "x": 1120,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "mask": 1
+   },
+   "data": {}
+  },
+  {
+   "id": "#7",
+   "type": "animation_output",
+   "x": 1400,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "data": {}
+  }
+ ],
+ "edges": [
+  {
+   "id": "#8",
+   "from": "#2",
+   "fromSocket": "settled",
+   "to": "#3",
+   "toSocket": "t"
+  },
+  {
+   "id": "#9",
+   "from": "#3",
+   "fromSocket": "value",
+   "to": "#4",
+   "toSocket": "y"
+  },
+  {
+   "id": "#10",
+   "from": "#1",
+   "fromSocket": "image",
+   "to": "#5",
+   "toSocket": "image"
+  },
+  {
+   "id": "#11",
+   "from": "#4",
+   "fromSocket": "p",
+   "to": "#5",
+   "toSocket": "offset"
+  },
+  {
+   "id": "#12",
+   "from": "#5",
+   "fromSocket": "image",
+   "to": "#6",
+   "toSocket": "image"
+  },
+  {
+   "id": "#13",
+   "from": "#2",
+   "fromSocket": "settled",
+   "to": "#6",
+   "toSocket": "mask"
+  },
+  {
+   "id": "#14",
+   "from": "#6",
+   "fromSocket": "image",
+   "to": "#7",
+   "toSocket": "image"
+  }
+ ],
+ "assets": [],
+ "preview": {
+  "thumbTime": 0.5
+ }
+}",
+  "files": [
+    {
+      "path": "animation.json",
+      "text": "{
+  "id": "#0",
+  "displayName": "Fade & rise",
+  "category": "basic",
+  "order": 1000,
+  "description": "The clip fades in while drifting up into place, and back down on the way out.",
+  "directions": [
+    "in",
+    "out"
+  ],
+  "defaultDurationMs": 500,
+  "parameters": [
+    {
+      "identifier": "rise",
+      "displayName": "Rise",
+      "type": "float",
+      "minValue": 0,
+      "maxValue": 0.5,
+      "defaultValue": 0.12
+    }
+  ],
+  "pipeline": {
+    "intermediateBuffers": [],
+    "passes": [
+      {
+        "passIndex": 0,
+        "fragmentShader": "main.frag",
+        "inputs": [
+          {
+            "type": "source_texture",
+            "index": 0
+          }
+        ],
+        "output": {
+          "type": "canvas"
+        }
+      }
+    ]
+  },
+  "nextFeatures": [
+    "kind:animation"
+  ]
+}
+",
+    },
+    {
+      "path": "main.frag",
+      "text": "#version 330 core
+in vec2 v_texCoord;
+out vec4 fragColor;
+
+uniform sampler2D u_currentTexture;
+uniform vec2 u_resolution;
+uniform float u_progress;
+uniform float u_direction;
+uniform float rise;
+float pv_rise() { return rise; }
+
+mat2 rot2(float a) {
+    float c = cos(a);
+    float s = sin(a);
+    return mat2(c, s, -s, c);
+}
+
+float n_#2_settled(vec2 uv) {
+    return mix(u_progress, 1.0 - u_progress, u_direction);
+}
+
+float n_#3_value(vec2 uv) {
+    return mix(pv_rise(), 0.0, n_#2_settled(uv));
+}
+
+vec2 n_#4_p(vec2 uv) {
+    return vec2(0.0, n_#3_value(uv));
+}
+
+vec4 n_#1_image(vec2 uv) {
+    return texture(u_currentTexture, uv);
+}
+
+vec4 n_#5_image(vec2 uv) {
+    float asp = u_resolution.x / max(u_resolution.y, 1.0);
+    vec2 p = uv - n_#4_p(uv) - vec2(0.5, 0.5);
+    p.x *= asp;
+    p = rot2(-radians(0.0)) * p;
+    p /= max(1.0, 0.0001);
+    p.x /= asp;
+    p += vec2(0.5, 0.5);
+    if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) return vec4(0.0);
+    return n_#1_image(p);
+}
+
+vec4 n_#6_image(vec2 uv) {
+    vec4 col = n_#5_image(uv);
+    return vec4(col.rgb, col.a * clamp(n_#2_settled(uv), 0.0, 1.0));
+}
+
+void main() {
+    fragColor = n_#6_image(v_texCoord);
+}
+",
+    },
+    {
+      "path": "forge.json",
+      "text": "{
+  "forge": 3,
+  "kind": "animation",
+  "meta": {
+    "id": "#0",
+    "displayName": "Fade & rise",
+    "category": "basic",
+    "description": "The clip fades in while drifting up into place, and back down on the way out.",
+    "author": "",
+    "version": "1.0.0"
+  },
+  "params": [
+    {
+      "identifier": "rise",
+      "displayName": "Rise",
+      "type": "float",
+      "min": 0,
+      "max": 0.5,
+      "default": 0.12
+    }
+  ],
+  "nodes": [
+    {
+      "id": "#1",
+      "type": "video",
+      "x": 0,
+      "y": 0,
+      "inputs": {},
+      "data": {}
+    },
+    {
+      "id": "#2",
+      "type": "direction",
+      "x": 0,
+      "y": 220,
+      "inputs": {},
+      "data": {}
+    },
+    {
+      "id": "#3",
+      "type": "mix_value",
+      "x": 280,
+      "y": 220,
+      "inputs": {
+        "a": {
+          "param": "rise"
+        },
+        "b": 0,
+        "t": 0.5
+      },
+      "data": {}
+    },
+    {
+      "id": "#4",
+      "type": "combine_point",
+      "x": 560,
+      "y": 220,
+      "inputs": {
+        "x": 0,
+        "y": 0.5
+      },
+      "data": {}
+    },
+    {
+      "id": "#5",
+      "type": "transform",
+      "x": 840,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "scale": 1,
+        "rotation": 0,
+        "pivot": [
+          0.5,
+          0.5
+        ]
+      },
+      "data": {
+        "edge": "transparent"
+      }
+    },
+    {
+      "id": "#6",
+      "type": "set_alpha",
+      "x": 1120,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "mask": 1
+      },
+      "data": {}
+    },
+    {
+      "id": "#7",
+      "type": "animation_output",
+      "x": 1400,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "data": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "#8",
+      "from": "#2",
+      "fromSocket": "settled",
+      "to": "#3",
+      "toSocket": "t"
+    },
+    {
+      "id": "#9",
+      "from": "#3",
+      "fromSocket": "value",
+      "to": "#4",
+      "toSocket": "y"
+    },
+    {
+      "id": "#10",
+      "from": "#1",
+      "fromSocket": "image",
+      "to": "#5",
+      "toSocket": "image"
+    },
+    {
+      "id": "#11",
+      "from": "#4",
+      "fromSocket": "p",
+      "to": "#5",
+      "toSocket": "offset"
+    },
+    {
+      "id": "#12",
+      "from": "#5",
+      "fromSocket": "image",
+      "to": "#6",
+      "toSocket": "image"
+    },
+    {
+      "id": "#13",
+      "from": "#2",
+      "fromSocket": "settled",
+      "to": "#6",
+      "toSocket": "mask"
+    },
+    {
+      "id": "#14",
+      "from": "#6",
+      "fromSocket": "image",
+      "to": "#7",
+      "toSocket": "image"
+    }
+  ],
+  "assets": [],
+  "preview": {
+    "thumbTime": 0.5
+  }
+}",
+    },
+    {
+      "path": "preview_strip.png",
+      "text": "�PNG",
+    },
+  ],
+  "graph": null,
+  "preview": "{
+ "ok": true,
+ "errors": [],
+ "passes": [
+  {
+   "file": "main.frag",
+   "source": "#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\nuniform vec2 u_resolution;\\nuniform float u_progress;\\nuniform float u_direction;\\nuniform float rise;\\nfloat pv_rise() { return rise; }\\nuniform float k_#4_x;\\nuniform float k_#3_b;\\nuniform vec2 k_#5_pivot;\\nuniform float k_#5_rotation;\\nuniform float k_#5_scale;\\n\\nmat2 rot2(float a) {\\n    float c = cos(a);\\n    float s = sin(a);\\n    return mat2(c, s, -s, c);\\n}\\n\\nfloat n_#2_settled(vec2 uv) {\\n    return mix(u_progress, 1.0 - u_progress, u_direction);\\n}\\n\\nfloat n_#3_value(vec2 uv) {\\n    return mix(pv_rise(), k_#3_b, n_#2_settled(uv));\\n}\\n\\nvec2 n_#4_p(vec2 uv) {\\n    return vec2(k_#4_x, n_#3_value(uv));\\n}\\n\\nvec4 n_#1_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nvec4 n_#5_image(vec2 uv) {\\n    float asp = u_resolution.x / max(u_resolution.y, 1.0);\\n    vec2 p = uv - n_#4_p(uv) - k_#5_pivot;\\n    p.x *= asp;\\n    p = rot2(-radians(k_#5_rotation)) * p;\\n    p /= max(k_#5_scale, 0.0001);\\n    p.x /= asp;\\n    p += k_#5_pivot;\\n    if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) return vec4(0.0);\\n    return n_#1_image(p);\\n}\\n\\nvec4 n_#6_image(vec2 uv) {\\n    vec4 col = n_#5_image(uv);\\n    return vec4(col.rgb, col.a * clamp(n_#2_settled(uv), 0.0, 1.0));\\n}\\n\\nvoid main() {\\n    fragColor = n_#6_image(v_texCoord);\\n}\\n",
+   "inputs": [
+    {
+     "type": "source_texture",
+     "index": 0
+    }
+   ],
+   "output": {
+    "type": "canvas"
+   },
+   "paramSamplers": []
+  }
+ ],
+ "buffers": [],
+ "textures": [],
+ "literals": [
+  {
+   "name": "k_#4_x",
+   "node": "#4",
+   "input": "x",
+   "type": "float"
+  },
+  {
+   "name": "k_#3_b",
+   "node": "#3",
+   "input": "b",
+   "type": "float"
+  },
+  {
+   "name": "k_#5_pivot",
+   "node": "#5",
+   "input": "pivot",
+   "type": "vec2"
+  },
+  {
+   "name": "k_#5_rotation",
+   "node": "#5",
+   "input": "rotation",
+   "type": "float"
+  },
+  {
+   "name": "k_#5_scale",
+   "node": "#5",
+   "input": "scale",
+   "type": "float"
+  }
+ ],
+ "usesTime": false,
+ "usesMask": false
+}",
+}
+`;
+
+exports[`starter outputs are unchanged > Fade & rise 2`] = `
+"{
+ "author": "",
+ "description": "The clip fades in while drifting up into place, and back down on the way out.",
+ "details": "Made with Drift Forge. Animation id: #0.",
+ "files": [
+  {
+   "offset": 0,
+   "path": "animations/#0/animation.json",
+   "size": 834
+  },
+  {
+   "offset": 834,
+   "path": "animations/#0/forge.json",
+   "size": 3041
+  },
+  {
+   "offset": 3875,
+   "path": "animations/#0/main.frag",
+   "size": 1242
+  }
+ ],
+ "generator": "drift-forge/0.1.0",
+ "id": "user.#0",
+ "installedSize": 5117,
+ "license": "",
+ "minAppVersion": "0.9.3",
+ "name": "Fade & rise",
+ "platform": "",
+ "provides": [
+  {
+   "items": 1,
+   "kind": "animations",
+   "root": "animations"
   }
  ],
  "schema": 1,
@@ -35673,6 +36739,407 @@ exports[`starter outputs are unchanged > Vortex backdrop 2`] = `
    "items": 1,
    "kind": "effects",
    "root": "effects"
+  }
+ ],
+ "schema": 1,
+ "version": "1.0.0"
+}"
+`;
+
+exports[`starter outputs are unchanged > Wipe reveal 1`] = `
+{
+  "doc": "{
+ "forge": 3,
+ "kind": "animation",
+ "meta": {
+  "id": "#0",
+  "displayName": "Wipe reveal",
+  "category": "reveal",
+  "description": "A soft edge sweeps across to uncover the clip, or cover it again.",
+  "author": "",
+  "version": "1.0.0"
+ },
+ "params": [
+  {
+   "identifier": "angle",
+   "displayName": "Direction",
+   "type": "float",
+   "min": 0,
+   "max": 360,
+   "default": 0
+  },
+  {
+   "identifier": "softness",
+   "displayName": "Softness",
+   "type": "float",
+   "min": 0,
+   "max": 0.5,
+   "default": 0.08
+  }
+ ],
+ "nodes": [
+  {
+   "id": "#1",
+   "type": "video",
+   "x": 0,
+   "y": 0,
+   "inputs": {},
+   "data": {}
+  },
+  {
+   "id": "#2",
+   "type": "wipe_mask",
+   "x": 280,
+   "y": 220,
+   "inputs": {
+    "angle": {
+     "param": "angle"
+    },
+    "softness": {
+     "param": "softness"
+    },
+    "p": 0
+   },
+   "data": {}
+  },
+  {
+   "id": "#3",
+   "type": "set_alpha",
+   "x": 560,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "mask": 1
+   },
+   "data": {}
+  },
+  {
+   "id": "#4",
+   "type": "animation_output",
+   "x": 840,
+   "y": 0,
+   "inputs": {
+    "image": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "data": {}
+  }
+ ],
+ "edges": [
+  {
+   "id": "#5",
+   "from": "#1",
+   "fromSocket": "image",
+   "to": "#3",
+   "toSocket": "image"
+  },
+  {
+   "id": "#6",
+   "from": "#2",
+   "fromSocket": "mask",
+   "to": "#3",
+   "toSocket": "mask"
+  },
+  {
+   "id": "#7",
+   "from": "#3",
+   "fromSocket": "image",
+   "to": "#4",
+   "toSocket": "image"
+  }
+ ],
+ "assets": [],
+ "preview": {
+  "thumbTime": 0.5
+ }
+}",
+  "files": [
+    {
+      "path": "animation.json",
+      "text": "{
+  "id": "#0",
+  "displayName": "Wipe reveal",
+  "category": "reveal",
+  "order": 1000,
+  "description": "A soft edge sweeps across to uncover the clip, or cover it again.",
+  "directions": [
+    "in",
+    "out"
+  ],
+  "defaultDurationMs": 500,
+  "parameters": [
+    {
+      "identifier": "angle",
+      "displayName": "Direction",
+      "type": "float",
+      "minValue": 0,
+      "maxValue": 360,
+      "defaultValue": 0
+    },
+    {
+      "identifier": "softness",
+      "displayName": "Softness",
+      "type": "float",
+      "minValue": 0,
+      "maxValue": 0.5,
+      "defaultValue": 0.08
+    }
+  ],
+  "pipeline": {
+    "intermediateBuffers": [],
+    "passes": [
+      {
+        "passIndex": 0,
+        "fragmentShader": "main.frag",
+        "inputs": [
+          {
+            "type": "source_texture",
+            "index": 0
+          }
+        ],
+        "output": {
+          "type": "canvas"
+        }
+      }
+    ]
+  },
+  "nextFeatures": [
+    "kind:animation"
+  ]
+}
+",
+    },
+    {
+      "path": "main.frag",
+      "text": "#version 330 core
+in vec2 v_texCoord;
+out vec4 fragColor;
+
+uniform sampler2D u_currentTexture;
+uniform float u_progress;
+uniform float u_direction;
+uniform float angle;
+uniform float softness;
+float pv_angle() { return angle; }
+float pv_softness() { return softness; }
+
+vec4 n_#1_image(vec2 uv) {
+    return texture(u_currentTexture, uv);
+}
+
+float n_#2_mask(vec2 uv) {
+    float ang = radians(pv_angle());
+    vec2 d = vec2(cos(ang), sin(ang));
+    float x = dot(uv - 0.5, d) / max(abs(d.x) + abs(d.y), 0.0001) + 0.5;
+    float s = max(pv_softness(), 0.0001);
+    float front = mix(-s, 1.0 + s, mix(u_progress, 1.0 - u_progress, u_direction));
+    return 1.0 - smoothstep(front - s, front + s, x);
+}
+
+vec4 n_#3_image(vec2 uv) {
+    vec4 col = n_#1_image(uv);
+    return vec4(col.rgb, col.a * clamp(n_#2_mask(uv), 0.0, 1.0));
+}
+
+void main() {
+    fragColor = n_#3_image(v_texCoord);
+}
+",
+    },
+    {
+      "path": "forge.json",
+      "text": "{
+  "forge": 3,
+  "kind": "animation",
+  "meta": {
+    "id": "#0",
+    "displayName": "Wipe reveal",
+    "category": "reveal",
+    "description": "A soft edge sweeps across to uncover the clip, or cover it again.",
+    "author": "",
+    "version": "1.0.0"
+  },
+  "params": [
+    {
+      "identifier": "angle",
+      "displayName": "Direction",
+      "type": "float",
+      "min": 0,
+      "max": 360,
+      "default": 0
+    },
+    {
+      "identifier": "softness",
+      "displayName": "Softness",
+      "type": "float",
+      "min": 0,
+      "max": 0.5,
+      "default": 0.08
+    }
+  ],
+  "nodes": [
+    {
+      "id": "#1",
+      "type": "video",
+      "x": 0,
+      "y": 0,
+      "inputs": {},
+      "data": {}
+    },
+    {
+      "id": "#2",
+      "type": "wipe_mask",
+      "x": 280,
+      "y": 220,
+      "inputs": {
+        "angle": {
+          "param": "angle"
+        },
+        "softness": {
+          "param": "softness"
+        },
+        "p": 0
+      },
+      "data": {}
+    },
+    {
+      "id": "#3",
+      "type": "set_alpha",
+      "x": 560,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "mask": 1
+      },
+      "data": {}
+    },
+    {
+      "id": "#4",
+      "type": "animation_output",
+      "x": 840,
+      "y": 0,
+      "inputs": {
+        "image": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "data": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "#5",
+      "from": "#1",
+      "fromSocket": "image",
+      "to": "#3",
+      "toSocket": "image"
+    },
+    {
+      "id": "#6",
+      "from": "#2",
+      "fromSocket": "mask",
+      "to": "#3",
+      "toSocket": "mask"
+    },
+    {
+      "id": "#7",
+      "from": "#3",
+      "fromSocket": "image",
+      "to": "#4",
+      "toSocket": "image"
+    }
+  ],
+  "assets": [],
+  "preview": {
+    "thumbTime": 0.5
+  }
+}",
+    },
+    {
+      "path": "preview_strip.png",
+      "text": "�PNG",
+    },
+  ],
+  "graph": null,
+  "preview": "{
+ "ok": true,
+ "errors": [],
+ "passes": [
+  {
+   "file": "main.frag",
+   "source": "#version 330 core\\nin vec2 v_texCoord;\\nout vec4 fragColor;\\n\\nuniform sampler2D u_currentTexture;\\nuniform float u_progress;\\nuniform float u_direction;\\nuniform float angle;\\nuniform float softness;\\nfloat pv_angle() { return angle; }\\nfloat pv_softness() { return softness; }\\n\\nvec4 n_#1_image(vec2 uv) {\\n    return texture(u_currentTexture, uv);\\n}\\n\\nfloat n_#2_mask(vec2 uv) {\\n    float ang = radians(pv_angle());\\n    vec2 d = vec2(cos(ang), sin(ang));\\n    float x = dot(uv - 0.5, d) / max(abs(d.x) + abs(d.y), 0.0001) + 0.5;\\n    float s = max(pv_softness(), 0.0001);\\n    float front = mix(-s, 1.0 + s, mix(u_progress, 1.0 - u_progress, u_direction));\\n    return 1.0 - smoothstep(front - s, front + s, x);\\n}\\n\\nvec4 n_#3_image(vec2 uv) {\\n    vec4 col = n_#1_image(uv);\\n    return vec4(col.rgb, col.a * clamp(n_#2_mask(uv), 0.0, 1.0));\\n}\\n\\nvoid main() {\\n    fragColor = n_#3_image(v_texCoord);\\n}\\n",
+   "inputs": [
+    {
+     "type": "source_texture",
+     "index": 0
+    }
+   ],
+   "output": {
+    "type": "canvas"
+   },
+   "paramSamplers": []
+  }
+ ],
+ "buffers": [],
+ "textures": [],
+ "literals": [],
+ "usesTime": false,
+ "usesMask": false
+}",
+}
+`;
+
+exports[`starter outputs are unchanged > Wipe reveal 2`] = `
+"{
+ "author": "",
+ "description": "A soft edge sweeps across to uncover the clip, or cover it again.",
+ "details": "Made with Drift Forge. Animation id: #0.",
+ "files": [
+  {
+   "offset": 0,
+   "path": "animations/#0/animation.json",
+   "size": 1000
+  },
+  {
+   "offset": 1000,
+   "path": "animations/#0/forge.json",
+   "size": 1972
+  },
+  {
+   "offset": 2972,
+   "path": "animations/#0/main.frag",
+   "size": 914
+  }
+ ],
+ "generator": "drift-forge/0.1.0",
+ "id": "user.#0",
+ "installedSize": 3886,
+ "license": "",
+ "minAppVersion": "0.9.3",
+ "name": "Wipe reveal",
+ "platform": "",
+ "provides": [
+  {
+   "items": 1,
+   "kind": "animations",
+   "root": "animations"
   }
  ],
  "schema": 1,

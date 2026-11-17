@@ -39,6 +39,7 @@ export function PreviewPanel({ kind, expanded, onToggleExpand }: { kind: Kind; e
   const error = useEngineStatus((s) => s.error)
   const [aspect, setAspect] = useState<Aspect>(engine.aspect)
   const [transDur, setTransDur] = useState(engine.transitionDuration)
+  const [direction, setDirection] = useState(engine.direction)
   const inputs = useDoc((d) => d.params).filter(isTrackParam)
   const usesMask = useDoc((d) => d.nodes.some((n) => n.type === "clip_mask"))
   const usesAudio = useDoc((d) => d.nodes.some((n) => n.type === "audio"))
@@ -98,7 +99,7 @@ export function PreviewPanel({ kind, expanded, onToggleExpand }: { kind: Kind; e
         </button>
       </div>
       <div className="preview-sources">
-        <SourcePicker slot={0} label={kind === "effect" ? "Preview on" : "From"} />
+        <SourcePicker slot={0} label={kind === "transition" ? "From" : "Preview on"} />
         {kind === "transition" && <SourcePicker slot={1} label="To" />}
         {usesMask && <SourcePicker slot="mask" label="Clip mask" />}
         {inputs.map((p) =>
@@ -126,7 +127,24 @@ export function PreviewPanel({ kind, expanded, onToggleExpand }: { kind: Kind; e
             <option value="4:5">4:5</option>
           </select>
         </label>
-        {kind === "transition" && (
+        {kind === "animation" && (
+          <label className="source-picker narrow">
+            <span>Plays</span>
+            <select
+              className="input input-sm"
+              value={direction}
+              onChange={(e) => {
+                const d = Number(e.target.value) as 0 | 1
+                engine.setDirection(d)
+                setDirection(d)
+              }}
+            >
+              <option value={0}>In</option>
+              <option value={1}>Out</option>
+            </select>
+          </label>
+        )}
+        {(kind === "transition" || kind === "animation") && (
           <label className="source-picker narrow">
             <span>Length</span>
             <select

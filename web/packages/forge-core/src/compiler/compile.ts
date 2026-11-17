@@ -286,8 +286,8 @@ class Compiler {
 
   private timingCtx(p: PassBuild, node: ForgeNode): Pick<EmitCtx, "clock" | "time" | "progress" | "res" | "aspect"> {
     const time = () => {
-      if (this.kind === "transition") {
-        this.fail(node.id, "Transitions can't use Time. Use Progress instead, so the transition looks the same every time.")
+      if (this.kind !== "effect") {
+        this.fail(node.id, `${KIND_INFO[this.kind].label}s can't use Time. Use Progress instead, so it looks the same every time.`)
       }
       p.usesTime = true
       this.usesTime = true
@@ -302,7 +302,12 @@ class Compiler {
       return "u_resolution"
     }
     return {
-      clock: () => (KIND_INFO[this.kind].clock === "time" ? time() : progress()),
+      clock: () => {
+        if (KIND_INFO[this.kind].clock === "time") return time()
+        if (this.kind !== "animation") return progress()
+        p.engines.add("u_direction")
+        return `mix(${progress()}, 1.0 - ${progress()}, u_direction)`
+      },
       time,
       progress,
       res,
@@ -316,7 +321,7 @@ class Compiler {
   ): Pick<EmitCtx, "source" | "optParam" | "paramSampler" | "paramName" | "mask" | "hasMask" | "depth" | "depthNormal" | "hasDepth" | "face" | "asset"> {
     return {
       source: (index, uv) => {
-        if (this.kind === "effect" && index !== 0) this.fail(node.id, "Effects only have one clip.")
+        if (this.kind !== "transition" && index !== 0) this.fail(node.id, "Effects and animations only have one clip.")
         return `texture(${this.sampler(p, { kind: "source", index })}, ${uv})`
       },
       optParam: (id) => {

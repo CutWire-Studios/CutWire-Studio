@@ -1,5 +1,6 @@
 // The built-in starting points, in the order the home page lists them.
 import type { Starter } from "./builder"
+import { classicAnimations } from "./animations/classic"
 import { classicEffects } from "./effects/classic"
 import { mathEffects } from "./effects/math"
 import { personEffects } from "./effects/person"
@@ -16,4 +17,5 @@ export const STARTERS: Starter[] = [
   ...classicTransitions,
   ...personTransitions,
   ...stylizedTransitions,
+  ...classicAnimations,
 ]

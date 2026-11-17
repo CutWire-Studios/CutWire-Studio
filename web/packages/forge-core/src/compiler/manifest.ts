@@ -13,6 +13,8 @@ const NEXT_APP_VERSION = "0.7.1"
 export const AUDIO_GRAPH_APP_VERSION = "0.8.0"
 /** First Drift that reads track, track mask and audio inputs and the depth/face blocks. */
 export const NEXT2_APP_VERSION = "0.9.0"
+/** First Drift that loads animation packages. */
+export const ANIMATION_APP_VERSION = "0.9.3"
 
 /** A parameter value in the shape Drift's JSON uses for that type. */
 function driftValue(doc: ForgeDoc, p: ParamDef, v: ParamDefault): unknown {
@@ -41,6 +43,7 @@ export function nextFeatures(doc: ForgeDoc, compiled: CompileResult): string[] {
   for (const pass of compiled.passes) {
     if (/\bu_audio(Level|Bass|Beat)\b/.test(pass.source)) f.add("uniform:audio")
   }
+  if (doc.kind === "animation") f.add("kind:animation")
   if (compiled.usesMask) f.add("requires:mask")
   if (compiled.usesDepth) f.add("requires:depth")
   if (compiled.usesFace) f.add("requires:face")
@@ -53,6 +56,7 @@ const NEXT2_FEATURES = new Set(["param:track", "param:trackMask", "param:audio",
 export function minAppVersion(doc: ForgeDoc, compiled: CompileResult): string {
   // Audio packages need the Drift that sideloads audio effects; a graph needs the one that runs them.
   if (doc.kind === "audio") return legacyProcessorFor(doc) ? NEXT_APP_VERSION : AUDIO_GRAPH_APP_VERSION
+  if (doc.kind === "animation") return ANIMATION_APP_VERSION
   const features = nextFeatures(doc, compiled)
   if (features.some((f) => NEXT2_FEATURES.has(f))) return NEXT2_APP_VERSION
   return features.length > 0 ? NEXT_APP_VERSION : MIN_APP_VERSION
@@ -80,7 +84,11 @@ export function packageJson(doc: ForgeDoc, compiled: CompileResult): Record<stri
   }
   if (doc.meta.description) json.description = doc.meta.description
   if (doc.kind === "effect") json.backend = "gpu"
-  else json.audioCurve = "crossfade"
+  else if (doc.kind === "transition") json.audioCurve = "crossfade"
+  else {
+    json.directions = doc.meta.directions?.length ? doc.meta.directions : ["in", "out"]
+    json.defaultDurationMs = doc.meta.defaultDurationMs ?? 500
+  }
   const requires: string[] = []
   if (compiled.usesMask) requires.push("mask")
   if (compiled.usesDepth) requires.push("depth")

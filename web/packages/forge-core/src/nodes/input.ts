@@ -5,8 +5,8 @@ export const inputNodes: NodeDef[] = [
     type: "video",
     label: "Video",
     category: "input",
-    description: "The clip this effect is applied to.",
-    kinds: ["effect"],
+    description: "The clip this effect or animation is applied to.",
+    kinds: ["effect", "animation"],
     cheap: true,
     inputs: [],
     outputs: [{ id: "image", label: "Image", type: "color" }],
@@ -38,12 +38,29 @@ export const inputNodes: NodeDef[] = [
     type: "progress",
     label: "Progress",
     category: "input",
-    description: "How far through the transition we are: 0 at the start, 1 at the end.",
-    kinds: ["transition"],
+    description: "How far through the transition or animation we are: 0 at the start, 1 at the end.",
+    kinds: ["transition", "animation"],
     cheap: true,
     inputs: [],
     outputs: [{ id: "value", label: "Progress", type: "float" }],
     emit: (c) => ({ value: `return ${c.progress()};` }),
+  },
+  {
+    type: "direction",
+    label: "Direction",
+    category: "input",
+    description: "Whether the animation plays in (0) or out (1). Settled is 1 when the clip is fully shown, whichever way it plays. Inputs that follow progress already use it.",
+    kinds: ["animation"],
+    cheap: true,
+    inputs: [],
+    outputs: [
+      { id: "value", label: "In 0 / Out 1", type: "float" },
+      { id: "settled", label: "Settled", type: "float" },
+    ],
+    emit: (c) => {
+      const d = c.engine("u_direction")
+      return { value: `return ${d};`, settled: `return mix(${c.progress()}, 1.0 - ${c.progress()}, ${d});` }
+    },
   },
   {
     type: "time",

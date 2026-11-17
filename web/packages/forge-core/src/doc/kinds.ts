@@ -10,7 +10,7 @@ export interface KindInfo {
   defaultCategory: string
   categories: string[]
   /** package folder, and Drift's user folder it installs into */
-  packageRoot: "effects" | "transitions" | "audio-effects"
+  packageRoot: "effects" | "transitions" | "animations" | "audio-effects"
   /** the package's Drift manifest */
   manifestFile: string
   previewFile: string
@@ -18,7 +18,7 @@ export interface KindInfo {
   browserName: string
   /** the node graph's sink */
   outputNode: string
-  /** what drives animation: seconds into the clip, or 0..1 through the transition */
+  /** what drives animation: seconds into the clip, or 0..1 through the transition or animation */
   clock: "time" | "progress"
 }
 
@@ -47,6 +47,19 @@ export const KIND_INFO: Record<Kind, KindInfo> = {
     previewFile: "preview_strip.png",
     browserName: "transitions",
     outputNode: "transition_output",
+    clock: "progress",
+  },
+  animation: {
+    label: "Animation",
+    withArticle: "an animation",
+    defaultName: "My animation",
+    defaultCategory: "basic",
+    categories: ["basic", "slide", "zoom", "reveal", "glitch", "stylized"],
+    packageRoot: "animations",
+    manifestFile: "animation.json",
+    previewFile: "preview_strip.png",
+    browserName: "animations",
+    outputNode: "animation_output",
     clock: "progress",
   },
   audio: {

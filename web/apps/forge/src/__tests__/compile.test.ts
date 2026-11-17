@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { compile, type CompileResult } from "@cutwire/forge-core/compiler/compile"
-import { packageJson } from "@cutwire/forge-core/compiler/manifest"
+import { minAppVersion, packageJson } from "@cutwire/forge-core/compiler/manifest"
 import { paramNameProblem } from "@cutwire/forge-core/doc/naming"
 import { createNode } from "@cutwire/forge-core/nodes/registry"
 import { STARTERS } from "@cutwire/forge-core/starters"
@@ -71,6 +71,47 @@ describe("compiler", () => {
     const r = compile(doc, { mode: "export" })
     expect(r.ok).toBe(false)
     expect(r.errors[0].message).toMatch(/can't be used in a transition/)
+  })
+
+  it("compiles an animation against one clip, progress and direction", () => {
+    const s = STARTERS.find((s) => s.name === "Fade & rise")!
+    const r = compile(s.doc, { mode: "export" })
+    expect(r.errors).toEqual([])
+    expect(r.passes.map((p) => p.file)).toEqual(["main.frag"])
+    expect(r.passes[0].inputs).toEqual([{ type: "source_texture", index: 0 }])
+    expect(r.passes[0].source).toContain("uniform float u_progress;")
+    expect(r.passes[0].source).toContain("uniform float u_direction;")
+    expect(r.passes[0].source).not.toContain("u_time")
+  })
+
+  it("writes animation.json with directions, length and the minimum Drift", () => {
+    const s = STARTERS.find((s) => s.name === "Wipe reveal")!
+    const r = compile(s.doc, { mode: "export" })
+    const json = packageJson(s.doc, r)
+    expect(json).toMatchObject({ directions: ["in", "out"], defaultDurationMs: 500, category: "reveal", nextFeatures: ["kind:animation"] })
+    expect(json).not.toHaveProperty("audioCurve")
+    expect(json).not.toHaveProperty("backend")
+    expect(minAppVersion(s.doc, r)).toBe("0.9.3")
+    const doc = structuredClone(s.doc)
+    doc.meta.directions = ["in"]
+    doc.meta.defaultDurationMs = 800
+    expect(packageJson(doc, r)).toMatchObject({ directions: ["in"], defaultDurationMs: 800 })
+  })
+
+  it("makes unconnected clock inputs follow the settled value in animations", () => {
+    const s = STARTERS.find((s) => s.name === "Wipe reveal")!
+    const src = compile(s.doc, { mode: "export" }).passes[0].source
+    expect(src).toContain("mix(u_progress, 1.0 - u_progress, u_direction)")
+    expect(src).toContain("uniform float u_direction;")
+  })
+
+  it("keeps Time and the second clip out of animations", () => {
+    const doc = chain("animation", [])
+    doc.nodes.push(createNode("time", 0, 0))
+    expect(compile(doc, { mode: "export" }).errors[0].message).toMatch(/can't be used in an animation/)
+    const doc2 = chain("animation", [])
+    doc2.nodes.push(createNode("to", 0, 0))
+    expect(compile(doc2, { mode: "export" }).errors[0].message).toMatch(/can't be used in an animation/)
   })
 
   it("inlines literals for export and turns them into uniforms for preview", () => {

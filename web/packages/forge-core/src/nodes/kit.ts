@@ -438,7 +438,7 @@ export const kitTransitionNodes: NodeDef[] = [
     label: "Clock wipe",
     category: "transition",
     description: "A hand sweeps around like a clock, revealing the new clip.",
-    kinds: ["transition"],
+    kinds: ["transition", "animation"],
     inputs: [
       point("center", "Centre", [0.5, 0.5]),
       f("start", "Start angle", 0, 0, 360, { widget: "angle" }),

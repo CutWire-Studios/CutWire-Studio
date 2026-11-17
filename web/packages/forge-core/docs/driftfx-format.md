@@ -55,7 +55,7 @@ Same fields as a `.driftpkg` manifest, serialised with keys sorted and no whites
 
 - `id` is the effect/transition id prefixed with `user.`, so it can't collide with CutWire pack
   ids (`effects.core`, `transitions.core`, …).
-- `provides[0].kind` is `effects`, `transitions` or `audio-effects`; `items` is always 1.
+- `provides[0].kind` is `effects`, `transitions`, `animations` or `audio-effects`; `items` is always 1.
 - `files[].offset` indexes the uncompressed payload; offsets are contiguous and in path order.
 
 ## Payload tree
@@ -63,12 +63,18 @@ Same fields as a `.driftpkg` manifest, serialised with keys sorted and no whites
 Identical to a bundled Drift package folder, under the provides root:
 
 ```
-effects/<id>/effect.json        (or transitions/<id>/transition.json)
+effects/<id>/effect.json        (or transitions/<id>/transition.json, animations/<id>/animation.json)
 effects/<id>/main.frag          final pass; extra passes are pass1.frag, pass2.frag, …
-effects/<id>/thumbnail.png      256×256 (transitions: preview_strip.png, 1536×128, 12 frames)
+effects/<id>/thumbnail.png      256×256 (transitions and animations: preview_strip.png, 1536×128, 12 frames)
 effects/<id>/tex0.png …         images referenced by pipeline.textures
 effects/<id>/forge.json         the Drift Forge source document; Drift can ignore it
 ```
+
+An animation (`animations/<id>/animation.json`) is a clip's in/out animation: the transition manifest
+grammar with one source (`source_texture` index 0, the clip as a canvas-sized layer with straight
+alpha), no `audioCurve`, plus `directions` (`["in"]`, `["out"]` or both) and `defaultDurationMs`
+(default 500). Shaders get `u_progress` (0..1 in time order, already eased) and `u_direction`
+(0 = in, 1 = out), never `u_time`. Its preview strip is rendered with direction in. Requires Drift 0.9.3.
 
 An audio effect (`audio-effects/<id>/`) has no shader or picture: `audio-effect.json`,
 `forge.json`, and an `ir/<name>.wav` for each convolution pedal's impulse response. It carries no
@@ -116,5 +122,5 @@ at v = 0 (the top). Forge's shaders sample them at `uv` directly.
 3. Verify each file's `sha256`, reject absolute paths and `..` segments, and require every path to
    sit under `provides[0].root/<one folder>/`.
 4. Show an "unverified, made by a user" confirmation, since nothing vouches for the author.
-5. Install into `<AppData>/effects`, `<AppData>/transitions` or `<AppData>/audio-effects` (the same roots unsigned folders
+5. Install into `<AppData>/effects`, `<AppData>/transitions`, `<AppData>/animations` or `<AppData>/audio-effects` (the same roots unsigned folders
    already load from), or into `addons/<id>/` with an `installed.json` entry marked unsigned.

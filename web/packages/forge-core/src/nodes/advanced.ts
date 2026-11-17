@@ -76,4 +76,15 @@ export const outputNodes: NodeDef[] = [
     outputs: [],
     emit: (c) => ({ image: `return ${c.in("image")};` }),
   },
+  {
+    type: "animation_output",
+    label: "Output",
+    category: "output",
+    description: "What the clip shows while the animation plays. Every animation has exactly one.",
+    kinds: ["animation"],
+    output: true,
+    inputs: [{ id: "image", label: "Image", type: "color", default: [0, 0, 0, 0] }],
+    outputs: [],
+    emit: (c) => ({ image: `return ${c.in("image")};` }),
+  },
 ]

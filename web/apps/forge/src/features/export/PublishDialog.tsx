@@ -178,7 +178,13 @@ export function PublishCard({ doc }: { doc: ForgeDoc }) {
         <h4>Publish to Community</h4>
         <p className="meta">Share it with everyone. Builds the package and the exact-size pictures, then opens the upload form.</p>
       </div>
-      <button type="button" className="btn btn-secondary btn-sm" onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="btn btn-secondary btn-sm"
+        disabled={doc.kind === "animation"}
+        title={doc.kind === "animation" ? "The community can't host animations yet." : undefined}
+        onClick={() => setOpen(true)}
+      >
         Publish…
       </button>
       {open && <PublishDialog doc={doc} onClose={() => setOpen(false)} />}

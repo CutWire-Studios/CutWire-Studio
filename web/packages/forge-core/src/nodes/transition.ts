@@ -15,7 +15,7 @@ export const transitionNodes: NodeDef[] = [
     label: "Wipe mask",
     category: "transition",
     description: "A straight edge sweeping across the frame. Plug into Mix → Amount between From and To.",
-    kinds: ["transition"],
+    kinds: ["transition", "animation"],
     inputs: [
       { id: "angle", label: "Direction", type: "float", default: 0, min: 0, max: 360, widget: "angle" },
       softness,
@@ -34,7 +34,7 @@ export const transitionNodes: NodeDef[] = [
     label: "Iris mask",
     category: "transition",
     description: "A circle growing from a point until it fills the frame.",
-    kinds: ["transition"],
+    kinds: ["transition", "animation"],
     inputs: [
       { id: "center", label: "Centre", type: "vec2", default: [0.5, 0.5], min: 0, max: 1, widget: "point" },
       softness,
@@ -54,7 +54,7 @@ export const transitionNodes: NodeDef[] = [
     label: "Noise dissolve mask",
     category: "transition",
     description: "The new clip eats through the old one in organic, random patches.",
-    kinds: ["transition"],
+    kinds: ["transition", "animation"],
     inputs: [
       { id: "scale", label: "Patch size", type: "float", default: 5, min: 0.5, max: 40 },
       softness,
@@ -75,7 +75,7 @@ export const transitionNodes: NodeDef[] = [
     label: "Blinds mask",
     category: "transition",
     description: "Many thin strips each opening at once, like venetian blinds.",
-    kinds: ["transition"],
+    kinds: ["transition", "animation"],
     inputs: [
       { id: "count", label: "Strips", type: "float", default: 10, min: 1, max: 60, integer: true },
       { id: "angle", label: "Direction", type: "float", default: 0, min: 0, max: 360, widget: "angle" },

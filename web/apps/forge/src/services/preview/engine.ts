@@ -1,9 +1,9 @@
 import { compile, type CompileResult } from "@cutwire/forge-core/compiler/compile"
-import { isParamRef, type ForgeDoc, type ParamDefault } from "@cutwire/forge-core/doc/types"
+import type { ForgeDoc, ParamDefault } from "@cutwire/forge-core/doc/types"
 import { base64ToBytes } from "@cutwire/forge-core/doc/util"
 import { AUDIO_SAMPLES, AudioFollower, AudioFollowers } from "./audio"
 import { TEXTURE_WIDTH } from "./audioAnalysis"
-import { docLiterals, paramSlot, paramTextures, previewClip, usesClipMask } from "./bindings"
+import { docLiterals, paramSlot, structureKey, paramTextures, previewClip, usesClipMask } from "./bindings"
 import type { MediaItem } from "./media"
 import { DriftRenderer, type FrameInput, type SourceSlot, type UniformValue } from "./renderer"
 import { PreviewSources } from "./sources"
@@ -14,7 +14,7 @@ export const ASPECTS: Record<Aspect, number> = { "16:9": 16 / 9, "9:16": 9 / 16,
 
 export interface EngineStatus {
   playing: boolean
-  /** effects: seconds; transitions: 0..1 progress */
+  /** effects: seconds; transitions and animations: 0..1 progress */
   position: number
   duration: number
   fps: number
@@ -34,17 +34,6 @@ const THUMB_W = 132
 const PRE_HOLD = 0.5
 const POST_HOLD = 0.7
 const SNAPSHOT_JPEG_QUALITY = 0.75
-
-/** Everything about a document that changes the generated shader; literal values don't. */
-export function structureKey(doc: ForgeDoc): string {
-  return JSON.stringify([
-    doc.kind,
-    doc.nodes.map((n) => [n.id, n.type, n.data, Object.entries(n.inputs).filter(([, v]) => isParamRef(v))]),
-    doc.edges.map((e) => [e.from, e.fromSocket, e.to, e.toSocket]),
-    doc.params.map((p) => [p.identifier, p.type, !!p.alpha]),
-    doc.assets.map((a) => a.id),
-  ])
-}
 
 /**
  * Drives the live preview: one hidden WebGL2 context renders the main view and every node
@@ -74,6 +63,8 @@ export class PreviewEngine {
   private progress = 0
   loopLength = 4
   private durationValue = 1.5
+  /** animations: 0 plays in, 1 plays out */
+  direction: 0 | 1 = 0
   private lastTs = 0
   private raf = 0
   private frames = 0
@@ -127,6 +118,10 @@ export class PreviewEngine {
 
   setTransitionDuration(seconds: number) {
     this.durationValue = seconds
+  }
+
+  setDirection(d: 0 | 1) {
+    this.direction = d
   }
 
   setMainCanvas(c: HTMLCanvasElement | null) {
@@ -228,7 +223,7 @@ export class PreviewEngine {
 
   /** effects: seconds; transitions: progress 0..1 */
   seek(position: number) {
-    if (this.doc?.kind === "transition") {
+    if (this.doc && this.doc.kind !== "effect") {
       this.progress = position
       this.clock = PRE_HOLD + position * this.durationValue
     } else {
@@ -251,12 +246,13 @@ export class PreviewEngine {
     const doc = this.doc
     if (!doc) return
 
-    const time = doc.kind === "transition" ? this.advanceTransition(dt) : this.advanceEffect(dt)
+    const time = doc.kind !== "effect" ? this.advanceTransition(dt) : this.advanceEffect(dt)
     const [w, h] = this.frameSize()
     const mask = usesClipMask(doc)
     this.sources.draw(doc, w, h, !!this.compiled?.usesDepth)
     const global = this.audio.analyse(ts / 1000)
     const engineValues = {
+      u_direction: this.direction,
       u_audioLevel: global.level,
       u_audioBass: global.bass,
       u_audioBeat: global.beat,
@@ -428,11 +424,11 @@ export class PreviewEngine {
     if (typeof f === "string") return f
     const effect = doc.kind === "effect"
     this.sources.drawClip(0, width, height)
-    if (!effect) this.sources.drawClip(1, width, height)
+    if (doc.kind === "transition") this.sources.drawClip(1, width, height)
     const frame = { ...f.base, width, height, time: effect ? doc.preview.thumbTime : 0, progress: effect ? 0 : 0.5 }
     const thumbnail = this.renderer.readPixels(f.compiled, frame, f.assetOf)
     if (typeof thumbnail === "string") return thumbnail
-    if (doc.kind !== "transition") return { thumbnail }
+    if (doc.kind === "effect") return { thumbnail }
     const strip = this.renderPackagePreview(doc)
     return typeof strip === "string" ? strip : { thumbnail, strip }
   }
@@ -451,7 +447,7 @@ export class PreviewEngine {
     const s = 128
     const strip = new ImageData(s * n, s)
     this.sources.drawClip(0, s, s)
-    this.sources.drawClip(1, s, s)
+    if (doc.kind === "transition") this.sources.drawClip(1, s, s)
     for (let i = 0; i < n; i++) {
       const img = this.renderer.readPixels(compiled, { ...base, width: s, height: s, time: 0, progress: i / (n - 1) }, assetOf)
       if (typeof img === "string") return img

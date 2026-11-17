@@ -9,7 +9,8 @@
     "typecheck": "tsc -p .",
     "test": "vitest run",
     "lint": "oxlint src scripts",
-    "check-shaders": "vite-node scripts/check-shaders.ts"
+    "check-shaders": "vite-node scripts/check-shaders.ts",
+    "native-fixtures": "vite-node scripts/make-native-fixtures.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.5.0",

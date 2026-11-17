@@ -8,7 +8,7 @@ import { createSyncedEntry } from "@/services/cloud"
 import { toast } from "@/shared/ui/toast"
 import { freshCopy } from "./Home"
 
-const KINDS: readonly string[] = ["effect", "transition", "audio"]
+const KINDS: readonly string[] = ["effect", "transition", "animation", "audio"]
 
 export function NewDocument() {
   const navigate = useNavigate()

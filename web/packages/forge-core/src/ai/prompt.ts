@@ -6,6 +6,8 @@ const GRAPH_SHAPE: Record<Exclude<Kind, "audio">, string> = {
   effect: "Effects start from the Video block (the clip) and end at Output.",
   transition:
     "Transitions use From (old clip), To (new clip) and Progress (0→1) and end at Output. A Mix between From and To driven by a mask (wipe_mask, iris_mask, reveal, dissolve_mask, grid_cells → reveal…) is the usual shape. Transitions must never use Time.",
+  animation:
+    "Animations play on one clip at its start (in) or end (out): they use Video (the clip) and Progress (0→1, in time order) and end at Output. The Direction block's Settled output is 1 when the clip is fully shown whichever way it plays, so drive opacity, offsets and mask progress from Settled to get both in and out. A mask (wipe_mask, iris_mask, reveal…) into set_alpha is the usual reveal. Animations must never use Time.",
 }
 
 /**

@@ -24,11 +24,11 @@ export function PreviewImage({ doc, png }: { doc: ForgeDoc; png: Uint8Array | nu
   return (
     <div className="export-preview">
       {url ? (
-        <img src={url} alt="Preview Drift will show" className={doc.kind === "transition" ? "strip" : "thumb"} />
+        <img src={url} alt="Preview Drift will show" className={doc.kind !== "effect" ? "strip" : "thumb"} />
       ) : (
         <div className="skeleton thumb" />
       )}
-      <div className="meta small">{doc.kind === "effect" ? <ThumbnailPicker doc={doc} /> : "Preview strip Drift scrubs when you hover the transition."}</div>
+      <div className="meta small">{doc.kind === "effect" ? <ThumbnailPicker doc={doc} /> : `Preview strip Drift scrubs when you hover the ${doc.kind}.`}</div>
     </div>
   )
 }

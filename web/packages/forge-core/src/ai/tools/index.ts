@@ -19,9 +19,10 @@ const WRONG_KIND: Record<Kind, string> = {
   audio: "This is an audio effect: build it with the pedal tools (list_pedals, view_rack, add_pedal…).",
   effect: "These tools are for audio effects; this is a video document, built with blocks.",
   transition: "These tools are for audio effects; this is a video document, built with blocks.",
+  animation: "These tools are for audio effects; this is a video document, built with blocks.",
 }
 
-const VIEW: Record<Kind, (doc: ForgeDoc) => string> = { effect: viewBlocks, transition: viewBlocks, audio: viewRack }
+const VIEW: Record<Kind, (doc: ForgeDoc) => string> = { effect: viewBlocks, transition: viewBlocks, animation: viewBlocks, audio: viewRack }
 
 export const viewGraph = (doc: ForgeDoc) => VIEW[doc.kind](doc)
 

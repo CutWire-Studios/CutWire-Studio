@@ -82,7 +82,7 @@ export interface AgentOptions {
 }
 
 /** What the model is shown the document as, in the first message of a run. */
-const DOC_NOUN: Record<Kind, string> = { effect: "graph", transition: "graph", audio: "board" }
+const DOC_NOUN: Record<Kind, string> = { effect: "graph", transition: "graph", animation: "graph", audio: "board" }
 
 /** How a waiting turn reads in the plain-text history the model sees next time. */
 export function pendingAsText(p: Pending): string {

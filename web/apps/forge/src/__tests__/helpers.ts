@@ -5,7 +5,7 @@ import { createNode, outputType } from "@cutwire/forge-core/nodes/registry"
 /** A straight chain: source → types… → output, each linked through its first colour input. */
 export function chain(kind: Kind, types: string[]): ForgeDoc {
   const doc = emptyDoc(kind)
-  const src = createNode(kind === "effect" ? "video" : "from", 0, 0)
+  const src = createNode(kind === "transition" ? "from" : "video", 0, 0)
   doc.nodes.push(src)
   let prev = src.id
   for (const t of types) {

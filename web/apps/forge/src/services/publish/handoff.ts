@@ -19,7 +19,10 @@ export interface PublishHandoff {
   source: "forge"
 }
 
-export const communityKind = (k: Kind): CommunityKind => (k === "audio" ? "audio-effect" : k)
+export function communityKind(k: Kind): CommunityKind {
+  if (k === "animation") throw new Error("The community can't host animations yet.")
+  return k === "audio" ? "audio-effect" : k
+}
 
 export function buildHandoff(input: {
   kind: Kind

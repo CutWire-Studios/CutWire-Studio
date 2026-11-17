@@ -77,7 +77,7 @@ export function assemble(
 function passInput(kind: Kind, s: TexRef, physOf: Map<string, string>, texId: (assetId: string) => string): PassInput {
   switch (s.kind) {
     case "source":
-      return kind === "transition" ? { type: "source_texture", index: s.index } : { type: "source_texture" }
+      return kind !== "effect" ? { type: "source_texture", index: s.index } : { type: "source_texture" }
     case "buffer":
       return { type: "buffer", id: physOf.get(s.sym)! }
     case "asset":
