@@ -15,7 +15,7 @@ public sealed class SmtpEmailSender(IOptions<EmailOptions> options) : IEmailSend
         await client.ConnectAsync(smtp.Host!, smtp.Port,
             smtp.Port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls, ct);
         if (!string.IsNullOrEmpty(smtp.User)) await client.AuthenticateAsync(smtp.User, smtp.Password ?? "", ct);
-        await client.SendAsync(MimeFactory.Create(smtp.From, message), ct);
+        await client.SendAsync(new MailKit.SendRequest(MimeFactory.Create(smtp.From, message)), ct);
         await client.DisconnectAsync(true, ct);
     }
 }

@@ -62,6 +62,23 @@ export function minAppVersion(doc: ForgeDoc, compiled: CompileResult): string {
   return features.length > 0 ? NEXT_APP_VERSION : MIN_APP_VERSION
 }
 
+function kindFields(doc: ForgeDoc): Record<string, unknown> {
+  if (doc.kind === "effect") return { backend: "gpu" }
+  if (doc.kind === "transition") return { audioCurve: "crossfade" }
+  return {
+    directions: doc.meta.directions?.length ? doc.meta.directions : ["in", "out"],
+    defaultDurationMs: doc.meta.defaultDurationMs ?? 500,
+  }
+}
+
+function requiredInputs(compiled: CompileResult): string[] {
+  const requires: string[] = []
+  if (compiled.usesMask) requires.push("mask")
+  if (compiled.usesDepth) requires.push("depth")
+  if (compiled.usesFace) requires.push("face")
+  return requires
+}
+
 /** effect.json / transition.json in the shape Drift's GpuPackageParse reads. */
 export function packageJson(doc: ForgeDoc, compiled: CompileResult): Record<string, unknown> {
   if (doc.kind === "audio") return audioPackageJson(doc)
@@ -83,16 +100,8 @@ export function packageJson(doc: ForgeDoc, compiled: CompileResult): Record<stri
     order: 1000,
   }
   if (doc.meta.description) json.description = doc.meta.description
-  if (doc.kind === "effect") json.backend = "gpu"
-  else if (doc.kind === "transition") json.audioCurve = "crossfade"
-  else {
-    json.directions = doc.meta.directions?.length ? doc.meta.directions : ["in", "out"]
-    json.defaultDurationMs = doc.meta.defaultDurationMs ?? 500
-  }
-  const requires: string[] = []
-  if (compiled.usesMask) requires.push("mask")
-  if (compiled.usesDepth) requires.push("depth")
-  if (compiled.usesFace) requires.push("face")
+  Object.assign(json, kindFields(doc))
+  const requires = requiredInputs(compiled)
   if (requires.length) json.requires = requires.length === 1 ? requires[0] : requires
   json.parameters = doc.params.map((p) => paramEntry(doc, p))
   json.pipeline = pipeline
