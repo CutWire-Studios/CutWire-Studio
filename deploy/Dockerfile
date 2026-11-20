@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 RUN pnpm -r build
 
 # dotnet/sdk:10.0
-FROM mcr.microsoft.com/dotnet/sdk:11.0@sha256:65f3c7c6a25a239ab3e6719f2896147e7b68242ff2d8818dd70498bde6ef8bea AS backend
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:bef136a371963aaa46ec97882845ef6f54dec15728bb4b128b1c2a400ffbc9b4 AS backend
 WORKDIR /src/backend
 COPY backend/global.json backend/Directory.Build.props backend/Directory.Packages.props backend/CutWire.Studio.slnx ./
 COPY backend/src/CutWire.Studio.Domain/*.csproj backend/src/CutWire.Studio.Domain/packages.lock.json src/CutWire.Studio.Domain/
@@ -31,7 +31,7 @@ COPY --from=web /src/web/dist /src/web/dist
 RUN dotnet publish src/CutWire.Studio.Api -c Release -r linux-x64 --no-restore -o /out
 
 # dotnet/runtime-deps:10.0
-FROM mcr.microsoft.com/dotnet/runtime-deps:11.0@sha256:6d3e208d8f5ba599ad9e80c615b5c1a2e355fd903f585cb07342dde29441675a AS runtime
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0@sha256:fabe6d8f15c430642a1f92ba0b8d58ff81370cd34c39a182164ad13ba136d38f AS runtime
 
 # Pinned deliberately: an extractor update can change behaviour, and that should
 # be a decision rather than a surprise on the next rebuild.
