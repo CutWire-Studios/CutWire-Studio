@@ -24,7 +24,7 @@
     "@cutwire/forge-core": "workspace:*",
     "@cutwire/ui": "workspace:*",
     "@lezer/highlight": "^1.2.5",
-    "@xyflow/react": "^12.12.1",
+    "@xyflow/react": "^13.0.2",
     "codemirror": "^6.0.2",
     "fflate": "^0.8.3",
     "idb-keyval": "^6.3.0",
