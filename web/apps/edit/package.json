@@ -15,7 +15,7 @@
     "@cutwire/ui": "workspace:*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "lucide-react": "^1.73.0"
+    "lucide-react": "^1.76.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
@@ -25,6 +25,6 @@
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
